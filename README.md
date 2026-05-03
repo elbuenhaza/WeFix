@@ -1,2 +1,0 @@
-# WeFix
-App for wifix
