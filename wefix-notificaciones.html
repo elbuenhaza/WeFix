@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Notificaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:    #f4f4f6;
+      --brand: #123853;
+      --accent:#f87171;
+      --white: #ffffff;
+      --border:#dde1e7;
+      --text:  #1a1a2e;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 500px; margin: 0 auto; min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .wf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .wf-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--brand); text-decoration: none;
+    }
+    .wf-logo-icon {
+      width: 32px; height: 32px;
+      border: 2px solid var(--brand); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--brand);
+    }
+    .wf-nav-icons { display: flex; gap: 14px; }
+    .wf-nav-icon {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; color: var(--muted); font-size: 9px;
+      background: none; border: none; font-family: 'Poppins', sans-serif;
+      position: relative; text-decoration: none;
+    }
+    .wf-nav-icon svg { width: 20px; height: 20px; }
+    .wf-nav-icon:hover { color: var(--brand); }
+    .wf-nav-icon.active { color: var(--brand); }
+    .wf-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent); color: var(--white);
+      border-radius: 50%; width: 14px; height: 14px;
+      font-size: 8px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── PAGE HEADER ── */
+    .wf-page-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 16px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .wf-notif-icon-wrap {
+      background: var(--brand);
+      border-radius: 14px;
+      width: 52px; height: 52px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wf-notif-icon-wrap svg { width: 28px; height: 28px; color: var(--white); }
+    .wf-page-header-text { flex: 1; }
+    .wf-page-title {
+      font-size: 13px; font-weight: 600; letter-spacing: 1px;
+      color: var(--brand); text-transform: uppercase; margin-bottom: 6px;
+    }
+    .wf-page-desc {
+      font-size: 12px; color: var(--muted); line-height: 1.5;
+    }
+    .wf-page-desc strong { color: var(--brand); font-weight: 600; }
+
+    /* ── FILTER TABS ── */
+    .wf-tabs {
+      display: flex; gap: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .wf-tabs::-webkit-scrollbar { display: none; }
+    .wf-tab {
+      padding: 10px 16px; font-size: 12px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap; background: none; border-top: none;
+      border-left: none; border-right: none;
+      font-family: 'Poppins', sans-serif;
+      transition: color .18s, border-color .18s;
+    }
+    .wf-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    .wf-tab:hover  { color: var(--brand); }
+
+    /* ── MARK ALL ── */
+    .wf-mark-all {
+      display: flex; justify-content: flex-end;
+      padding: 10px 16px 4px;
+    }
+    .wf-mark-btn {
+      background: none; border: none;
+      font-size: 11px; font-weight: 500;
+      color: var(--accent); cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: underline;
+    }
+
+    /* ── NOTIFICATION LIST ── */
+    .wf-notif-list { padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 10px; }
+
+    .wf-notif-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--white);
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .18s, box-shadow .18s, transform .15s;
+      position: relative;
+      animation: slideIn .25s ease both;
+    }
+    .wf-notif-item:hover {
+      border-color: var(--brand);
+      box-shadow: 0 4px 14px rgba(18,56,83,.12);
+      transform: translateY(-1px);
+    }
+    .wf-notif-item.unread { border-left: 3px solid var(--brand); }
+    .wf-notif-item.read   { opacity: .75; }
+
+    @keyframes slideIn {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .wf-notif-avatar {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600; color: var(--white);
+      position: relative;
+    }
+    .wf-notif-avatar .dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 11px; height: 11px; border-radius: 50%;
+      background: #22c55e; border: 2px solid var(--white);
+    }
+
+    .wf-notif-body { flex: 1; min-width: 0; }
+    .wf-notif-bubble {
+      background: var(--brand);
+      border-radius: 0 12px 12px 12px;
+      padding: 10px 12px;
+      position: relative;
+    }
+    .wf-notif-bubble::before {
+      content: '';
+      position: absolute; top: 0; left: -6px;
+      border-width: 0 6px 8px 0;
+      border-style: solid;
+      border-color: transparent var(--brand) transparent transparent;
+    }
+    .wf-notif-sender {
+      font-size: 10px; font-weight: 600;
+      color: var(--accent); margin-bottom: 3px;
+    }
+    .wf-notif-msg {
+      font-size: 12px; font-weight: 500; color: var(--white);
+      line-height: 1.4; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .wf-notif-time {
+      font-size: 9px; color: rgba(255,255,255,.6);
+      text-align: right; margin-top: 4px;
+    }
+
+    .wf-notif-actions {
+      display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+    }
+    .wf-notif-action-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 10px; color: var(--muted); cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      white-space: nowrap;
+      transition: background .15s, border .15s, color .15s;
+    }
+    .wf-notif-action-btn:hover { background: var(--brand); color: var(--white); border-color: var(--brand); }
+    .wf-notif-action-btn.primary {
+      background: var(--brand); color: var(--white); border-color: var(--brand);
+    }
+    .wf-notif-action-btn.primary:hover { background: #1a4f72; }
+
+    /* ── EMPTY STATE ── */
+    .wf-empty {
+      display: none; text-align: center;
+      padding: 48px 16px; color: var(--muted);
+    }
+    .wf-empty svg { width: 48px; height: 48px; color: var(--border); margin-bottom: 12px; }
+    .wf-empty p { font-size: 14px; }
+
+    /* ── TYPE ICON IN BUBBLE ── */
+    .wf-type-dot {
+      display: inline-block; width: 7px; height: 7px;
+      border-radius: 50%; margin-right: 4px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="wefix-home.html">
+    <div class="wf-logo-icon">W</div>
+    WeFix
+  </a>
+  <div class="wf-nav-icons">
+    <a class="wf-nav-icon" href="wefix-home.html" title="Favoritos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+      Favoritos
+    </a>
+    <a class="wf-nav-icon active" href="wefix-notificaciones.html" title="Notificaciones">
+      <div class="wf-badge" id="navBadge">4</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Notificaciones
+    </a>
+    <a class="wf-nav-icon" href="wefix-home.html" title="Búsqueda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      Búsqueda
+    </a>
+    <a class="wf-nav-icon" href="wefix-home.html" title="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="wf-page-header">
+  <div class="wf-notif-icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  </div>
+  <div class="wf-page-header-text">
+    <div class="wf-page-title">Notificaciones</div>
+    <div class="wf-page-desc">
+      Modo <strong>"Favoritos"</strong> con recordatorios automáticos para servicios recurrentes.
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="wf-tabs">
+  <button class="wf-tab active" data-tab="todas">Todas</button>
+  <button class="wf-tab" data-tab="mensajes">Mensajes</button>
+  <button class="wf-tab" data-tab="servicios">Servicios</button>
+  <button class="wf-tab" data-tab="recordatorios">Recordatorios</button>
+  <button class="wf-tab" data-tab="sistema">Sistema</button>
+</div>
+
+<!-- MARK ALL -->
+<div class="wf-mark-all">
+  <button class="wf-mark-btn" id="markAllBtn">Marcar todas como leídas</button>
+</div>
+
+<!-- LIST -->
+<div class="wf-notif-list" id="notifList"></div>
+<div class="wf-empty" id="emptyState">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+  </svg>
+  <p>No hay notificaciones en esta categoría.</p>
+</div>
+
+<script>
+const notifications = [
+  {
+    id: 1, tab: "mensajes", unread: true,
+    sender: "Jose Torres", initials: "JT",
+    msg: "Hola buenos días, ya estoy fuera de su casa",
+    time: "Hace 5 min", online: true,
+    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
+  },
+  {
+    id: 2, tab: "servicios", unread: true,
+    sender: "WeFix", initials: "W",
+    msg: "Tu servicio de limpieza ha sido confirmado para mañana a las 10am",
+    time: "Hace 24 horas", online: false,
+    actions: [{ label:"Ver detalle", primary: true }, { label:"Cancelar" }]
+  },
+  {
+    id: 3, tab: "mensajes", unread: true,
+    sender: "Margarita Flores", initials: "MF",
+    msg: "Buenos días, confirmo que llegaré puntual a las 9am",
+    time: "Hace 1 mes", online: true,
+    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
+  },
+  {
+    id: 4, tab: "recordatorios", unread: true,
+    sender: "WeFix Recordatorio", initials: "W",
+    msg: "Recuerda que tienes un servicio de jardinería agendado para el viernes",
+    time: "Hace 2 meses", online: false,
+    actions: [{ label:"Ver agenda", primary: true }, { label:"Descartar" }]
+  },
+  {
+    id: 5, tab: "sistema", unread: false,
+    sender: "WeFix Sistema", initials: "W",
+    msg: "Tu perfil ha sido verificado exitosamente. ¡Bienvenido a WeFix Premium!",
+    time: "Hace 3 meses", online: false,
+    actions: [{ label:"Ver perfil", primary: true }]
+  },
+  {
+    id: 6, tab: "mensajes", unread: false,
+    sender: "Pedro Morales", initials: "PM",
+    msg: "Hola, ¿te gustaría agendar la cena de esta semana? Tengo disponibilidad el sábado.",
+    time: "Hace 3 meses", online: false,
+    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
+  },
+  {
+    id: 7, tab: "servicios", unread: false,
+    sender: "WeFix", initials: "W",
+    msg: "Tu pago de $350 MXN a Jose Torres fue procesado correctamente.",
+    time: "Hace 4 meses", online: false,
+    actions: [{ label:"Ver recibo", primary: true }]
+  },
+];
+
+let activeTab  = "todas";
+let localNotifs = notifications.map(n => ({ ...n }));
+
+function cardHTML(n, delay) {
+  const actionsHTML = n.actions.map(a =>
+    `<button class="wf-notif-action-btn ${a.primary?'primary':''}" onclick="handleAction(${n.id},'${a.label}')">${a.label}</button>`
+  ).join('');
+  return `
+    <div class="wf-notif-item ${n.unread?'unread':'read'}" style="animation-delay:${delay}ms" data-id="${n.id}" onclick="markRead(${n.id})">
+      <div class="wf-notif-avatar">
+        ${n.initials}
+        ${n.online ? '<div class="dot"></div>' : ''}
+      </div>
+      <div class="wf-notif-body">
+        <div class="wf-notif-bubble">
+          <div class="wf-notif-sender">
+            ${n.unread ? '<span class="wf-type-dot" style="background:#f87171"></span>' : ''}
+            ${n.sender}
+          </div>
+          <div class="wf-notif-msg">${n.msg}</div>
+          <div class="wf-notif-time">${n.time}</div>
+        </div>
+      </div>
+      <div class="wf-notif-actions">${actionsHTML}</div>
+    </div>`;
+}
+
+function render() {
+  const filtered = activeTab === "todas"
+    ? localNotifs
+    : localNotifs.filter(n => n.tab === activeTab);
+
+  const list  = document.getElementById('notifList');
+  const empty = document.getElementById('emptyState');
+
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    list.innerHTML = filtered.map((n, i) => cardHTML(n, i * 60)).join('');
+  }
+
+  // update nav badge
+  const unreadCount = localNotifs.filter(n => n.unread).length;
+  const badge = document.getElementById('navBadge');
+  badge.textContent  = unreadCount;
+  badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+}
+
+function markRead(id) {
+  const n = localNotifs.find(n => n.id === id);
+  if (n) { n.unread = false; render(); }
+}
+
+function handleAction(id, label) {
+  if (label === 'Ver perfil') {
+    window.location.href = `wefix-perfil.html?id=${id}`;
+  } else if (label === 'Responder') {
+    alert('Función de mensajería próximamente 💬');
+  } else if (label === 'Cancelar' || label === 'Descartar') {
+    localNotifs = localNotifs.filter(n => n.id !== id);
+    render();
+  } else {
+    alert(`"${label}" — funcionalidad próximamente.`);
+  }
+}
+
+// TABS
+document.querySelectorAll('.wf-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.wf-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTab = tab.dataset.tab;
+    render();
+  });
+});
+
+// MARK ALL
+document.getElementById('markAllBtn').addEventListener('click', () => {
+  localNotifs.forEach(n => n.unread = false);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

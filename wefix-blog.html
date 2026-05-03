@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Blog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #f4f4f6;
+      --brand:  #123853;
+      --accent: #f87171;
+      --white:  #ffffff;
+      --border: #dde1e7;
+      --text:   #1a1a2e;
+      --muted:  #6b7280;
+      --onyx-a: #fbbf24;
+      --onyx-b: #f97316;
+      --onyx-c: #ea580c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 500px; margin: 0 auto; min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .wf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .wf-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Raleway', sans-serif; font-size: 20px; font-weight: 700;
+      color: var(--brand); text-decoration: none;
+    }
+    .wf-logo-icon {
+      width: 32px; height: 32px; border: 2px solid var(--brand); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--brand);
+    }
+    .wf-nav-icons { display: flex; gap: 14px; }
+    .wf-nav-icon {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: var(--muted); font-size: 9px; background: none; border: none;
+      font-family: 'Poppins', sans-serif; text-decoration: none; position: relative; cursor: pointer;
+    }
+    .wf-nav-icon svg { width: 20px; height: 20px; }
+    .wf-nav-icon:hover { color: var(--brand); }
+    .wf-nav-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent); color: var(--white);
+      border-radius: 50%; width: 14px; height: 14px;
+      font-size: 8px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── HERO ── */
+    .wf-blog-hero {
+      background: var(--brand); padding: 28px 20px 26px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .wf-blog-hero::before {
+      content: ''; position: absolute; right: -30px; top: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+    .wf-blog-hero::after {
+      content: ''; position: absolute; left: -20px; bottom: -20px;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(248,113,113,.07);
+    }
+    .wf-blog-hero h1 {
+      font-family: 'Raleway', sans-serif;
+      font-size: 24px; font-weight: 800; color: var(--white);
+      margin-bottom: 6px; position: relative; z-index: 1;
+    }
+    .wf-blog-hero h1 span { color: var(--accent); }
+    .wf-blog-hero p {
+      font-size: 12px; color: rgba(255,255,255,.6);
+      line-height: 1.5; position: relative; z-index: 1;
+    }
+
+    /* ── SEARCH ── */
+    .wf-search-wrap { padding: 14px 16px 0; }
+    .wf-search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 10px 14px; transition: border .2s;
+    }
+    .wf-search-box:focus-within { border-color: var(--brand); }
+    .wf-search-box svg { width: 17px; height: 17px; color: var(--muted); flex-shrink: 0; }
+    .wf-search-box input {
+      border: none; outline: none; font-family: 'Poppins', sans-serif;
+      font-size: 13px; color: var(--text); background: transparent; width: 100%;
+    }
+    .wf-search-box input::placeholder { color: #bbb; }
+
+    /* ── CHIPS ── */
+    .wf-chips-wrap { padding: 12px 0 12px 16px; overflow-x: auto; scrollbar-width: none; }
+    .wf-chips-wrap::-webkit-scrollbar { display: none; }
+    .wf-chips { display: flex; gap: 8px; width: max-content; padding-right: 16px; }
+    .wf-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 24px; padding: 5px 14px;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+      cursor: pointer; white-space: nowrap; font-family: 'Poppins', sans-serif;
+      transition: background .15s, color .15s, border .15s;
+    }
+    .wf-chip.active, .wf-chip:hover { background: var(--brand); color: var(--white); border-color: var(--brand); }
+
+    /* ── SECTION TITLE ── */
+    .wf-section-title {
+      padding: 18px 16px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .wf-section-title h2 { font-size: 15px; font-weight: 600; color: var(--text); }
+
+    /* ── FEATURED ── */
+    .wf-featured-wrap { padding: 0 16px 4px; }
+    .wf-featured-card {
+      border-radius: 18px; background: var(--brand);
+      box-shadow: 0 4px 18px rgba(18,56,83,.15);
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      display: block; text-decoration: none; overflow: hidden;
+    }
+    .wf-featured-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(18,56,83,.2); }
+    .wf-featured-img {
+      width: 100%; height: 160px; background: #1a4f72;
+      display: flex; align-items: center; justify-content: center; font-size: 64px;
+    }
+    .wf-featured-body { padding: 16px; }
+    .wf-featured-tag {
+      display: inline-block; background: rgba(248,113,113,.2);
+      border: 1px solid rgba(248,113,113,.3); border-radius: 20px;
+      padding: 2px 10px; font-size: 10px; font-weight: 600;
+      color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .wf-featured-title { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 6px; line-height: 1.3; }
+    .wf-featured-desc  { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.5; margin-bottom: 12px; }
+    .wf-featured-footer { display: flex; align-items: center; justify-content: space-between; }
+    .wf-author { display: flex; align-items: center; gap: 8px; }
+    .wf-author-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--white);
+    }
+    .wf-author-name { font-size: 11px; color: rgba(255,255,255,.7); }
+    .wf-read-time   { font-size: 10px; color: rgba(255,255,255,.45); }
+
+    /* ── GRID ── */
+    .wf-grid { padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .wf-blog-card {
+      background: var(--brand); border-radius: 14px; overflow: hidden;
+      cursor: pointer; box-shadow: 0 2px 10px rgba(18,56,83,.1);
+      transition: transform .18s, box-shadow .18s;
+      display: flex; flex-direction: column; position: relative;
+    }
+    .wf-blog-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(18,56,83,.18); }
+    .wf-blog-card-img {
+      height: 80px; display: flex; align-items: center;
+      justify-content: center; font-size: 36px; background: #1a4f72;
+    }
+    .wf-blog-card-body { padding: 10px; flex: 1; display: flex; flex-direction: column; }
+    .wf-blog-card-tag  { font-size: 9px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .wf-blog-card-title { font-size: 12px; font-weight: 600; color: var(--white); line-height: 1.35; margin-bottom: 6px; flex: 1; }
+    .wf-blog-card-author { font-size: 10px; color: rgba(255,255,255,.5); }
+    .wf-fire-badge { position: absolute; top: 8px; right: 8px; font-size: 16px; animation: fireFloat 2s ease-in-out infinite; }
+    @keyframes fireFloat {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-4px) scale(1.12); }
+    }
+
+    /* ── DIVIDER ── */
+    .wf-divider { height: 1px; background: var(--border); margin: 24px 16px 0; }
+
+    /* ── ONYX SECTION ── */
+    .wf-onyx-section { padding: 20px 16px 32px; }
+    .wf-onyx-header {
+      background: linear-gradient(135deg, #fbbf24 0%, #f97316 55%, #ea580c 100%);
+      border-radius: 18px 18px 0 0; padding: 18px 18px 16px;
+      display: flex; align-items: center; gap: 12px;
+      position: relative; overflow: hidden;
+    }
+    .wf-onyx-header::before {
+      content: '◆'; position: absolute; right: 10px; top: -10px;
+      font-size: 70px; color: rgba(255,255,255,.08); font-family: sans-serif;
+    }
+    .wf-onyx-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .wf-onyx-header-text .title {
+      font-family: 'Raleway', sans-serif; font-size: 17px; font-weight: 800; color: var(--white);
+    }
+    .wf-onyx-header-text .sub { font-size: 11px; color: rgba(255,255,255,.7); margin-top: 1px; }
+    .wf-onyx-lock-banner {
+      background: rgba(249,115,22,.12); border: 1px solid rgba(249,115,22,.25);
+      border-radius: 0 0 14px 14px; padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .wf-onyx-lock-banner p { font-size: 11px; color: var(--text); line-height: 1.4; flex: 1; }
+    .wf-onyx-lock-banner strong { color: var(--onyx-c); }
+    .wf-onyx-upgrade-btn {
+      background: linear-gradient(90deg, var(--onyx-a), var(--onyx-b));
+      color: var(--white); border: none; border-radius: 20px; padding: 7px 14px;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      font-family: 'Poppins', sans-serif; white-space: nowrap; margin-left: 10px;
+      box-shadow: 0 2px 8px rgba(249,115,22,.3); transition: opacity .15s;
+    }
+    .wf-onyx-upgrade-btn:hover { opacity: .88; }
+
+    /* Onyx cards */
+    .wf-onyx-grid { display: flex; flex-direction: column; gap: 10px; }
+    .wf-onyx-card {
+      border-radius: 14px; overflow: hidden; background: var(--white);
+      border: 1.5px solid var(--border); box-shadow: 0 2px 10px rgba(18,56,83,.07);
+      display: flex; cursor: pointer; position: relative;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+    }
+    .wf-onyx-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(249,115,22,.18); border-color: var(--onyx-b); }
+    .wf-onyx-card-stripe { width: 5px; flex-shrink: 0; background: linear-gradient(180deg, var(--onyx-a), var(--onyx-c)); }
+    .wf-onyx-card-body  { padding: 12px 14px; flex: 1; min-width: 0; }
+    .wf-onyx-card-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: linear-gradient(90deg, #fef3c7, #fed7aa);
+      color: var(--onyx-c); border-radius: 20px; padding: 2px 8px;
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .4px; margin-bottom: 6px;
+    }
+    .wf-onyx-card-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 4px; }
+    .wf-onyx-card-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .wf-onyx-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .wf-onyx-card-author { font-size: 10px; color: var(--muted); }
+    .wf-onyx-card-time   { font-size: 10px; color: var(--muted); }
+
+    /* Lock overlay */
+    .wf-lock-overlay {
+      position: absolute; inset: 0; background: rgba(255,255,255,.82);
+      backdrop-filter: blur(3px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; border-radius: 14px;
+    }
+    .wf-lock-overlay .lock-icon { font-size: 22px; }
+    .wf-lock-overlay p    { font-size: 11px; font-weight: 600; color: var(--brand); }
+    .wf-lock-overlay span { font-size: 10px; color: var(--onyx-b); font-weight: 500; }
+
+    /* ── NO RESULTS ── */
+    .wf-no-results { display: none; text-align: center; padding: 32px 16px; color: var(--muted); font-size: 13px; }
+
+    /* ── ARTICLE MODAL ── */
+    .wf-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 200; align-items: flex-end; justify-content: center;
+    }
+    .wf-modal-overlay.open { display: flex; }
+    .wf-modal {
+      background: var(--white); border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 500px; max-height: 85vh;
+      overflow-y: auto; padding: 24px 20px 36px;
+      animation: slideUp .3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .wf-modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 18px; }
+    .wf-modal-tag {
+      display: inline-block; background: #e8f0fb; color: var(--brand);
+      border-radius: 20px; padding: 3px 12px; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
+    }
+    .wf-modal-tag.onyx-tag { background: linear-gradient(90deg,#fef3c7,#fed7aa); color: var(--onyx-c); }
+    .wf-modal h2 { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 10px; }
+    .wf-modal-meta {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .wf-modal-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--white);
+    }
+    .wf-modal-author { font-size: 12px; font-weight: 500; color: var(--text); }
+    .wf-modal-date   { font-size: 11px; color: var(--muted); }
+    .wf-modal-content { font-size: 13px; color: #374151; line-height: 1.75; }
+    .wf-modal-content h3 { font-size: 14px; font-weight: 600; color: var(--brand); margin: 14px 0 6px; }
+    .wf-modal-content ul { padding-left: 18px; margin: 6px 0; }
+    .wf-modal-content li { margin-bottom: 4px; }
+    .wf-modal-close {
+      display: block; width: 100%; margin-top: 24px;
+      background: var(--brand); color: var(--white);
+      border: none; border-radius: 12px; padding: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="wefix-home.html">
+    <div class="wf-logo-icon">W</div>
+    WeFix
+  </a>
+  <div class="wf-nav-icons">
+    <a class="wf-nav-icon" href="wefix-favoritos.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+      Favoritos
+    </a>
+    <a class="wf-nav-icon" href="wefix-notificaciones.html" style="position:relative;">
+      <span class="wf-nav-badge">4</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Notificaciones
+    </a>
+    <a class="wf-nav-icon" href="wefix-home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      Búsqueda
+    </a>
+    <a class="wf-nav-icon" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="wf-blog-hero">
+  <h1>Bienvenido a <span>WeFix Blog</span></h1>
+  <p>Tips, consejos y guías de nuestros profesionales para cuidar tu hogar.</p>
+</div>
+
+<!-- SEARCH -->
+<div class="wf-search-wrap">
+  <div class="wf-search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar tips, artículos…"/>
+  </div>
+</div>
+
+<!-- CHIPS -->
+<div class="wf-chips-wrap">
+  <div class="wf-chips">
+    <button class="wf-chip active" data-cat="todos">🌟 Todos</button>
+    <button class="wf-chip" data-cat="jardineria">🌿 Jardinería</button>
+    <button class="wf-chip" data-cat="limpieza">🧹 Limpieza</button>
+    <button class="wf-chip" data-cat="cocina">🍳 Cocina</button>
+    <button class="wf-chip" data-cat="mascotas">🐾 Mascotas</button>
+    <button class="wf-chip" data-cat="hogar">🏠 Hogar</button>
+    <button class="wf-chip" data-cat="seguridad">🔒 Seguridad</button>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<div class="wf-section-title"><h2>🔥 Tendencia</h2></div>
+<div class="wf-featured-wrap" id="featuredWrap"></div>
+
+<!-- GRID -->
+<div class="wf-section-title" style="margin-top:16px;"><h2>📖 Artículos recientes</h2></div>
+<div class="wf-grid" id="blogGrid"></div>
+<div class="wf-no-results" id="noResults">No se encontraron artículos.</div>
+
+<!-- DIVIDER -->
+<div class="wf-divider"></div>
+
+<!-- ONYX SECTION -->
+<div class="wf-onyx-section">
+  <div class="wf-onyx-header">
+    <div class="wf-onyx-icon-wrap">💎</div>
+    <div class="wf-onyx-header-text">
+      <div class="title">WeFix Onyx — Blog Premium</div>
+      <div class="sub">Tips exclusivos de nuestros mejores especialistas</div>
+    </div>
+  </div>
+  <div class="wf-onyx-lock-banner">
+    <p>Accede a guías <strong>detalladas y exclusivas</strong> activando tu Membresía Onyx.</p>
+    <button class="wf-onyx-upgrade-btn" onclick="window.location.href='wefix-members.html'">Activar Onyx</button>
+  </div>
+  <div class="wf-onyx-grid" id="onyxGrid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="wf-modal-overlay" id="modalOverlay">
+  <div class="wf-modal">
+    <div class="wf-modal-handle"></div>
+    <div id="modalBody"></div>
+    <button class="wf-modal-close" onclick="closeModal()">Cerrar artículo</button>
+  </div>
+</div>
+
+<script>
+const freeArticles = [
+  {
+    id:1, cat:"jardineria", featured:true, hot:true,
+    emoji:"🌿", title:"Tips de jardinería para principiantes",
+    desc:"Todo lo que necesitas saber para tener un jardín lleno de vida desde cero.",
+    author:"Ana Méndez", authorInit:"AM", prof:"Jardinera Certificada", time:"5 min de lectura",
+    content:`<h3>🌱 Empieza con las plantas correctas</h3><p>Si eres principiante, opta por plantas resistentes como suculentas, pothos o helechos. Son fáciles de cuidar y perdonan los errores de riego.</p><h3>💧 El riego: ni mucho ni poco</h3><p>El error más común es regar de más. Antes de regar, introduce el dedo 2 cm en la tierra — si está húmeda, espera.</p><h3>☀️ La luz lo es todo</h3><ul><li>Plantas de sol directo: cactus, lavanda, romero</li><li>Luz indirecta: pothos, helechos, paz lily</li><li>Sombra: begonias, sansevieria</li></ul><h3>🌍 El sustrato correcto</h3><p>Usa tierra específica para el tipo de planta. Para suculentas mezcla tierra normal con arena gruesa 50/50.</p>`
+  },
+  {
+    id:2, cat:"hogar", featured:false, hot:false,
+    emoji:"🏡", title:"Tips de decoración para el hogar",
+    desc:"Pequeños cambios que transforman por completo cualquier espacio.",
+    author:"Fernanda Cruz", authorInit:"FC", prof:"Diseñadora de interiores", time:"4 min de lectura",
+    content:`<h3>🎨 Elige una paleta de 3 colores</h3><p>La regla 60-30-10: 60% color dominante (paredes), 30% secundario (muebles), 10% acento (cojines, cuadros).</p><h3>💡 La iluminación cambia todo</h3><p>Combina luz ambiental, de tarea y decorativa. Evita depender solo de luz blanca fría.</p><h3>🪴 Las plantas son decoración viva</h3><p>Una planta grande en un rincón vacío transforma el ambiente. Prueba con una monstera o palmera areca.</p>`
+  },
+  {
+    id:3, cat:"limpieza", featured:false, hot:true,
+    emoji:"🧹", title:"Cómo limpiar tu hogar en 30 minutos",
+    desc:"Rutina express para que tu casa esté siempre presentable.",
+    author:"Margarita Flores", authorInit:"MF", prof:"Especialista en limpieza", time:"3 min de lectura",
+    content:`<h3>⏱️ Divide y vencerás</h3><p>Asigna 5 minutos por cuarto. Cocina y baño primero — son los que más impacto visual tienen.</p><h3>🧽 Truco del bicarbonato</h3><p>Bicarbonato + vinagre blanco = limpiador multiusos casero. Ideal para azulejos y superficies con grasa.</p><h3>📦 Orden antes que limpieza</h3><p>Recoge y organiza primero. Limpiar sobre el desorden solo mueve suciedad de lugar.</p>`
+  },
+  {
+    id:4, cat:"cocina", featured:false, hot:false,
+    emoji:"🍳", title:"Organiza tu cocina como un chef",
+    desc:"Consejos de mise en place para cocinar más rápido y con menos estrés.",
+    author:"Pedro Morales", authorInit:"PM", prof:"Chef Privado", time:"6 min de lectura",
+    content:`<h3>🔪 Mise en place</h3><p>Antes de encender el fuego, ten todos los ingredientes lavados, pelados y cortados. Esto reduce tiempos a la mitad.</p><h3>🗄️ Organiza tu refrigerador por zonas</h3><ul><li>Superior: sobras y listos para comer</li><li>Medio: lácteos y huevos</li><li>Inferior: carnes crudas</li><li>Cajones: frutas y verduras separadas</li></ul>`
+  },
+  {
+    id:5, cat:"mascotas", featured:false, hot:false,
+    emoji:"🐾", title:"Cuidados básicos para tu mascota",
+    desc:"Lo que todo dueño debe saber para tener a su mascota feliz y saludable.",
+    author:"Sofía Ríos", authorInit:"SR", prof:"Cuidadora de mascotas", time:"4 min de lectura",
+    content:`<h3>🐕 Rutina diaria esencial</h3><p>Los perros necesitan al menos 30 minutos de ejercicio diario. Los gatos necesitan estimulación mental con juguetes interactivos.</p><h3>🥗 Alimentación correcta</h3><p>Consulta con tu veterinario la cantidad exacta según peso y edad. Evita darles comida humana.</p>`
+  },
+  {
+    id:6, cat:"seguridad", featured:false, hot:false,
+    emoji:"🔒", title:"Protege tu hogar de manera inteligente",
+    desc:"Medidas básicas y tecnológicas para que tu familia esté segura.",
+    author:"Jose Torres", authorInit:"JT", prof:"Especialista en seguridad", time:"5 min de lectura",
+    content:`<h3>🚪 Refuerza tus puntos de entrada</h3><p>El 70% de los robos ocurren por puertas y ventanas. Instala cerraduras de doble vuelta y sensores magnéticos.</p><h3>💡 La ilusión de presencia</h3><p>Temporizadores de luces y enchufes inteligentes simulan que hay alguien en casa.</p>`
+  },
+];
+
+const onyxArticles = [
+  {
+    id:101, cat:"jardineria", emoji:"🌺",
+    title:"Sistema de riego automático DIY por menos de $500",
+    desc:"Instala tu propio sistema de riego con materiales de ferretería. Guía paso a paso con esquemas detallados.",
+    author:"Tomás Espinoza", authorInit:"TE", prof:"Jardinero Master", time:"12 min", locked:false,
+    content:`<h3>🔧 Materiales necesarios</h3><ul><li>Manguera de goteo (5 metros)</li><li>Temporizador de riego ($180 MXN)</li><li>Conectores T y codos</li><li>Estacas de anclaje</li></ul><h3>📐 Diseño del sistema</h3><p>Calcula 1 gotero por planta. Presión ideal: 1.5 bar. Programa 15 minutos cada tercer día.</p><h3>⚙️ Instalación en 4 pasos</h3><p>1) Diseña el recorrido. 2) Conecta la manguera principal. 3) Instala los goteros. 4) Programa y prueba.</p>`
+  },
+  {
+    id:102, cat:"limpieza", emoji:"✨",
+    title:"Protocolo de limpieza profunda post-obra",
+    desc:"Los 8 pasos que usan los profesionales para dejar una casa como nueva después de remodelación.",
+    author:"Elena Castro", authorInit:"EC", prof:"Especialista en limpieza profunda", time:"15 min", locked:true,
+    content:`<p>Contenido exclusivo Onyx.</p>`
+  },
+  {
+    id:103, cat:"cocina", emoji:"👨‍🍳",
+    title:"Menú semanal saludable con presupuesto de $800",
+    desc:"Planificación completa de 7 días: desayuno, comida y cena equilibrada para toda la familia.",
+    author:"Fernanda Cruz", authorInit:"FC", prof:"Chef & Nutrióloga", time:"10 min", locked:true,
+    content:`<p>Contenido exclusivo Onyx.</p>`
+  },
+  {
+    id:104, cat:"hogar", emoji:"🏠",
+    title:"Guía de mantenimiento anual del hogar mes a mes",
+    desc:"Qué revisar y reparar cada mes para evitar costosos imprevistos a futuro. Checklist profesional incluido.",
+    author:"Roberto Núñez", authorInit:"RN", prof:"Técnico en mantenimiento", time:"8 min", locked:true,
+    content:`<p>Contenido exclusivo Onyx.</p>`
+  },
+  {
+    id:105, cat:"mascotas", emoji:"🐕",
+    title:"Guía completa de entrenamiento canino en casa",
+    desc:"Técnicas de refuerzo positivo usadas por entrenadores profesionales, adaptadas para el hogar.",
+    author:"Sofía Ríos", authorInit:"SR", prof:"Cuidadora & Entrenadora", time:"20 min", locked:true,
+    content:`<p>Contenido exclusivo Onyx.</p>`
+  },
+  {
+    id:106, cat:"seguridad", emoji:"🔐",
+    title:"Cómo instalar un sistema de seguridad inteligente sin gastar de más",
+    desc:"Compara las mejores opciones del mercado y aprende a instalarlas tú mismo paso a paso.",
+    author:"Jose Torres", authorInit:"JT", prof:"Especialista en seguridad", time:"18 min", locked:true,
+    content:`<p>Contenido exclusivo Onyx.</p>`
+  },
+];
+
+const hasOnyx = false;
+let activeFilter = "todos";
+let searchQ = "";
+
+function renderFeatured() {
+  const feat = freeArticles.find(a => a.featured);
+  if (!feat) return;
+  const show = activeFilter === "todos" || feat.cat === activeFilter;
+  const matchQ = !searchQ || feat.title.toLowerCase().includes(searchQ.toLowerCase());
+  const wrap = document.getElementById('featuredWrap');
+  wrap.style.display = (show && matchQ) ? '' : 'none';
+  wrap.innerHTML = (show && matchQ) ? `
+    <div class="wf-featured-card" onclick="openArticle(${feat.id},false)">
+      <div class="wf-featured-img">${feat.emoji}</div>
+      <div class="wf-featured-body">
+        <div class="wf-featured-tag">🔥 Trending</div>
+        <div class="wf-featured-title">${feat.title}</div>
+        <div class="wf-featured-desc">${feat.desc}</div>
+        <div class="wf-featured-footer">
+          <div class="wf-author">
+            <div class="wf-author-avatar">${feat.authorInit}</div>
+            <div class="wf-author-name">By ${feat.author}</div>
+          </div>
+          <div class="wf-read-time">${feat.time}</div>
+        </div>
+      </div>
+    </div>` : '';
+}
+
+function renderGrid() {
+  const q = searchQ.toLowerCase();
+  const filtered = freeArticles.filter(a => {
+    if (a.featured) return false;
+    return (activeFilter === "todos" || a.cat === activeFilter) &&
+           (!q || a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+  });
+  const grid  = document.getElementById('blogGrid');
+  const noRes = document.getElementById('noResults');
+  const featVisible = document.getElementById('featuredWrap').style.display !== 'none';
+  if (!filtered.length && !featVisible) {
+    grid.innerHTML = ''; noRes.style.display = 'block';
+  } else {
+    noRes.style.display = 'none';
+    grid.innerHTML = filtered.map((a,i) => `
+      <div class="wf-blog-card" style="animation-delay:${i*60}ms" onclick="openArticle(${a.id},false)">
+        <div class="wf-blog-card-img">${a.emoji}</div>
+        ${a.hot ? '<div class="wf-fire-badge">🔥</div>' : ''}
+        <div class="wf-blog-card-body">
+          <div class="wf-blog-card-tag">${a.cat}</div>
+          <div class="wf-blog-card-title">${a.title}</div>
+          <div class="wf-blog-card-author">By ${a.author} · ${a.time}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function renderOnyx() {
+  document.getElementById('onyxGrid').innerHTML = onyxArticles.map((a,i) => {
+    const isLocked = !hasOnyx && a.locked;
+    return `
+      <div class="wf-onyx-card" style="animation-delay:${i*70}ms"
+           onclick="${isLocked ? 'promptUpgrade()' : `openArticle(${a.id},true)`}">
+        <div class="wf-onyx-card-stripe"></div>
+        <div class="wf-onyx-card-body">
+          <div class="wf-onyx-card-tag">💎 Onyx Exclusivo</div>
+          <div class="wf-onyx-card-title">${a.emoji} ${a.title}</div>
+          <div class="wf-onyx-card-desc">${a.desc}</div>
+          <div class="wf-onyx-card-footer">
+            <span class="wf-onyx-card-author">By ${a.author}</span>
+            <span class="wf-onyx-card-time">${a.time} de lectura</span>
+          </div>
+        </div>
+        ${isLocked ? `
+        <div class="wf-lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <p>Contenido Onyx</p>
+          <span>Activa tu membresía</span>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function openArticle(id, isOnyx) {
+  const article = isOnyx ? onyxArticles.find(a => a.id===id) : freeArticles.find(a => a.id===id);
+  if (!article) return;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="wf-modal-tag ${isOnyx?'onyx-tag':''}">${isOnyx?'💎 Onyx Exclusivo':article.cat}</div>
+    <h2>${article.title}</h2>
+    <div class="wf-modal-meta">
+      <div class="wf-modal-avatar">${article.authorInit}</div>
+      <div>
+        <div class="wf-modal-author">${article.author}</div>
+        <div class="wf-modal-date">${article.prof} · ${article.time}</div>
+      </div>
+    </div>
+    <div class="wf-modal-content">${article.content}</div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function promptUpgrade() {
+  if (confirm('Este contenido es exclusivo para miembros Onyx.\n\n¿Quieres ver los planes de membresía?')) {
+    window.location.href = 'wefix-members.html';
+  }
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+document.querySelectorAll('.wf-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.wf-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.cat;
+    renderFeatured(); renderGrid();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQ = e.target.value;
+  renderFeatured(); renderGrid();
+});
+
+renderFeatured(); renderGrid(); renderOnyx();
+</script>
+</body>
+</html>

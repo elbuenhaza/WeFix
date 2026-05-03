@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeFix — Preguntas Frecuentes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      background: #f0f0f0;
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .wf-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .wf-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+
+    .wf-logo-icon {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #1a1a1a;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .wf-nav-icons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .wf-nav-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      color: #666;
+      font-size: 10px;
+      background: none;
+      border: none;
+    }
+
+    .wf-nav-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .wf-nav-icon:hover { color: #1a3a5c; }
+
+    /* ── HEADER FAQ ── */
+    .wf-faq-header {
+      background: #ffffff;
+      text-align: center;
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .wf-faq-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #1a1a1a;
+      margin-bottom: 18px;
+    }
+
+    /* ── SEARCH BOX ── */
+    .wf-search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1.5px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #ffffff;
+    }
+
+    .wf-search-wrap svg {
+      width: 20px;
+      height: 20px;
+      color: #555;
+      flex-shrink: 0;
+    }
+
+    .wf-search-wrap input {
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: #1a1a1a;
+      width: 100%;
+      background: transparent;
+    }
+
+    .wf-search-wrap input::placeholder { color: #888; }
+
+    .wf-search-hint {
+      color: #D85A30;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: left;
+    }
+
+    /* ── POPULAR TOPICS ── */
+    .wf-topics-section {
+      padding: 20px 16px 32px;
+    }
+
+    .wf-topics-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 14px;
+    }
+
+    .wf-topics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .wf-topic-card {
+      background: #1a3a5c;
+      border-radius: 12px;
+      padding: 14px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      min-height: 110px;
+    }
+
+    .wf-topic-card:hover {
+      background: #24527f;
+      transform: scale(1.03);
+    }
+
+    .wf-topic-icon {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .wf-topic-label {
+      font-size: 11px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    /* ── ANSWER PANEL (slide-in) ── */
+    .wf-answer-panel {
+      display: none;
+      background: #ffffff;
+      border-radius: 12px;
+      margin: 0 16px 20px;
+      padding: 20px 16px;
+      border: 1px solid #e0e0e0;
+      animation: slideDown 0.2s ease;
+    }
+
+    .wf-answer-panel.active { display: block; }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .wf-answer-panel h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a3a5c;
+      margin-bottom: 8px;
+    }
+
+    .wf-answer-panel p {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .wf-answer-close {
+      display: block;
+      margin-top: 12px;
+      background: none;
+      border: none;
+      color: #D85A30;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    /* ── NO RESULTS ── */
+    .wf-no-results {
+      display: none;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      padding: 16px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="wf-nav">
+    <a class="wf-logo" href="wefix.html">
+      <div class="wf-logo-icon">W</div>
+      WeFix
+    </a>
+    <div class="wf-nav-icons">
+      <button class="wf-nav-icon" title="Favoritos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/>
+        </svg>
+        Favoritos
+      </button>
+      <button class="wf-nav-icon" title="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Notificaciones
+      </button>
+      <button class="wf-nav-icon" title="Búsqueda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+        Búsqueda
+      </button>
+      <button class="wf-nav-icon" title="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Perfil
+      </button>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <div class="wf-faq-header">
+    <h1>PREGUNTAS FRECUENTES</h1>
+    <div class="wf-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Busqueda" />
+    </div>
+    <div class="wf-search-hint">Como te podemos ayudar?</div>
+  </div>
+
+  <!-- ANSWER PANEL -->
+  <div class="wf-answer-panel" id="answerPanel">
+    <h3 id="answerTitle"></h3>
+    <p id="answerText"></p>
+    <button class="wf-answer-close" id="answerClose">Cerrar respuesta</button>
+  </div>
+
+  <!-- TOPICS -->
+  <div class="wf-topics-section">
+    <div class="wf-topics-title">Temas Populares</div>
+
+    <div class="wf-topics-grid" id="topicsGrid">
+
+      <div class="wf-topic-card" data-id="0">
+        <div class="wf-topic-icon">🛡️</div>
+        <div class="wf-topic-label">Como protegemos su integridad y la de su familia</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="1">
+        <div class="wf-topic-icon">📷</div>
+        <div class="wf-topic-label">Por que nuestro personal tiene cámaras?</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="2">
+        <div class="wf-topic-icon">💳</div>
+        <div class="wf-topic-label">Seguridad de pagos</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="3">
+        <div class="wf-topic-icon">💎</div>
+        <div class="wf-topic-label">Que ofrece el servicio premium</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="4">
+        <div class="wf-topic-icon">🚫</div>
+        <div class="wf-topic-label">Aceptamos pagos fuera de la app</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="5">
+        <div class="wf-topic-icon">🙋</div>
+        <div class="wf-topic-label">Donde encontrar soporte</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="6">
+        <div class="wf-topic-icon">👤</div>
+        <div class="wf-topic-label">Ayuda con mi cuenta</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="7">
+        <div class="wf-topic-icon">👥</div>
+        <div class="wf-topic-label">Ayuda a la comunidad</div>
+      </div>
+
+      <div class="wf-topic-card" data-id="8">
+        <div class="wf-topic-icon">📰</div>
+        <div class="wf-topic-label">Donde ver nuestro blog</div>
+      </div>
+
+    </div>
+
+    <div class="wf-no-results" id="noResults">No se encontraron temas para tu búsqueda.</div>
+  </div>
+
+  <script>
+    // ── Respuestas por tarjeta ──
+    const faqs = [
+      {
+        title: "¿Cómo protegemos su integridad y la de su familia?",
+        text: "Todos nuestros profesionales pasan por un riguroso proceso de verificación de identidad, antecedentes penales y referencias laborales. Además contamos con seguro de responsabilidad civil para cada servicio contratado."
+      },
+      {
+        title: "¿Por qué nuestro personal tiene cámaras?",
+        text: "Las cámaras son una medida de transparencia y seguridad tanto para el cliente como para el profesional. Las grabaciones se almacenan de forma segura y solo se usan en caso de disputa o incidente."
+      },
+      {
+        title: "Seguridad de pagos",
+        text: "Todos los pagos se procesan a través de pasarelas cifradas con tecnología SSL. Nunca almacenamos datos de tu tarjeta. Puedes pagar con tarjeta de crédito, débito o transferencia desde la app."
+      },
+      {
+        title: "¿Qué ofrece el servicio premium?",
+        text: "El servicio premium incluye profesionales con mayor experiencia y calificación, tiempos de respuesta prioritarios, garantía extendida de satisfacción y acceso a servicios exclusivos como chef privado y chofer."
+      },
+      {
+        title: "¿Aceptamos pagos fuera de la app?",
+        text: "No. Por seguridad de ambas partes, todos los pagos deben realizarse exclusivamente a través de la app WeFix. Los pagos en efectivo o fuera de la plataforma no están cubiertos por nuestra garantía."
+      },
+      {
+        title: "¿Dónde encontrar soporte?",
+        text: "Puedes contactar a nuestro equipo de soporte desde la sección 'Perfil' > 'Ayuda' dentro de la app, o escribirnos a soporte@wefix.mx. Nuestro horario de atención es de lunes a sábado de 8am a 8pm."
+      },
+      {
+        title: "Ayuda con mi cuenta",
+        text: "Si tienes problemas para iniciar sesión, cambiar tu contraseña o actualizar tus datos, ve a 'Perfil' > 'Configuración de cuenta'. También puedes solicitar asistencia desde el chat de soporte."
+      },
+      {
+        title: "Ayuda a la comunidad",
+        text: "WeFix cuenta con un foro comunitario donde puedes compartir experiencias, recomendar profesionales y obtener consejos de otros usuarios. Accede desde la sección 'Comunidad' en el menú principal."
+      },
+      {
+        title: "¿Dónde ver nuestro blog?",
+        text: "Nuestro blog está disponible en wefix.mx/blog. Publicamos artículos sobre cuidado del hogar, consejos de seguridad, novedades de la plataforma y entrevistas con nuestros profesionales destacados."
+      }
+    ];
+
+    // ── Referencias DOM ──
+    const cards       = document.querySelectorAll('.wf-topic-card');
+    const panel       = document.getElementById('answerPanel');
+    const answerTitle = document.getElementById('answerTitle');
+    const answerText  = document.getElementById('answerText');
+    const answerClose = document.getElementById('answerClose');
+    const searchInput = document.getElementById('searchInput');
+    const noResults   = document.getElementById('noResults');
+
+    // ── Clic en tarjeta ──
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const id  = parseInt(card.dataset.id);
+        const faq = faqs[id];
+        answerTitle.textContent = faq.title;
+        answerText.textContent  = faq.text;
+        panel.classList.add('active');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+
+    // ── Cerrar panel ──
+    answerClose.addEventListener('click', () => {
+      panel.classList.remove('active');
+    });
+
+    // ── Búsqueda en tiempo real ──
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      let found = 0;
+      cards.forEach(card => {
+        const label = card.querySelector('.wf-topic-label').textContent.toLowerCase();
+        const match = !q || label.includes(q);
+        card.style.display = match ? 'flex' : 'none';
+        if (match) found++;
+      });
+      noResults.style.display = found === 0 ? 'block' : 'none';
+      if (q === '') panel.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
