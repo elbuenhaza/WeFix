@@ -1,0 +1,10 @@
+.wf-hero {
+  position: relative;
+  background: #c8bfb0 url("Imagen realista de c.png") no-repeat right bottom;
+  background-size: 260px;
+  min-height: 220px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
