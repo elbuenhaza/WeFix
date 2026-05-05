@@ -3,32 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
   <title>WeFix — Preguntas Frecuentes</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: 'Raleway', sans-serif;
     }
-
+ 
     body {
       background: #f0f0f0;
       max-width: 500px;
       margin: 0 auto;
       min-height: 100vh;
     }
-
+ 
     /* ── NAVBAR ── */
     .wf-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 20px;
-      background: #ffffff;
-      border-bottom: 1px solid #e0e0e0;
+      background: #f4f4f6;
+      border-bottom: 1px solid #123853;
+      font-family: 'Segoe UI', Raleway, sans-serif;
     }
-
+ 
     .wf-logo {
       display: flex;
       align-items: center;
@@ -38,7 +44,7 @@
       color: #1a1a1a;
       text-decoration: none;
     }
-
+ 
     .wf-logo-icon {
       width: 32px;
       height: 32px;
@@ -49,40 +55,42 @@
       justify-content: center;
       font-size: 14px;
       font-weight: 700;
+      font-family: 'sans-serif', Raleway;
     }
-
+ 
     .wf-nav-icons {
       display: flex;
       gap: 16px;
     }
-
+ 
     .wf-nav-icon {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
       cursor: pointer;
-      color: #666;
+      color: #000000;
       font-size: 10px;
       background: none;
       border: none;
     }
-
+ 
     .wf-nav-icon svg {
       width: 22px;
       height: 22px;
     }
-
+ 
     .wf-nav-icon:hover { color: #1a3a5c; }
-
+ 
     /* ── HEADER FAQ ── */
     .wf-faq-header {
-      background: #ffffff;
+      background: #f4f4f6;
       text-align: center;
       padding: 24px 20px 20px;
       border-bottom: 1px solid #e0e0e0;
+      font-family: 'Raleway', sans-serif;;
     }
-
+ 
     .wf-faq-header h1 {
       font-size: 20px;
       font-weight: 700;
@@ -90,7 +98,7 @@
       color: #1a1a1a;
       margin-bottom: 18px;
     }
-
+ 
     /* ── SEARCH BOX ── */
     .wf-search-wrap {
       display: flex;
@@ -101,14 +109,14 @@
       padding: 10px 14px;
       background: #ffffff;
     }
-
+ 
     .wf-search-wrap svg {
       width: 20px;
       height: 20px;
       color: #555;
       flex-shrink: 0;
     }
-
+ 
     .wf-search-wrap input {
       border: none;
       outline: none;
@@ -117,34 +125,36 @@
       width: 100%;
       background: transparent;
     }
-
+ 
     .wf-search-wrap input::placeholder { color: #888; }
-
+ 
     .wf-search-hint {
       color: #D85A30;
       font-size: 13px;
       margin-top: 8px;
       text-align: left;
+      font-family: 'Segoe UI', Raleway, sans-serif;
     }
-
+ 
     /* ── POPULAR TOPICS ── */
     .wf-topics-section {
       padding: 20px 16px 32px;
+      background-color: #f4f4f6
     }
-
+ 
     .wf-topics-title {
       font-size: 17px;
       font-weight: 600;
       color: #1a1a1a;
       margin-bottom: 14px;
     }
-
+ 
     .wf-topics-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
-
+ 
     .wf-topic-card {
       background: #1a3a5c;
       border-radius: 12px;
@@ -158,24 +168,24 @@
       transition: background 0.2s, transform 0.15s;
       min-height: 110px;
     }
-
+ 
     .wf-topic-card:hover {
       background: #24527f;
       transform: scale(1.03);
     }
-
+ 
     .wf-topic-icon {
       font-size: 32px;
       line-height: 1;
     }
-
+ 
     .wf-topic-label {
       font-size: 11px;
       color: #ffffff;
       text-align: center;
       line-height: 1.35;
     }
-
+ 
     /* ── ANSWER PANEL (slide-in) ── */
     .wf-answer-panel {
       display: none;
@@ -186,27 +196,27 @@
       border: 1px solid #e0e0e0;
       animation: slideDown 0.2s ease;
     }
-
+ 
     .wf-answer-panel.active { display: block; }
-
+ 
     @keyframes slideDown {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
+ 
     .wf-answer-panel h3 {
       font-size: 15px;
       font-weight: 600;
       color: #1a3a5c;
       margin-bottom: 8px;
     }
-
+ 
     .wf-answer-panel p {
       font-size: 13px;
       color: #555;
       line-height: 1.6;
     }
-
+ 
     .wf-answer-close {
       display: block;
       margin-top: 12px;
@@ -218,7 +228,7 @@
       padding: 0;
       text-decoration: underline;
     }
-
+ 
     /* ── NO RESULTS ── */
     .wf-no-results {
       display: none;
@@ -230,18 +240,18 @@
   </style>
 </head>
 <body>
-
+ 
   <!-- NAVBAR -->
   <nav class="wf-nav">
     <a class="wf-logo" href="wefix.html">
       <div class="wf-logo-icon">W</div>
       WeFix
-    </a>
+     </a>
     <div class="wf-nav-icons">
       <button class="wf-nav-icon" title="Favoritos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/>
-        </svg>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/>
+  </svg>
         Favoritos
       </button>
       <button class="wf-nav-icon" title="Notificaciones">
@@ -266,7 +276,7 @@
       </button>
     </div>
   </nav>
-
+ 
   <!-- HEADER -->
   <div class="wf-faq-header">
     <h1>PREGUNTAS FRECUENTES</h1>
@@ -279,70 +289,70 @@
     </div>
     <div class="wf-search-hint">Como te podemos ayudar?</div>
   </div>
-
+ 
   <!-- ANSWER PANEL -->
   <div class="wf-answer-panel" id="answerPanel">
     <h3 id="answerTitle"></h3>
     <p id="answerText"></p>
     <button class="wf-answer-close" id="answerClose">Cerrar respuesta</button>
   </div>
-
+ 
   <!-- TOPICS -->
   <div class="wf-topics-section">
     <div class="wf-topics-title">Temas Populares</div>
-
+ 
     <div class="wf-topics-grid" id="topicsGrid">
-
+ 
       <div class="wf-topic-card" data-id="0">
         <div class="wf-topic-icon">🛡️</div>
         <div class="wf-topic-label">Como protegemos su integridad y la de su familia</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="1">
         <div class="wf-topic-icon">📷</div>
         <div class="wf-topic-label">Por que nuestro personal tiene cámaras?</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="2">
         <div class="wf-topic-icon">💳</div>
         <div class="wf-topic-label">Seguridad de pagos</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="3">
         <div class="wf-topic-icon">💎</div>
         <div class="wf-topic-label">Que ofrece el servicio premium</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="4">
         <div class="wf-topic-icon">🚫</div>
         <div class="wf-topic-label">Aceptamos pagos fuera de la app</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="5">
         <div class="wf-topic-icon">🙋</div>
         <div class="wf-topic-label">Donde encontrar soporte</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="6">
         <div class="wf-topic-icon">👤</div>
         <div class="wf-topic-label">Ayuda con mi cuenta</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="7">
         <div class="wf-topic-icon">👥</div>
         <div class="wf-topic-label">Ayuda a la comunidad</div>
       </div>
-
+ 
       <div class="wf-topic-card" data-id="8">
         <div class="wf-topic-icon">📰</div>
         <div class="wf-topic-label">Donde ver nuestro blog</div>
       </div>
-
+ 
     </div>
-
+ 
     <div class="wf-no-results" id="noResults">No se encontraron temas para tu búsqueda.</div>
   </div>
-
+ 
   <script>
     // ── Respuestas por tarjeta ──
     const faqs = [
@@ -383,7 +393,7 @@
         text: "Nuestro blog está disponible en wefix.mx/blog. Publicamos artículos sobre cuidado del hogar, consejos de seguridad, novedades de la plataforma y entrevistas con nuestros profesionales destacados."
       }
     ];
-
+ 
     // ── Referencias DOM ──
     const cards       = document.querySelectorAll('.wf-topic-card');
     const panel       = document.getElementById('answerPanel');
@@ -392,7 +402,7 @@
     const answerClose = document.getElementById('answerClose');
     const searchInput = document.getElementById('searchInput');
     const noResults   = document.getElementById('noResults');
-
+ 
     // ── Clic en tarjeta ──
     cards.forEach(card => {
       card.addEventListener('click', () => {
@@ -404,12 +414,12 @@
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
-
+ 
     // ── Cerrar panel ──
     answerClose.addEventListener('click', () => {
       panel.classList.remove('active');
     });
-
+ 
     // ── Búsqueda en tiempo real ──
     searchInput.addEventListener('input', () => {
       const q = searchInput.value.toLowerCase().trim();
