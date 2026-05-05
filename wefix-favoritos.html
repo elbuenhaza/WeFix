@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Favoritos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:    #f4f4f6;
+      --brand: #123853;
+      --accent:#f87171;
+      --white: #ffffff;
+      --border:#dde1e7;
+      --text:  #1a1a2e;
+      --muted: #6b7280;
+      --shadow: 0 2px 10px rgba(18,56,83,.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 500px; margin: 0 auto; min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .wf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .wf-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--brand); text-decoration: none;
+    }
+    .wf-logo-icon {
+      width: 32px; height: 32px;
+      border: 2px solid var(--brand); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--brand);
+    }
+    .wf-nav-icons { display: flex; gap: 14px; }
+    .wf-nav-icon {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; color: var(--muted); font-size: 9px;
+      background: none; border: none; font-family: 'Poppins', sans-serif;
+      text-decoration: none; position: relative;
+    }
+    .wf-nav-icon svg { width: 20px; height: 20px; }
+    .wf-nav-icon:hover { color: var(--brand); }
+    .wf-nav-icon.active { color: var(--brand); }
+    .wf-nav-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent); color: var(--white);
+      border-radius: 50%; width: 14px; height: 14px;
+      font-size: 8px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── PAGE HEADER ── */
+    .wf-page-header {
+      background: var(--brand);
+      padding: 24px 20px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .wf-header-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .wf-header-icon svg { width: 28px; height: 28px; color: var(--white); }
+    .wf-header-text { flex: 1; }
+    .wf-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px; font-weight: 600;
+      color: var(--white); margin-bottom: 3px;
+    }
+    .wf-header-sub {
+      font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.4;
+    }
+    .wf-header-count {
+      font-size: 28px; font-weight: 700;
+      color: var(--accent); line-height: 1;
+    }
+    .wf-header-count-label {
+      font-size: 10px; color: rgba(255,255,255,.5);
+    }
+
+    /* ── SEARCH ── */
+    .wf-search-wrap {
+      padding: 14px 16px 0;
+      background: var(--bg);
+    }
+    .wf-search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      transition: border .2s;
+    }
+    .wf-search-box:focus-within { border-color: var(--brand); }
+    .wf-search-box svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
+    .wf-search-box input {
+      border: none; outline: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px; color: var(--text);
+      background: transparent; width: 100%;
+    }
+    .wf-search-box input::placeholder { color: #bbb; }
+
+    /* ── FILTER CHIPS ── */
+    .wf-chips-wrap {
+      padding: 12px 0 12px 16px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .wf-chips-wrap::-webkit-scrollbar { display: none; }
+    .wf-chips { display: flex; gap: 8px; width: max-content; padding-right: 16px; }
+    .wf-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 24px; padding: 5px 14px;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+      cursor: pointer; white-space: nowrap;
+      font-family: 'Poppins', sans-serif;
+      transition: background .15s, color .15s, border .15s;
+    }
+    .wf-chip.active, .wf-chip:hover {
+      background: var(--brand); color: var(--white); border-color: var(--brand);
+    }
+
+    /* ── SECTION LABEL ── */
+    .wf-section-label {
+      padding: 10px 16px 6px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .8px; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── FAV CARD ── */
+    .wf-fav-list { padding: 4px 16px 32px; display: flex; flex-direction: column; gap: 12px; }
+
+    .wf-fav-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      text-decoration: none; color: inherit;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+      animation: fadeUp .3s ease both;
+    }
+    .wf-fav-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(18,56,83,.14);
+      border-color: var(--brand);
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .wf-fav-avatar {
+      width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 600; color: var(--white);
+      position: relative;
+    }
+    .wf-fav-avatar .verified {
+      position: absolute; bottom: 0; right: 0;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #22c55e; border: 2px solid var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: var(--white); font-weight: 700;
+    }
+
+    .wf-fav-info { flex: 1; min-width: 0; }
+    .wf-fav-name {
+      font-size: 14px; font-weight: 600; color: var(--text);
+      margin-bottom: 2px;
+    }
+    .wf-fav-prof {
+      font-size: 11px; color: var(--accent); font-weight: 500; margin-bottom: 5px;
+    }
+    .wf-fav-meta {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .wf-fav-stars { display: flex; gap: 1px; }
+    .wf-fav-stars span { font-size: 11px; }
+    .wf-star-filled { color: #f5a623; }
+    .wf-star-empty  { color: #ddd; }
+    .wf-fav-price {
+      font-size: 11px; font-weight: 600; color: var(--brand);
+    }
+    .wf-fav-tag {
+      font-size: 10px; background: #e8f0fb;
+      color: var(--brand); border-radius: 20px; padding: 2px 8px;
+    }
+
+    .wf-fav-actions {
+      display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+    }
+    .wf-heart-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 20px; line-height: 1;
+      transition: transform .2s;
+      color: var(--accent);
+    }
+    .wf-heart-btn:hover { transform: scale(1.25); }
+    .wf-contact-btn {
+      background: var(--brand); color: var(--white);
+      border: none; border-radius: 8px;
+      padding: 5px 10px; font-size: 10px; font-weight: 500;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .wf-contact-btn:hover { background: #1a4f72; }
+
+    /* ── EMPTY STATE ── */
+    .wf-empty {
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 60px 24px; gap: 12px;
+    }
+    .wf-empty svg { width: 56px; height: 56px; color: #d1d5db; }
+    .wf-empty h3 { font-size: 16px; font-weight: 600; color: var(--text); }
+    .wf-empty p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .wf-empty a  {
+      margin-top: 8px;
+      background: var(--brand); color: var(--white);
+      border-radius: 24px; padding: 10px 28px;
+      font-size: 13px; font-weight: 500;
+      text-decoration: none; display: inline-block;
+      transition: background .15s;
+    }
+    .wf-empty a:hover { background: #1a4f72; }
+
+    /* ── RECALL BANNER ── */
+    .wf-recall-banner {
+      margin: 14px 16px 0;
+      background: linear-gradient(135deg, var(--brand) 0%, #1a4f72 100%);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .wf-recall-banner svg { width: 24px; height: 24px; color: var(--accent); flex-shrink: 0; }
+    .wf-recall-banner p { font-size: 12px; color: rgba(255,255,255,.85); line-height: 1.5; }
+    .wf-recall-banner strong { color: var(--white); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="wefix-home.html">
+    <div class="wf-logo-icon">W</div>
+    WeFix
+  </a>
+  <div class="wf-nav-icons">
+    <a class="wf-nav-icon active" href="wefix-favoritos.html" title="Favoritos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+      Favoritos
+    </a>
+    <a class="wf-nav-icon" href="wefix-notificaciones.html" title="Notificaciones" style="position:relative;">
+      <span class="wf-nav-badge">4</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Notificaciones
+    </a>
+    <a class="wf-nav-icon" href="wefix-home.html" title="Búsqueda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      Búsqueda
+    </a>
+    <a class="wf-nav-icon" href="#" title="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="wf-page-header">
+  <div class="wf-header-icon">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+  </div>
+  <div class="wf-header-text">
+    <div class="wf-header-title">Mis Favoritos</div>
+    <div class="wf-header-sub">Profesionales guardados y de confianza</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="wf-header-count" id="favCount">0</div>
+    <div class="wf-header-count-label">guardados</div>
+  </div>
+</div>
+
+<!-- RECALL BANNER -->
+<div class="wf-recall-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+  </svg>
+  <p><strong>Modo Favoritos activo:</strong> Recibirás recordatorios automáticos para agendar tus servicios recurrentes con estos profesionales.</p>
+</div>
+
+<!-- SEARCH -->
+<div class="wf-search-wrap">
+  <div class="wf-search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar entre tus favoritos…"/>
+  </div>
+</div>
+
+<!-- FILTER CHIPS -->
+<div class="wf-chips-wrap">
+  <div class="wf-chips" id="chipsRow">
+    <button class="wf-chip active" data-cat="todos">⭐ Todos</button>
+    <button class="wf-chip" data-cat="chofer">🚗 Chofer</button>
+    <button class="wf-chip" data-cat="limpieza">🧹 Limpieza</button>
+    <button class="wf-chip" data-cat="jardinero">🌿 Jardinería</button>
+    <button class="wf-chip" data-cat="chef">🍳 Chef</button>
+    <button class="wf-chip" data-cat="carwash">🚘 Car Wash</button>
+    <button class="wf-chip" data-cat="mascotas">🐾 Mascotas</button>
+  </div>
+</div>
+
+<!-- LIST -->
+<div class="wf-section-label" id="sectionLabel">Todos los favoritos</div>
+<div class="wf-fav-list" id="favList"></div>
+
+<!-- EMPTY STATE -->
+<div class="wf-empty" id="emptyState">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/>
+  </svg>
+  <h3>Sin favoritos aquí</h3>
+  <p>No encontramos profesionales en esta categoría.<br>Explora el home y guarda a tus favoritos.</p>
+  <a href="wefix-home.html">Explorar profesionales</a>
+</div>
+
+<script>
+// ── DATA — mismos profesionales del home, pre-marcados como favoritos ──
+const allPros = [
+  { id:1,  name:"Jose Torres",      prof:"chofer",   label:"Chofer",               stars:4, price:350, verified:true },
+  { id:2,  name:"Margarita Flores", prof:"limpieza", label:"Servicio de limpieza", stars:5, price:250, verified:true },
+  { id:3,  name:"Joaquín R",        prof:"chef",     label:"Chef",                 stars:4, price:600, verified:false },
+  { id:6,  name:"Sofía Ríos",       prof:"mascotas", label:"Paseo de mascotas",    stars:5, price:120, verified:true },
+  { id:9,  name:"Pedro Morales",    prof:"chef",     label:"Chef",                 stars:5, price:750, verified:true },
+  { id:11, name:"Roberto Núñez",    prof:"carwash",  label:"Car Wash",             stars:4, price:180, verified:true },
+  { id:4,  name:"Ana Méndez",       prof:"jardinero",label:"Jardinero",            stars:5, price:200, verified:true },
+  { id:7,  name:"Luis Paredes",     prof:"chofer",   label:"Chofer",               stars:4, price:400, verified:true },
+];
+
+// IDs marcados como favoritos (simulado con Set — en producción vendría del backend)
+let favorites = new Set(allPros.map(p => p.id));
+
+let activeFilter = "todos";
+let searchQuery  = "";
+
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function starsHTML(n) {
+  return [1,2,3,4,5].map(i =>
+    `<span class="${i<=n?'wf-star-filled':'wf-star-empty'}">★</span>`
+  ).join('');
+}
+const avatarColors = ['#123853','#1a4f72','#0d2b3e','#1e6091','#145374'];
+function avatarColor(id) { return avatarColors[id % avatarColors.length]; }
+
+function render() {
+  const favList = document.getElementById('favList');
+  const empty   = document.getElementById('emptyState');
+  const count   = document.getElementById('favCount');
+  const label   = document.getElementById('sectionLabel');
+
+  const q = searchQuery.toLowerCase();
+  const filtered = allPros.filter(p => {
+    if (!favorites.has(p.id)) return false;
+    const matchCat    = activeFilter === "todos" || p.prof === activeFilter;
+    const matchSearch = !q || p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+
+  count.textContent = favorites.size;
+  label.textContent = activeFilter === "todos"
+    ? `Todos los favoritos (${filtered.length})`
+    : `${filtered[0]?.label || ''} (${filtered.length})`;
+
+  if (!filtered.length) {
+    favList.innerHTML = '';
+    favList.style.display  = 'none';
+    empty.style.display    = 'flex';
+  } else {
+    empty.style.display   = 'none';
+    favList.style.display = 'flex';
+    favList.innerHTML = filtered.map((p, i) => `
+      <a class="wf-fav-card" href="wefix-perfil.html?id=${p.id}" style="animation-delay:${i*55}ms">
+        <div class="wf-fav-avatar" style="background:${avatarColor(p.id)}">
+          ${initials(p.name)}
+          ${p.verified ? '<div class="verified">✓</div>' : ''}
+        </div>
+        <div class="wf-fav-info">
+          <div class="wf-fav-name">${p.name}</div>
+          <div class="wf-fav-prof">${p.label}</div>
+          <div class="wf-fav-meta">
+            <div class="wf-fav-stars">${starsHTML(p.stars)}</div>
+            <span class="wf-fav-price">$${p.price}/hr</span>
+            ${p.verified ? '<span class="wf-fav-tag">✓ Verificado</span>' : ''}
+          </div>
+        </div>
+        <div class="wf-fav-actions" onclick="event.preventDefault()">
+          <button class="wf-heart-btn" title="Quitar de favoritos" onclick="toggleFav(${p.id}, this)">❤️</button>
+          <button class="wf-contact-btn" onclick="goProfile(${p.id})">Ver perfil</button>
+        </div>
+      </a>
+    `).join('');
+  }
+}
+
+function toggleFav(id, btn) {
+  if (favorites.has(id)) {
+    if (!confirm('¿Quitar este profesional de tus favoritos?')) return;
+    favorites.delete(id);
+    btn.textContent = '🤍';
+    // remove card with animation
+    const card = btn.closest('.wf-fav-card');
+    card.style.transition = 'opacity .3s, transform .3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(30px)';
+    setTimeout(() => render(), 320);
+  }
+}
+
+function goProfile(id) {
+  window.location.href = `wefix-perfil.html?id=${id}`;
+}
+
+// ── CHIPS ──
+document.querySelectorAll('.wf-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.wf-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.cat;
+    render();
+  });
+});
+
+// ── SEARCH ──
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
