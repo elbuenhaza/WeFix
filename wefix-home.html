@@ -642,8 +642,22 @@ function setupArrows(leftId, rightId, carouselId) {
 setupArrows('arrowTopL',   'arrowTopR',   'carouselTop');
 setupArrows('arrowFlashL', 'arrowFlashR', 'carouselFlash');
 
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const filtro = params.get("filter");
+
+  if (filtro) {
+    const filtroElemento = document.querySelector(`[data-filter="${filtro}"]`);
+    if (filtroElemento) {
+      filtroElemento.click();
+    }
+  }
+</script>
+
+
 // ── INIT ──
 applyAll();
 </script>
 </body>
 </html>
+
