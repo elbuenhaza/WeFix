@@ -15,3 +15,11 @@
   height: 380px;
   position: relative;
 }
+.wf-nav-icon {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.wf-nav-icon * {
+  pointer-events: none;
+}
