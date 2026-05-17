@@ -6,7 +6,6 @@
   <title>WeFix — Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/WeFix/style.css">
   <style>
     :root {
       --bg:       #f4f4f6;
@@ -643,21 +642,8 @@ function setupArrows(leftId, rightId, carouselId) {
 setupArrows('arrowTopL',   'arrowTopR',   'carouselTop');
 setupArrows('arrowFlashL', 'arrowFlashR', 'carouselFlash');
 
-  <script>
-  const params = new URLSearchParams(window.location.search);
-  const filtro = params.get("filter");
-
-  if (filtro) {
-    const filtroElemento = document.querySelector(`[data-filter="${filtro}"]`);
-    if (filtroElemento) {
-      filtroElemento.click();
-    }
-  }
-</script>
-
 // ── INIT ──
 applyAll();
-
 </script>
 </body>
 </html>
