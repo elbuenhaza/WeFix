@@ -7,217 +7,152 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg:    #f4f4f6;
-      --brand: #123853;
-      --accent:#f87171;
-      --white: #ffffff;
-      --border:#dde1e7;
-      --text:  #1a1a2e;
-      --muted: #6b7280;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      max-width: 500px; margin: 0 auto; min-height: 100vh;
-    }
-
-    /* ── NAVBAR ── */
-    .wf-nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 20px; background: var(--white);
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .wf-logo {
-      display: flex; align-items: center; gap: 8px;
-      font-family: 'Raleway', sans-serif;
-      font-size: 20px; font-weight: 700;
-      color: var(--brand); text-decoration: none;
-    }
-    .wf-logo-icon {
-      width: 32px; height: 32px;
-      border: 2px solid var(--brand); border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: var(--brand);
-    }
-    .wf-nav-icons { display: flex; gap: 14px; }
-    .wf-nav-icon {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      cursor: pointer; color: var(--muted); font-size: 9px;
-      background: none; border: none; font-family: 'Poppins', sans-serif;
-      position: relative; text-decoration: none;
-    }
-    .wf-nav-icon svg { width: 20px; height: 20px; }
-    .wf-nav-icon:hover { color: var(--brand); }
-    .wf-nav-icon.active { color: var(--brand); }
-    .wf-badge {
-      position: absolute; top: -4px; right: -4px;
-      background: var(--accent); color: var(--white);
-      border-radius: 50%; width: 14px; height: 14px;
-      font-size: 8px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── PAGE HEADER ── */
-    .wf-page-header {
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      padding: 20px 20px 16px;
-      display: flex; align-items: flex-start; gap: 16px;
-    }
-    .wf-notif-icon-wrap {
-      background: var(--brand);
-      border-radius: 14px;
-      width: 52px; height: 52px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .wf-notif-icon-wrap svg { width: 28px; height: 28px; color: var(--white); }
-    .wf-page-header-text { flex: 1; }
-    .wf-page-title {
-      font-size: 13px; font-weight: 600; letter-spacing: 1px;
-      color: var(--brand); text-transform: uppercase; margin-bottom: 6px;
-    }
-    .wf-page-desc {
-      font-size: 12px; color: var(--muted); line-height: 1.5;
-    }
-    .wf-page-desc strong { color: var(--brand); font-weight: 600; }
-
-    /* ── FILTER TABS ── */
-    .wf-tabs {
-      display: flex; gap: 0;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .wf-tabs::-webkit-scrollbar { display: none; }
-    .wf-tab {
-      padding: 10px 16px; font-size: 12px; font-weight: 500;
-      color: var(--muted); cursor: pointer;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap; background: none; border-top: none;
-      border-left: none; border-right: none;
-      font-family: 'Poppins', sans-serif;
-      transition: color .18s, border-color .18s;
-    }
-    .wf-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
-    .wf-tab:hover  { color: var(--brand); }
-
-    /* ── MARK ALL ── */
-    .wf-mark-all {
-      display: flex; justify-content: flex-end;
-      padding: 10px 16px 4px;
-    }
-    .wf-mark-btn {
-      background: none; border: none;
-      font-size: 11px; font-weight: 500;
-      color: var(--accent); cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      text-decoration: underline;
-    }
-
-    /* ── NOTIFICATION LIST ── */
-    .wf-notif-list { padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 10px; }
-
-    .wf-notif-item {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--white);
-      border-radius: 14px;
-      border: 1.5px solid var(--border);
-      padding: 12px 14px;
-      cursor: pointer;
-      transition: border-color .18s, box-shadow .18s, transform .15s;
-      position: relative;
-      animation: slideIn .25s ease both;
-    }
-    .wf-notif-item:hover {
-      border-color: var(--brand);
-      box-shadow: 0 4px 14px rgba(18,56,83,.12);
-      transform: translateY(-1px);
-    }
-    .wf-notif-item.unread { border-left: 3px solid var(--brand); }
-    .wf-notif-item.read   { opacity: .75; }
-
-    @keyframes slideIn {
-      from { opacity:0; transform: translateY(10px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-
-    .wf-notif-avatar {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-      background: var(--brand);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 600; color: var(--white);
-      position: relative;
-    }
-    .wf-notif-avatar .dot {
-      position: absolute; bottom: 1px; right: 1px;
-      width: 11px; height: 11px; border-radius: 50%;
-      background: #22c55e; border: 2px solid var(--white);
-    }
-
-    .wf-notif-body { flex: 1; min-width: 0; }
-    .wf-notif-bubble {
-      background: var(--brand);
-      border-radius: 0 12px 12px 12px;
-      padding: 10px 12px;
-      position: relative;
-    }
-    .wf-notif-bubble::before {
-      content: '';
-      position: absolute; top: 0; left: -6px;
-      border-width: 0 6px 8px 0;
-      border-style: solid;
-      border-color: transparent var(--brand) transparent transparent;
-    }
-    .wf-notif-sender {
-      font-size: 10px; font-weight: 600;
-      color: var(--accent); margin-bottom: 3px;
-    }
-    .wf-notif-msg {
-      font-size: 12px; font-weight: 500; color: var(--white);
-      line-height: 1.4; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
-    }
-    .wf-notif-time {
-      font-size: 9px; color: rgba(255,255,255,.6);
-      text-align: right; margin-top: 4px;
-    }
-
-    .wf-notif-actions {
-      display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
-    }
-    .wf-notif-action-btn {
-      background: none; border: 1px solid var(--border);
-      border-radius: 6px; padding: 4px 8px;
-      font-size: 10px; color: var(--muted); cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      white-space: nowrap;
-      transition: background .15s, border .15s, color .15s;
-    }
-    .wf-notif-action-btn:hover { background: var(--brand); color: var(--white); border-color: var(--brand); }
-    .wf-notif-action-btn.primary {
-      background: var(--brand); color: var(--white); border-color: var(--brand);
-    }
-    .wf-notif-action-btn.primary:hover { background: #1a4f72; }
-
-    /* ── EMPTY STATE ── */
-    .wf-empty {
-      display: none; text-align: center;
-      padding: 48px 16px; color: var(--muted);
-    }
-    .wf-empty svg { width: 48px; height: 48px; color: var(--border); margin-bottom: 12px; }
-    .wf-empty p { font-size: 14px; }
-
-    /* ── TYPE ICON IN BUBBLE ── */
-    .wf-type-dot {
-      display: inline-block; width: 7px; height: 7px;
-      border-radius: 50%; margin-right: 4px;
-      vertical-align: middle;
-    }
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#ffffff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--online:#22c55e;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);max-width:500px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
+    /* NAVBAR */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-family:'Raleway',sans-serif;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-nav-icons{display:flex;gap:14px;}
+    .wf-nav-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;background:none;border:none;font-family:'Poppins',sans-serif;position:relative;text-decoration:none;}
+    .wf-nav-icon svg{width:20px;height:20px;}
+    .wf-nav-icon:hover,.wf-nav-icon.active{color:var(--brand);}
+    .wf-badge{position:absolute;top:-4px;right:-4px;background:var(--accent);color:var(--white);border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    /* VIEWS */
+    #viewNotif{display:block;}#viewChat{display:none;}
+    /* PAGE HEADER */
+    .wf-page-header{background:var(--white);border-bottom:1px solid var(--border);padding:20px 20px 16px;display:flex;align-items:flex-start;gap:16px;}
+    .wf-notif-icon-wrap{background:var(--brand);border-radius:14px;width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .wf-notif-icon-wrap svg{width:28px;height:28px;color:var(--white);}
+    .wf-page-header-text{flex:1;}
+    .wf-page-title{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--brand);text-transform:uppercase;margin-bottom:6px;}
+    .wf-page-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+    .wf-page-desc strong{color:var(--brand);font-weight:600;}
+    /* TABS */
+    .wf-tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;scrollbar-width:none;}
+    .wf-tabs::-webkit-scrollbar{display:none;}
+    .wf-tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Poppins',sans-serif;transition:color .18s,border-color .18s;}
+    .wf-tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+    .wf-tab:hover{color:var(--brand);}
+    /* MARK ALL */
+    .wf-mark-all{display:flex;justify-content:flex-end;padding:10px 16px 4px;}
+    .wf-mark-btn{background:none;border:none;font-size:11px;font-weight:500;color:var(--accent);cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline;}
+    /* NOTIF LIST */
+    .wf-notif-list{padding:8px 16px 32px;display:flex;flex-direction:column;gap:10px;}
+    .wf-notif-item{display:flex;align-items:center;gap:12px;background:var(--white);border-radius:14px;border:1.5px solid var(--border);padding:12px 14px;cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .15s;position:relative;animation:slideIn .25s ease both;}
+    .wf-notif-item:hover{border-color:var(--brand);box-shadow:0 4px 14px rgba(18,56,83,.12);transform:translateY(-1px);}
+    .wf-notif-item.unread{border-left:3px solid var(--brand);}
+    .wf-notif-item.read{opacity:.75;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .wf-notif-avatar{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--white);position:relative;}
+    .wf-notif-avatar .dot{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--online);border:2px solid var(--white);}
+    .wf-notif-body{flex:1;min-width:0;}
+    .wf-notif-bubble{background:var(--brand);border-radius:0 12px 12px 12px;padding:10px 12px;position:relative;}
+    .wf-notif-bubble::before{content:'';position:absolute;top:0;left:-6px;border-width:0 6px 8px 0;border-style:solid;border-color:transparent var(--brand) transparent transparent;}
+    .wf-notif-sender{font-size:10px;font-weight:600;color:var(--accent);margin-bottom:3px;}
+    .wf-notif-msg{font-size:12px;font-weight:500;color:var(--white);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wf-notif-time{font-size:9px;color:rgba(255,255,255,.6);text-align:right;margin-top:4px;}
+    .wf-notif-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+    .wf-notif-action-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;transition:background .15s,border .15s,color .15s;}
+    .wf-notif-action-btn:hover{background:var(--brand);color:var(--white);border-color:var(--brand);}
+    .wf-notif-action-btn.primary{background:var(--brand);color:var(--white);border-color:var(--brand);}
+    .wf-notif-action-btn.primary:hover{background:#1a4f72;}
+    .wf-type-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+    .wf-empty{display:none;text-align:center;padding:48px 16px;color:var(--muted);}
+    .wf-empty svg{width:48px;height:48px;color:var(--border);margin-bottom:12px;}
+    .wf-empty p{font-size:14px;}
+    /* CHAT HEADER */
+    .wf-chat-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:40;}
+    .wf-chat-back{background:none;border:none;cursor:pointer;color:var(--brand);padding:4px;display:flex;align-items:center;}
+    .wf-chat-back svg{width:20px;height:20px;}
+    .wf-chat-avatar{width:38px;height:38px;border-radius:50%;background:var(--brand);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);position:relative;}
+    .wf-chat-avatar .status-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--white);}
+    .wf-chat-info{flex:1;min-width:0;cursor:pointer;}
+    .wf-chat-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wf-chat-status{font-size:11px;}
+    .wf-chat-status.online{color:var(--online);}
+    .wf-chat-status.offline{color:var(--muted);}
+    .wf-chat-actions{display:flex;gap:8px;}
+    .wf-chat-action-btn{background:none;border:none;cursor:pointer;color:var(--brand);padding:4px;display:flex;align-items:center;}
+    .wf-chat-action-btn svg{width:20px;height:20px;}
+    /* MESSAGES */
+    .wf-messages-area{padding:16px;display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 240px);padding-bottom:90px;}
+    .wf-date-sep{text-align:center;font-size:11px;color:var(--muted);margin:6px 0;display:flex;align-items:center;gap:8px;}
+    .wf-date-sep::before,.wf-date-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+    .wf-msg{display:flex;gap:8px;max-width:85%;}
+    .wf-msg.mine{align-self:flex-end;flex-direction:row-reverse;}
+    .wf-msg.theirs{align-self:flex-start;}
+    .wf-msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--white);align-self:flex-end;}
+    .wf-bubble-wrap{display:flex;flex-direction:column;gap:2px;}
+    .wf-msg.mine .wf-bubble-wrap{align-items:flex-end;}
+    .wf-bubble{padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.45;word-break:break-word;}
+    .wf-msg.theirs .wf-bubble{background:var(--white);color:var(--text);border-radius:4px 18px 18px 18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .wf-msg.mine .wf-bubble{background:var(--brand);color:var(--white);border-radius:18px 4px 18px 18px;}
+    .wf-bubble-img{border-radius:12px;overflow:hidden;max-width:200px;cursor:pointer;}
+    .wf-bubble-img img{width:100%;display:block;}
+    .wf-bubble-file{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;transition:background .15s;}
+    .wf-bubble-file:hover{background:#f0f5ff;}
+    .wf-bubble-file svg{width:22px;height:22px;color:var(--brand);flex-shrink:0;}
+    .wf-bubble-file .file-name{font-size:12px;font-weight:500;color:var(--text);}
+    .wf-bubble-file .file-size{font-size:10px;color:var(--muted);}
+    .wf-msg-meta{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);}
+    .wf-msg.mine .wf-msg-meta{justify-content:flex-end;}
+    .wf-read-icon{font-size:11px;}
+    .wf-read-icon.read{color:var(--brand);}
+    .wf-read-icon.sent{color:var(--muted);}
+    /* TYPING */
+    .wf-typing{display:none;align-self:flex-start;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:10px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .wf-typing.show{display:flex;gap:4px;align-items:center;}
+    .wf-typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;animation:typingDot 1.2s infinite;}
+    .wf-typing span:nth-child(2){animation-delay:.2s;}
+    .wf-typing span:nth-child(3){animation-delay:.4s;}
+    @keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+    /* INPUT BAR */
+    .wf-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);padding:10px 12px;display:flex;align-items:flex-end;gap:8px;z-index:40;}
+    .wf-attach-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:50%;display:flex;align-items:center;transition:background .15s,color .15s;flex-shrink:0;}
+    .wf-attach-btn:hover{background:var(--bg);color:var(--brand);}
+    .wf-attach-btn svg{width:22px;height:22px;}
+    #fileInput{display:none;}
+    .wf-msg-input-wrap{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:22px;padding:8px 14px;display:flex;align-items:flex-end;gap:8px;transition:border .2s;min-height:40px;}
+    .wf-msg-input-wrap:focus-within{border-color:var(--brand);}
+    .wf-msg-input{flex:1;border:none;outline:none;background:transparent;font-family:'Poppins',sans-serif;font-size:13px;color:var(--text);resize:none;max-height:100px;line-height:1.4;overflow-y:auto;scrollbar-width:none;}
+    .wf-msg-input::-webkit-scrollbar{display:none;}
+    .wf-msg-input::placeholder{color:#bbb;}
+    .wf-emoji-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:0;flex-shrink:0;line-height:1;opacity:.6;transition:opacity .15s;}
+    .wf-emoji-btn:hover{opacity:1;}
+    .wf-send-btn{width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--white);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;box-shadow:0 2px 8px rgba(18,56,83,.25);}
+    .wf-send-btn:hover{background:#1a4f72;transform:scale(1.06);}
+    .wf-send-btn svg{width:18px;height:18px;}
+    /* EMOJI PICKER */
+    .wf-emoji-picker{display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:468px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:12px;z-index:50;box-shadow:0 8px 32px rgba(18,56,83,.15);}
+    .wf-emoji-picker.open{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;}
+    .wf-emoji-picker span{font-size:22px;text-align:center;cursor:pointer;padding:6px;border-radius:8px;transition:background .1s;}
+    .wf-emoji-picker span:hover{background:var(--bg);}
+    /* IMG PREVIEW */
+    .wf-img-preview{display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:468px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:12px;z-index:50;box-shadow:0 8px 32px rgba(18,56,83,.15);}
+    .wf-img-preview.open{display:block;}
+    .wf-img-preview img{width:100%;border-radius:10px;max-height:200px;object-fit:cover;}
+    .wf-img-preview-actions{display:flex;gap:8px;margin-top:10px;}
+    .wf-img-send-btn{flex:1;background:var(--brand);color:var(--white);border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-img-cancel-btn{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;}
+    /* PROFILE SHEET */
+    .wf-profile-sheet{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;}
+    .wf-profile-sheet.open{display:flex;}
+    .wf-profile-sheet-inner{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:24px 20px 36px;animation:slideUp .25s ease;}
+    @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+    .wf-sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px;}
+    .wf-sheet-avatar{width:64px;height:64px;border-radius:50%;background:var(--brand);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--white);}
+    .wf-sheet-name{text-align:center;font-size:17px;font-weight:600;color:var(--text);}
+    .wf-sheet-prof{text-align:center;font-size:12px;color:var(--accent);margin-bottom:16px;}
+    .wf-sheet-actions{display:flex;gap:10px;}
+    .wf-sheet-btn{flex:1;background:var(--brand);color:var(--white);border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;text-align:center;text-decoration:none;display:block;transition:background .15s;}
+    .wf-sheet-btn:hover{background:#1a4f72;}
+    .wf-sheet-btn.outline{background:none;color:var(--brand);border:1.5px solid var(--border);}
+    .wf-sheet-btn.outline:hover{background:var(--bg);}
+    /* TOAST */
+    .wf-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brand);color:var(--white);border-radius:30px;padding:10px 22px;font-size:13px;font-weight:500;z-index:999;box-shadow:0 4px 18px rgba(18,56,83,.25);transition:transform .3s ease;white-space:nowrap;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
@@ -225,12 +160,11 @@
 <!-- NAVBAR -->
 <nav class="wf-nav">
   <a class="wf-logo" href="wefix-home.html">
-    <div class="wf-logo-icon">W</div>
-    WeFix
+    <div class="wf-logo-icon">W</div>WeFix
   </a>
   <div class="wf-nav-icons">
-    <a class="wf-nav-icon" href="wefix-home.html" title="Favoritos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+    <a class="wf-nav-icon" href="wefix-favoritos.html" title="Favoritos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/></svg>
       Favoritos
     </a>
     <a class="wf-nav-icon active" href="wefix-notificaciones.html" title="Notificaciones">
@@ -238,193 +172,264 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Notificaciones
     </a>
-    <a class="wf-nav-icon" href="wefix-home.html" title="Búsqueda">
+    <a class="wf-nav-icon" href="wefix-home.html" title="Busqueda">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-      Búsqueda
+      Busqueda
     </a>
-    <a class="wf-nav-icon" href="wefix-home.html" title="Perfil">
+    <a class="wf-nav-icon" href="wefix-perfil-usuario.html" title="Perfil">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Perfil
     </a>
   </div>
 </nav>
 
-<!-- PAGE HEADER -->
-<div class="wf-page-header">
-  <div class="wf-notif-icon-wrap">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
+<!-- VISTA NOTIFICACIONES -->
+<div id="viewNotif">
+  <div class="wf-page-header">
+    <div class="wf-notif-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="wf-page-header-text">
+      <div class="wf-page-title">Notificaciones</div>
+      <div class="wf-page-desc">Modo <strong>"Favoritos"</strong> con recordatorios automaticos para servicios recurrentes.</div>
+    </div>
   </div>
-  <div class="wf-page-header-text">
-    <div class="wf-page-title">Notificaciones</div>
-    <div class="wf-page-desc">
-      Modo <strong>"Favoritos"</strong> con recordatorios automáticos para servicios recurrentes.
+  <div class="wf-tabs">
+    <button class="wf-tab active" data-tab="todas">Todas</button>
+    <button class="wf-tab" data-tab="mensajes">Mensajes</button>
+    <button class="wf-tab" data-tab="servicios">Servicios</button>
+    <button class="wf-tab" data-tab="recordatorios">Recordatorios</button>
+    <button class="wf-tab" data-tab="sistema">Sistema</button>
+  </div>
+  <div class="wf-mark-all">
+    <button class="wf-mark-btn" id="markAllBtn">Marcar todas como leidas</button>
+  </div>
+  <div class="wf-notif-list" id="notifList"></div>
+  <div class="wf-empty" id="emptyState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <p>No hay notificaciones en esta categoria.</p>
+  </div>
+</div>
+
+<!-- VISTA CHAT -->
+<div id="viewChat">
+  <div class="wf-chat-header">
+    <button class="wf-chat-back" onclick="backToNotif()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="wf-chat-avatar" id="chatAvatar"><div class="status-dot" id="chatStatusDot"></div></div>
+    <div class="wf-chat-info" id="chatInfoBtn">
+      <div class="wf-chat-name" id="chatName"></div>
+      <div class="wf-chat-status" id="chatStatus"></div>
+    </div>
+    <div class="wf-chat-actions">
+      <button class="wf-chat-action-btn" onclick="showToast('Llamadas proximamente')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </button>
+      <button class="wf-chat-action-btn" onclick="openProfileSheet()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="wf-messages-area" id="messagesArea"></div>
+  <div class="wf-typing" id="typingIndicator"><span></span><span></span><span></span></div>
+  <div class="wf-input-bar">
+    <button class="wf-attach-btn" onclick="document.getElementById('fileInput').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+    </button>
+    <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx"/>
+    <div class="wf-msg-input-wrap">
+      <textarea class="wf-msg-input" id="msgInput" rows="1" placeholder="Escribe un mensaje..."></textarea>
+      <button class="wf-emoji-btn" id="emojiToggle">😊</button>
+    </div>
+    <button class="wf-send-btn" id="sendBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 19-7z"/></svg>
+    </button>
+  </div>
+  <div class="wf-emoji-picker" id="emojiPicker"></div>
+  <div class="wf-img-preview" id="imgPreview">
+    <img id="previewImg" src="" alt=""/>
+    <div class="wf-img-preview-actions">
+      <button class="wf-img-send-btn" id="imgSendBtn">Enviar imagen</button>
+      <button class="wf-img-cancel-btn" onclick="closeImgPreview()">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- TABS -->
-<div class="wf-tabs">
-  <button class="wf-tab active" data-tab="todas">Todas</button>
-  <button class="wf-tab" data-tab="mensajes">Mensajes</button>
-  <button class="wf-tab" data-tab="servicios">Servicios</button>
-  <button class="wf-tab" data-tab="recordatorios">Recordatorios</button>
-  <button class="wf-tab" data-tab="sistema">Sistema</button>
+<!-- Profile sheet -->
+<div class="wf-profile-sheet" id="profileSheet" onclick="closeProfileSheet(event)">
+  <div class="wf-profile-sheet-inner">
+    <div class="wf-sheet-handle"></div>
+    <div class="wf-sheet-avatar" id="sheetAvatar"></div>
+    <div class="wf-sheet-name" id="sheetName"></div>
+    <div class="wf-sheet-prof" id="sheetProf"></div>
+    <div class="wf-sheet-actions">
+      <a class="wf-sheet-btn" id="sheetProfileLink" href="#">Ver perfil completo</a>
+      <button class="wf-sheet-btn outline" onclick="closeProfileSheet()">Cerrar</button>
+    </div>
+  </div>
 </div>
 
-<!-- MARK ALL -->
-<div class="wf-mark-all">
-  <button class="wf-mark-btn" id="markAllBtn">Marcar todas como leídas</button>
-</div>
-
-<!-- LIST -->
-<div class="wf-notif-list" id="notifList"></div>
-<div class="wf-empty" id="emptyState">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-  </svg>
-  <p>No hay notificaciones en esta categoría.</p>
-</div>
+<div class="wf-toast" id="toast"></div>
 
 <script>
-const notifications = [
-  {
-    id: 1, tab: "mensajes", unread: true,
-    sender: "Jose Torres", initials: "JT",
-    msg: "Hola buenos días, ya estoy fuera de su casa",
-    time: "Hace 5 min", online: true,
-    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
-  },
-  {
-    id: 2, tab: "servicios", unread: true,
-    sender: "WeFix", initials: "W",
-    msg: "Tu servicio de limpieza ha sido confirmado para mañana a las 10am",
-    time: "Hace 24 horas", online: false,
-    actions: [{ label:"Ver detalle", primary: true }, { label:"Cancelar" }]
-  },
-  {
-    id: 3, tab: "mensajes", unread: true,
-    sender: "Margarita Flores", initials: "MF",
-    msg: "Buenos días, confirmo que llegaré puntual a las 9am",
-    time: "Hace 1 mes", online: true,
-    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
-  },
-  {
-    id: 4, tab: "recordatorios", unread: true,
-    sender: "WeFix Recordatorio", initials: "W",
-    msg: "Recuerda que tienes un servicio de jardinería agendado para el viernes",
-    time: "Hace 2 meses", online: false,
-    actions: [{ label:"Ver agenda", primary: true }, { label:"Descartar" }]
-  },
-  {
-    id: 5, tab: "sistema", unread: false,
-    sender: "WeFix Sistema", initials: "W",
-    msg: "Tu perfil ha sido verificado exitosamente. ¡Bienvenido a WeFix Premium!",
-    time: "Hace 3 meses", online: false,
-    actions: [{ label:"Ver perfil", primary: true }]
-  },
-  {
-    id: 6, tab: "mensajes", unread: false,
-    sender: "Pedro Morales", initials: "PM",
-    msg: "Hola, ¿te gustaría agendar la cena de esta semana? Tengo disponibilidad el sábado.",
-    time: "Hace 3 meses", online: false,
-    actions: [{ label:"Responder", primary: true }, { label:"Ver perfil" }]
-  },
-  {
-    id: 7, tab: "servicios", unread: false,
-    sender: "WeFix", initials: "W",
-    msg: "Tu pago de $350 MXN a Jose Torres fue procesado correctamente.",
-    time: "Hace 4 meses", online: false,
-    actions: [{ label:"Ver recibo", primary: true }]
-  },
+const notifications=[
+  {id:1,tab:"mensajes",unread:true,sender:"Jose Torres",initials:"JT",prof:"Chofer",msg:"Hola buenos dias, ya estoy fuera de su casa",time:"Hace 5 min",online:true,actions:[{label:"Responder",primary:true},{label:"Ver perfil"}]},
+  {id:2,tab:"servicios",unread:true,sender:"WeFix",initials:"W",prof:"Sistema",msg:"Tu servicio de limpieza ha sido confirmado para manana a las 10am",time:"Hace 24 horas",online:false,actions:[{label:"Ver detalle",primary:true},{label:"Cancelar"}]},
+  {id:3,tab:"mensajes",unread:true,sender:"Margarita Flores",initials:"MF",prof:"Servicio de limpieza",msg:"Buenos dias, confirmo que llegare puntual a las 9am",time:"Hace 1 mes",online:true,actions:[{label:"Responder",primary:true},{label:"Ver perfil"}]},
+  {id:4,tab:"recordatorios",unread:true,sender:"WeFix Recordatorio",initials:"W",prof:"Sistema",msg:"Recuerda que tienes un servicio de jardineria agendado para el viernes",time:"Hace 2 meses",online:false,actions:[{label:"Ver agenda",primary:true},{label:"Descartar"}]},
+  {id:5,tab:"sistema",unread:false,sender:"WeFix Sistema",initials:"W",prof:"Sistema",msg:"Tu perfil ha sido verificado exitosamente. Bienvenido a WeFix Premium!",time:"Hace 3 meses",online:false,actions:[{label:"Ver perfil",primary:true}]},
+  {id:6,tab:"mensajes",unread:false,sender:"Pedro Morales",initials:"PM",prof:"Chef Privado",msg:"Hola, te gustaria agendar la cena de esta semana? Tengo disponibilidad el sabado.",time:"Hace 3 meses",online:false,actions:[{label:"Responder",primary:true},{label:"Ver perfil"}]},
+  {id:7,tab:"servicios",unread:false,sender:"WeFix",initials:"W",prof:"Sistema",msg:"Tu pago de $350 MXN a Jose Torres fue procesado correctamente.",time:"Hace 4 meses",online:false,actions:[{label:"Ver recibo",primary:true}]},
 ];
+const chatData={
+  "Jose Torres":{initials:"JT",prof:"Chofer",online:true,color:"#123853",messages:[{id:1,from:"them",text:"Hola buenos dias, ya estoy fuera de su casa",time:"08:45",read:true},{id:2,from:"them",text:"Abren la puerta por favor?",time:"08:46",read:false}]},
+  "Margarita Flores":{initials:"MF",prof:"Servicio de limpieza",online:true,color:"#1a4f72",messages:[{id:1,from:"me",text:"Hola Margarita, puede venir el jueves a las 9am?",time:"Ayer 14:00",read:true},{id:2,from:"them",text:"Claro que si! Ahi estare.",time:"Ayer 14:05",read:true},{id:3,from:"them",text:"Buenos dias, confirmo que llegare puntual a las 9am",time:"Hace 1 mes",read:true}]},
+  "Pedro Morales":{initials:"PM",prof:"Chef Privado",online:false,color:"#0d2b3e",messages:[{id:1,from:"them",text:"Hola, te gustaria agendar la cena de esta semana?",time:"Hace 3 meses",read:false}]},
+};
+const emojis=["😊","😂","❤️","👍","🙏","✅","🔥","😎","🤔","😅","👏","🎉","💪","🙌","😍","🤝","⭐","💯","🏠","✨","🌟","😄","👋","💬","📅","🚗","🧹","🌿","🍳","🐾"];
+let activeTab="todas",localNotifs=notifications.map(n=>({...n})),currentChat=null,pendingFile=null;
 
-let activeTab  = "todas";
-let localNotifs = notifications.map(n => ({ ...n }));
+document.getElementById('emojiPicker').innerHTML=emojis.map(e=>`<span onclick="insertEmoji('${e}')">${e}</span>`).join('');
 
-function cardHTML(n, delay) {
-  const actionsHTML = n.actions.map(a =>
-    `<button class="wf-notif-action-btn ${a.primary?'primary':''}" onclick="handleAction(${n.id},'${a.label}')">${a.label}</button>`
-  ).join('');
-  return `
-    <div class="wf-notif-item ${n.unread?'unread':'read'}" style="animation-delay:${delay}ms" data-id="${n.id}" onclick="markRead(${n.id})">
-      <div class="wf-notif-avatar">
-        ${n.initials}
-        ${n.online ? '<div class="dot"></div>' : ''}
-      </div>
-      <div class="wf-notif-body">
-        <div class="wf-notif-bubble">
-          <div class="wf-notif-sender">
-            ${n.unread ? '<span class="wf-type-dot" style="background:#f87171"></span>' : ''}
-            ${n.sender}
-          </div>
-          <div class="wf-notif-msg">${n.msg}</div>
-          <div class="wf-notif-time">${n.time}</div>
-        </div>
-      </div>
-      <div class="wf-notif-actions">${actionsHTML}</div>
-    </div>`;
+function cardHTML(n,delay){
+  const acts=n.actions.map(a=>`<button class="wf-notif-action-btn ${a.primary?'primary':''}" onclick="handleAction(${n.id},'${a.label}',event)">${a.label}</button>`).join('');
+  return `<div class="wf-notif-item ${n.unread?'unread':'read'}" style="animation-delay:${delay}ms" onclick="markRead(${n.id})">
+    <div class="wf-notif-avatar">${n.initials}${n.online?'<div class="dot"></div>':''}</div>
+    <div class="wf-notif-body"><div class="wf-notif-bubble">
+      <div class="wf-notif-sender">${n.unread?'<span class="wf-type-dot" style="background:#f87171"></span>':''}${n.sender}</div>
+      <div class="wf-notif-msg">${n.msg}</div>
+      <div class="wf-notif-time">${n.time}</div>
+    </div></div>
+    <div class="wf-notif-actions">${acts}</div>
+  </div>`;
 }
 
-function render() {
-  const filtered = activeTab === "todas"
-    ? localNotifs
-    : localNotifs.filter(n => n.tab === activeTab);
-
-  const list  = document.getElementById('notifList');
-  const empty = document.getElementById('emptyState');
-
-  if (!filtered.length) {
-    list.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    list.innerHTML = filtered.map((n, i) => cardHTML(n, i * 60)).join('');
-  }
-
-  // update nav badge
-  const unreadCount = localNotifs.filter(n => n.unread).length;
-  const badge = document.getElementById('navBadge');
-  badge.textContent  = unreadCount;
-  badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+function renderNotif(){
+  const filtered=activeTab==="todas"?localNotifs:localNotifs.filter(n=>n.tab===activeTab);
+  const list=document.getElementById('notifList'),empty=document.getElementById('emptyState');
+  if(!filtered.length){list.innerHTML='';empty.style.display='block';}
+  else{empty.style.display='none';list.innerHTML=filtered.map((n,i)=>cardHTML(n,i*60)).join('');}
+  const unread=localNotifs.filter(n=>n.unread).length;
+  const badge=document.getElementById('navBadge');
+  badge.textContent=unread;badge.style.display=unread>0?'flex':'none';
 }
 
-function markRead(id) {
-  const n = localNotifs.find(n => n.id === id);
-  if (n) { n.unread = false; render(); }
+function markRead(id){const n=localNotifs.find(n=>n.id===id);if(n){n.unread=false;renderNotif();}}
+
+function handleAction(id,label,e){
+  e.stopPropagation();
+  const notif=localNotifs.find(n=>n.id===id);if(!notif)return;
+  if(label==='Responder'){markRead(id);openChat(notif.sender,notif.initials,notif.prof,notif.online);}
+  else if(label==='Ver perfil'){window.location.href=`wefix-perfil.html?id=${id}`;}
+  else if(label==='Cancelar'||label==='Descartar'){localNotifs=localNotifs.filter(n=>n.id!==id);renderNotif();}
+  else{showToast(`"${label}" - proximamente`);}
 }
 
-function handleAction(id, label) {
-  if (label === 'Ver perfil') {
-    window.location.href = `wefix-perfil.html?id=${id}`;
-  } else if (label === 'Responder') {
-    alert('Función de mensajería próximamente 💬');
-  } else if (label === 'Cancelar' || label === 'Descartar') {
-    localNotifs = localNotifs.filter(n => n.id !== id);
-    render();
-  } else {
-    alert(`"${label}" — funcionalidad próximamente.`);
-  }
-}
-
-// TABS
-document.querySelectorAll('.wf-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.wf-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeTab = tab.dataset.tab;
-    render();
+document.querySelectorAll('.wf-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.wf-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');activeTab=tab.dataset.tab;renderNotif();
   });
 });
+document.getElementById('markAllBtn').addEventListener('click',()=>{localNotifs.forEach(n=>n.unread=false);renderNotif();});
 
-// MARK ALL
-document.getElementById('markAllBtn').addEventListener('click', () => {
-  localNotifs.forEach(n => n.unread = false);
-  render();
+function openChat(sender,initials,prof,online){
+  if(!chatData[sender])chatData[sender]={initials,prof,online:online||false,color:"#123853",messages:[]};
+  currentChat={sender,...chatData[sender]};
+  const av=document.getElementById('chatAvatar');
+  av.childNodes[0].textContent=initials;av.style.background=currentChat.color;
+  document.getElementById('chatStatusDot').style.background=online?'#22c55e':'#6b7280';
+  document.getElementById('chatName').textContent=sender;
+  const st=document.getElementById('chatStatus');st.textContent=online?'● En linea':'● Desconectado';st.className='wf-chat-status '+(online?'online':'offline');
+  document.getElementById('sheetAvatar').textContent=initials;document.getElementById('sheetAvatar').style.background=currentChat.color;
+  document.getElementById('sheetName').textContent=sender;document.getElementById('sheetProf').textContent=prof;
+  document.getElementById('sheetProfileLink').href='wefix-perfil.html?id=1';
+  document.getElementById('viewNotif').style.display='none';document.getElementById('viewChat').style.display='block';
+  renderMessages();scrollBottom();
+  if(online){setTimeout(()=>{document.getElementById('typingIndicator').classList.add('show');setTimeout(()=>document.getElementById('typingIndicator').classList.remove('show'),2500);},1500);}
+}
+
+function backToNotif(){
+  document.getElementById('viewChat').style.display='none';document.getElementById('viewNotif').style.display='block';
+  currentChat=null;document.getElementById('emojiPicker').classList.remove('open');closeImgPreview();
+}
+
+function renderMessages(){
+  if(!currentChat)return;
+  const area=document.getElementById('messagesArea');
+  let html='<div class="wf-date-sep">Hoy</div>';
+  currentChat.messages.forEach(m=>{
+    const isMine=m.from==='me';
+    if(m.type==='image'){
+      html+=`<div class="wf-msg ${isMine?'mine':'theirs'}">${!isMine?`<div class="wf-msg-avatar" style="background:${currentChat.color}">${currentChat.initials}</div>`:''}<div class="wf-bubble-wrap"><div class="wf-bubble-img"><img src="${m.src}" alt=""/></div><div class="wf-msg-meta"><span>${m.time}</span>${isMine?`<span class="wf-read-icon ${m.read?'read':'sent'}">✓✓</span>`:''}</div></div></div>`;
+    }else if(m.type==='file'){
+      html+=`<div class="wf-msg ${isMine?'mine':'theirs'}">${!isMine?`<div class="wf-msg-avatar" style="background:${currentChat.color}">${currentChat.initials}</div>`:''}<div class="wf-bubble-wrap"><div class="wf-bubble-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div><div class="file-name">${m.fileName}</div><div class="file-size">${m.fileSize}</div></div></div><div class="wf-msg-meta"><span>${m.time}</span>${isMine?`<span class="wf-read-icon ${m.read?'read':'sent'}">✓✓</span>`:''}</div></div></div>`;
+    }else{
+      html+=`<div class="wf-msg ${isMine?'mine':'theirs'}">${!isMine?`<div class="wf-msg-avatar" style="background:${currentChat.color}">${currentChat.initials}</div>`:''}<div class="wf-bubble-wrap"><div class="wf-bubble">${m.text}</div><div class="wf-msg-meta"><span>${m.time}</span>${isMine?`<span class="wf-read-icon ${m.read?'read':'sent'}">✓✓</span>`:''}</div></div></div>`;
+    }
+  });
+  area.innerHTML=html;
+}
+
+function scrollBottom(){const area=document.getElementById('messagesArea');setTimeout(()=>area.scrollTop=area.scrollHeight,50);}
+function getTime(){return new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+
+function sendMessage(){
+  const input=document.getElementById('msgInput'),text=input.value.trim();
+  if(!text||!currentChat)return;
+  currentChat.messages.push({id:Date.now(),from:'me',text,time:getTime(),read:false});
+  input.value='';input.style.height='auto';renderMessages();scrollBottom();
+  setTimeout(()=>{const last=currentChat.messages[currentChat.messages.length-1];if(last){last.read=true;renderMessages();}},1500);
+  if(currentChat.online){
+    setTimeout(()=>{
+      document.getElementById('typingIndicator').classList.add('show');
+      setTimeout(()=>{
+        document.getElementById('typingIndicator').classList.remove('show');
+        const replies=["Entendido, gracias!","Perfecto, ahi estare.","Claro que si, con gusto.","De acuerdo.","Excelente, nos vemos pronto."];
+        currentChat.messages.push({id:Date.now()+1,from:'them',text:replies[Math.floor(Math.random()*replies.length)],time:getTime(),read:true});
+        renderMessages();scrollBottom();
+      },2000);
+    },800);
+  }
+}
+
+document.getElementById('sendBtn').addEventListener('click',sendMessage);
+document.getElementById('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+document.getElementById('msgInput').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';});
+
+document.getElementById('fileInput').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  if(file.type.startsWith('image/')){
+    const reader=new FileReader();
+    reader.onload=e=>{pendingFile=e.target.result;document.getElementById('previewImg').src=e.target.result;document.getElementById('imgPreview').classList.add('open');};
+    reader.readAsDataURL(file);
+  }else{
+    currentChat.messages.push({id:Date.now(),from:'me',type:'file',fileName:file.name,fileSize:(file.size/1024).toFixed(0)+' KB',time:getTime(),read:false});
+    renderMessages();scrollBottom();showToast('Archivo enviado');
+  }
+  this.value='';
 });
 
-render();
+document.getElementById('imgSendBtn').addEventListener('click',()=>{
+  if(!pendingFile||!currentChat)return;
+  currentChat.messages.push({id:Date.now(),from:'me',type:'image',src:pendingFile,time:getTime(),read:false});
+  closeImgPreview();renderMessages();scrollBottom();
+});
+function closeImgPreview(){document.getElementById('imgPreview').classList.remove('open');pendingFile=null;}
+
+document.getElementById('emojiToggle').addEventListener('click',e=>{e.stopPropagation();document.getElementById('emojiPicker').classList.toggle('open');});
+function insertEmoji(emoji){document.getElementById('msgInput').value+=emoji;document.getElementById('msgInput').focus();document.getElementById('emojiPicker').classList.remove('open');}
+document.addEventListener('click',e=>{const p=document.getElementById('emojiPicker');if(!p.contains(e.target)&&e.target.id!=='emojiToggle')p.classList.remove('open');});
+
+function openProfileSheet(){document.getElementById('profileSheet').classList.add('open');}
+function closeProfileSheet(e){if(!e||e.target===document.getElementById('profileSheet'))document.getElementById('profileSheet').classList.remove('open');}
+document.getElementById('chatInfoBtn').addEventListener('click',openProfileSheet);
+
+let toastTimer;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+
+renderNotif();
 </script>
 </body>
 </html>
