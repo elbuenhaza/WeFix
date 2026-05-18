@@ -634,3 +634,13 @@ body {
   background: var(--border);
   margin: 4px 16px;
 }
+
+/* wefix blog de notas */ 
+#answerPanel {
+  pointer-events: none;
+}
+
+#answerPanel.active {
+  pointer-events: auto;
+}
+
