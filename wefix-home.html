@@ -63,6 +63,14 @@
     }
     .wf-nav-icon svg { width: 20px; height: 20px; }
     .wf-nav-icon:hover { color: var(--brand); }
+    .wf-nav-icon { position: relative; text-decoration: none; }
+    .wf-nav-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent); color: var(--white);
+      border-radius: 50%; width: 14px; height: 14px;
+      font-size: 8px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
 
     /* ── HERO ── */
     .wf-hero {
@@ -230,6 +238,26 @@
     }
 
     /* ── SECTION HEADERS ── */
+    .wf-section-head { justify-content: space-between; }
+    .wf-section-head-left { display: flex; align-items: center; gap: 6px; }
+    .wf-see-all { font-size: 11px; color: var(--accent); font-weight: 500; text-decoration: none; cursor: pointer; }
+    /* Onyx card */
+    .wf-pcard.onyx-card { border-color: rgba(249,115,22,.35); background: linear-gradient(160deg,#fffbeb,#fff7ed); }
+    .wf-pcard.onyx-card:hover { border-color: #f97316; box-shadow: 0 6px 20px rgba(249,115,22,.2); }
+    .wf-pcard .onyx-badge { position:absolute;top:8px;right:8px;background:linear-gradient(90deg,#fbbf24,#f97316);color:#fff;font-size:8px;font-weight:700;border-radius:10px;padding:2px 6px; }
+    .wf-pcard.onyx-card .wf-pcard-price { color: #f97316; }
+    /* Onyx section */
+    .wf-onyx-section-head { display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:12px; }
+    .wf-onyx-section-head-left { display:flex;align-items:center;gap:8px; }
+    .wf-onyx-title { font-size:15px;font-weight:700;color:var(--text); }
+    .wf-onyx-pill { display:inline-flex;align-items:center;gap:4px;background:linear-gradient(90deg,#fbbf24,#f97316);color:#fff;font-size:9px;font-weight:700;border-radius:20px;padding:3px 10px; }
+    .wf-onyx-see-all { font-size:11px;color:#f97316;font-weight:500;cursor:pointer;text-decoration:none; }
+    .wf-onyx-banner { margin:0 16px 4px;background:linear-gradient(135deg,#fbbf24 0%,#f97316 55%,#ea580c 100%);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:opacity .15s; }
+    .wf-onyx-banner:hover { opacity:.93; }
+    .wf-onyx-banner-icon { font-size:28px;flex-shrink:0; }
+    .wf-onyx-banner-text .bn-title { font-family:'Raleway',sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:2px; }
+    .wf-onyx-banner-text .bn-sub { font-size:11px;color:rgba(255,255,255,.8);line-height:1.4; }
+    .wf-onyx-banner-arrow { margin-left:auto;color:#fff;font-size:20px;flex-shrink:0; }
     .wf-section-head {
       display: flex; align-items: center; gap: 6px;
       padding: 0 16px; margin-bottom: 12px;
@@ -350,22 +378,23 @@
     WeFix
   </a>
   <div class="wf-nav-icons">
-    <button class="wf-nav-icon">
+    <a class="wf-nav-icon" href="wefix-favoritos.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
       Favoritos
-    </button>
-    <button class="wf-nav-icon">
+    </a>
+    <a class="wf-nav-icon" href="wefix-notificaciones.html" style="position:relative;">
+      <span style="position:absolute;top:-4px;right:-4px;background:#f87171;color:#fff;border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;">4</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Notificaciones
-    </button>
-    <button class="wf-nav-icon">
+    </a>
+    <a class="wf-nav-icon" href="#">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
       Búsqueda
-    </button>
-    <button class="wf-nav-icon">
+    </a>
+    <a class="wf-nav-icon" href="#">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Perfil
-    </button>
+    </a>
   </div>
 </nav>
 
@@ -459,8 +488,11 @@
 <!-- MEJOR RESEÑADOS -->
 <div class="wf-carousel-wrap" id="sectionTop">
   <div class="wf-section-head">
-    <span class="icon">⭐</span>
-    <h2>Mejor reseñados</h2>
+    <div class="wf-section-head-left">
+      <span class="icon">⭐</span>
+      <h2>Mejor reseñados</h2>
+    </div>
+    <a class="wf-see-all" href="wefix-home.html">Ver todos</a>
   </div>
   <div class="wf-carousel-outer">
     <button class="wf-arrow" id="arrowTopL">
@@ -478,8 +510,11 @@
 <!-- FLASH -->
 <div class="wf-carousel-wrap" id="sectionFlash">
   <div class="wf-section-head">
-    <span class="icon">⚡</span>
-    <h2>Flash</h2>
+    <div class="wf-section-head-left">
+      <span class="icon">⚡</span>
+      <h2>Flash — Disponibles ahora</h2>
+    </div>
+    <a class="wf-see-all" href="wefix-home.html">Ver todos</a>
   </div>
   <div class="wf-carousel-outer">
     <button class="wf-arrow" id="arrowFlashL">
@@ -492,6 +527,39 @@
   </div>
 </div>
 
+<div class="wf-divider"></div>
+
+<!-- ONYX BANNER -->
+<div class="wf-onyx-banner" onclick="window.location.href='wefix-members.html'">
+  <div class="wf-onyx-banner-icon">💎</div>
+  <div class="wf-onyx-banner-text">
+    <div class="bn-title">WeFix Onyx — Membresía Premium</div>
+    <div class="bn-sub">Accede a profesionales exclusivos, Cashback 3% y servicio Flash</div>
+  </div>
+  <div class="wf-onyx-banner-arrow">›</div>
+</div>
+
+<!-- PREMIUM ONYX -->
+<div class="wf-carousel-wrap" id="sectionOnyx">
+  <div class="wf-onyx-section-head" style="margin-top:16px;">
+    <div class="wf-onyx-section-head-left">
+      <span style="font-size:17px;">✦</span>
+      <span class="wf-onyx-title">Premium</span>
+      <span class="wf-onyx-pill">💎 Onyx</span>
+    </div>
+    <a class="wf-onyx-see-all" href="wefix-members.html">Activar Onyx</a>
+  </div>
+  <div class="wf-carousel-outer">
+    <button class="wf-arrow" id="arrowOnyxL">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="wf-carousel" id="carouselOnyx"></div>
+    <button class="wf-arrow" id="arrowOnyxR">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
 <div class="wf-no-results" id="noResults">
   No se encontraron profesionales con esos criterios.
 </div>
@@ -499,22 +567,54 @@
 <script>
 // ── DATA ──
 const professionals = [
-  { id:1,  name:"Jose Torres",       prof:"chofer",   label:"Chofer",              stars:4, price:350, verified:true,  desc:"Hola soy Jose Torres, hablo español e inglés. 5 años de experiencia en traslados." },
-  { id:2,  name:"Margarita Flores",  prof:"limpieza", label:"Servicio de limpieza",stars:5, price:250, verified:true,  desc:"Especialista en limpieza profunda de hogares y oficinas. Trabajo con productos eco-amigables." },
-  { id:3,  name:"Joaquín R",         prof:"chef",     label:"Chef",                stars:4, price:600, verified:false, desc:"Chef con 8 años de experiencia en cocina mexicana e internacional." },
-  { id:4,  name:"Ana Méndez",        prof:"jardinero",label:"Jardinero",           stars:5, price:200, verified:true,  desc:"Diseño y mantenimiento de jardines. Poda, riego y paisajismo personalizado." },
-  { id:5,  name:"Carlos Vega",       prof:"carwash",  label:"Car Wash",            stars:3, price:150, verified:false, desc:"Lavado y encerado profesional a domicilio. Llevo todos mis equipos." },
-  { id:6,  name:"Sofía Ríos",        prof:"mascotas", label:"Paseo de mascotas",   stars:5, price:120, verified:true,  desc:"Amante de los animales, paseos diarios y cuidado en casa. Zona norte CDMX." },
-  { id:7,  name:"Luis Paredes",      prof:"chofer",   label:"Chofer",              stars:4, price:400, verified:true,  desc:"Transporte ejecutivo, aeropuerto y eventos. Discreción garantizada." },
-  { id:8,  name:"Elena Castro",      prof:"limpieza", label:"Servicio de limpieza",stars:4, price:280, verified:true,  desc:"Limpieza post-obra, mudanzas y mantenimiento semanal. Gran puntualidad." },
-  { id:9,  name:"Pedro Morales",     prof:"chef",     label:"Chef",                stars:5, price:750, verified:true,  desc:"Chef privado para eventos y cenas íntimas. Especialidad en cocina de autor." },
-  { id:10, name:"Diana López",       prof:"jardinero",label:"Jardinero",           stars:4, price:180, verified:false, desc:"Plantas de interior y exterior. Huertos urbanos y terrazas." },
-  { id:11, name:"Roberto Núñez",     prof:"carwash",  label:"Car Wash",            stars:4, price:180, verified:true,  desc:"Detailing profesional. Pintura, tapicería y limpieza de motor." },
-  { id:12, name:"Paola Herrera",     prof:"mascotas", label:"Paseo de mascotas",   stars:5, price:140, verified:true,  desc:"Cuidado de mascotas, paseos grupales e individuales. Zona sur CDMX." },
-  { id:13, name:"Miguel Ángel R",    prof:"chofer",   label:"Chofer",              stars:3, price:300, verified:false, desc:"Traslados locales y foráneos. Puntual y seguro." },
-  { id:14, name:"Fernanda Cruz",     prof:"chef",     label:"Chef",                stars:4, price:500, verified:true,  desc:"Comida saludable, planes nutricionales y meal prep semanal." },
-  { id:15, name:"Tomás Espinoza",    prof:"jardinero",label:"Jardinero",           stars:5, price:220, verified:true,  desc:"Jardines zen, instalación de pasto y control de plagas." },
+  // CHOFERES
+  { id:1,  name:"Jose Torres",       prof:"chofer",   label:"Chofer",              stars:4, price:350, verified:true,  onyx:false, desc:"5 años de experiencia en traslados privados. Hablo español e inglés. Unidad propia de alta gama." },
+  { id:7,  name:"Luis Paredes",      prof:"chofer",   label:"Chofer",              stars:4, price:400, verified:true,  onyx:false, desc:"Transporte ejecutivo, aeropuerto y eventos. Discreción garantizada. Inglés avanzado." },
+  { id:13, name:"Miguel Ángel R",    prof:"chofer",   label:"Chofer",              stars:3, price:300, verified:false, onyx:false, desc:"Traslados locales y foráneos. Puntual y seguro. Disponibilidad 24/7." },
+  { id:16, name:"Ricardo Soto",      prof:"chofer",   label:"Chofer",              stars:5, price:450, verified:true,  onyx:false, desc:"Ex chófer ejecutivo. Conoce todas las rutas CDMX. Vehículo blindado disponible." },
+  { id:17, name:"Ernesto Lara",      prof:"chofer",   label:"Chofer",              stars:4, price:320, verified:true,  onyx:false, desc:"Traslados aeropuerto AICM y AIFA. Puntual, uniformado y discreto." },
+  // LIMPIEZA
+  { id:2,  name:"Margarita Flores",  prof:"limpieza", label:"Servicio de limpieza",stars:5, price:250, verified:true,  onyx:false, desc:"Especialista en limpieza profunda de hogares y oficinas. Productos eco-amigables." },
+  { id:8,  name:"Elena Castro",      prof:"limpieza", label:"Servicio de limpieza",stars:4, price:280, verified:true,  onyx:false, desc:"Limpieza post-obra, mudanzas y mantenimiento semanal. Gran puntualidad." },
+  { id:18, name:"Gloria Mendoza",    prof:"limpieza", label:"Servicio de limpieza",stars:5, price:260, verified:true,  onyx:false, desc:"15 años de experiencia. Especializada en casas de lujo y oficinas corporativas." },
+  { id:19, name:"Carmen Rojas",      prof:"limpieza", label:"Servicio de limpieza",stars:4, price:230, verified:true,  onyx:false, desc:"Limpieza exprés y profunda. Traigo mis propios productos de alta calidad." },
+  { id:20, name:"Patricia Ávila",    prof:"limpieza", label:"Servicio de limpieza",stars:3, price:200, verified:false, onyx:false, desc:"Servicio económico y confiable. Disponibilidad de lunes a sábado." },
+  // JARDINEROS
+  { id:4,  name:"Ana Méndez",        prof:"jardinero",label:"Jardinero",           stars:5, price:200, verified:true,  onyx:false, desc:"Diseño y mantenimiento de jardines. Poda, riego y paisajismo personalizado." },
+  { id:10, name:"Diana López",       prof:"jardinero",label:"Jardinero",           stars:4, price:180, verified:false, onyx:false, desc:"Plantas de interior y exterior. Huertos urbanos y terrazas." },
+  { id:15, name:"Tomás Espinoza",    prof:"jardinero",label:"Jardinero",           stars:5, price:220, verified:true,  onyx:false, desc:"Jardines zen, instalación de pasto y control de plagas." },
+  { id:21, name:"Héctor Vargas",     prof:"jardinero",label:"Jardinero",           stars:4, price:190, verified:true,  onyx:false, desc:"Certificado en horticultura. Especialidad en jardines tropicales y acuáticos." },
+  { id:22, name:"Lupita Guerrero",   prof:"jardinero",label:"Jardinero",           stars:4, price:175, verified:false, onyx:false, desc:"Diseño de jardines pequeños y balcones. Asesoría en selección de plantas." },
+  // CHEFS
+  { id:3,  name:"Joaquín R",         prof:"chef",     label:"Chef",                stars:4, price:600, verified:false, onyx:false, desc:"Chef con 8 años de experiencia en cocina mexicana e internacional." },
+  { id:9,  name:"Pedro Morales",     prof:"chef",     label:"Chef",                stars:5, price:750, verified:true,  onyx:false, desc:"Chef privado para eventos y cenas íntimas. Especialidad en cocina de autor." },
+  { id:14, name:"Fernanda Cruz",     prof:"chef",     label:"Chef",                stars:4, price:500, verified:true,  onyx:false, desc:"Comida saludable, planes nutricionales y meal prep semanal." },
+  { id:23, name:"Rodrigo Peña",      prof:"chef",     label:"Chef",                stars:5, price:680, verified:true,  onyx:false, desc:"Ex sous-chef de restaurante 5 estrellas. Cocina italiana y francesa." },
+  { id:24, name:"Valeria Ortiz",     prof:"chef",     label:"Chef",                stars:4, price:420, verified:true,  onyx:false, desc:"Repostera y chef pastelera. Especialidad en postres gourmet y pasteles de boda." },
+  // CAR WASH
+  { id:5,  name:"Carlos Vega",       prof:"carwash",  label:"Car Wash",            stars:3, price:150, verified:false, onyx:false, desc:"Lavado y encerado profesional a domicilio. Llevo todos mis equipos." },
+  { id:11, name:"Roberto Núñez",     prof:"carwash",  label:"Car Wash",            stars:4, price:180, verified:true,  onyx:false, desc:"Detailing profesional. Pintura, tapicería y limpieza de motor." },
+  { id:25, name:"Santiago Cruz",     prof:"carwash",  label:"Car Wash",            stars:5, price:220, verified:true,  onyx:false, desc:"Detailing de concesionaria. Ceras de carnauba, pulido y corrección de pintura." },
+  { id:26, name:"Armando Gil",       prof:"carwash",  label:"Car Wash",            stars:4, price:160, verified:true,  onyx:false, desc:"Lavado exprés y completo. Ozonización de interiores disponible." },
+  { id:27, name:"Brenda Salinas",    prof:"carwash",  label:"Car Wash",            stars:4, price:170, verified:false, onyx:false, desc:"Primera mujer detailer certificada en CDMX. Especialidad en autos clásicos." },
+  // MASCOTAS
+  { id:6,  name:"Sofía Ríos",        prof:"mascotas", label:"Paseo de mascotas",   stars:5, price:120, verified:true,  onyx:false, desc:"Amante de los animales, paseos diarios y cuidado en casa. Zona norte CDMX." },
+  { id:12, name:"Paola Herrera",     prof:"mascotas", label:"Paseo de mascotas",   stars:5, price:140, verified:true,  onyx:false, desc:"Cuidado de mascotas, paseos grupales e individuales. Zona sur CDMX." },
+  { id:28, name:"Daniela Fuentes",   prof:"mascotas", label:"Paseo de mascotas",   stars:4, price:130, verified:true,  onyx:false, desc:"Entrenadora canina certificada. Paseos educativos con refuerzo positivo." },
+  { id:29, name:"Omar Reyes",        prof:"mascotas", label:"Paseo de mascotas",   stars:4, price:110, verified:false, onyx:false, desc:"Paseos individuales y grupales. Zona oriente CDMX. Seguro por mascota incluido." },
+  { id:30, name:"Isabella Mora",     prof:"mascotas", label:"Paseo de mascotas",   stars:5, price:160, verified:true,  onyx:false, desc:"Pet sitter y paseadora. Cuido mascotas en mi casa o en la tuya. Reportes con fotos." },
 ];
+
+const onyxProfessionals = [
+  { id:101, name:"Alejandro Reyes",  prof:"chofer",   label:"Chofer Onyx",         stars:5, price:650, verified:true, onyx:true, desc:"Chófer VIP con vehículo de lujo. Ex escolta ejecutivo. Inglés y francés." },
+  { id:102, name:"Isabella Vega",    prof:"chef",     label:"Chef Onyx",            stars:5, price:950, verified:true, onyx:true, desc:"Chef con estrella Michelin. Menús personalizados para eventos exclusivos." },
+  { id:103, name:"Andrés Castillo",  prof:"jardinero",label:"Jardinero Onyx",       stars:5, price:380, verified:true, onyx:true, desc:"Paisajista premiado. Diseño de jardines para residencias de lujo y hoteles." },
+  { id:104, name:"Camila Torres",    prof:"limpieza", label:"Limpieza Onyx",        stars:5, price:420, verified:true, onyx:true, desc:"Coordinadora de equipo premium. Protocolos de hoteles 5 estrellas." },
+  { id:105, name:"Sebastián Mora",   prof:"carwash",  label:"Car Wash Onyx",        stars:5, price:350, verified:true, onyx:true, desc:"Master detailer certificado. Especialista en autos de colección y superdeportivos." },
+  { id:106, name:"Natalia Cruz",     prof:"mascotas", label:"Mascotas Onyx",        stars:5, price:280, verified:true, onyx:true, desc:"Veterinaria de profesión. Paseos médicos y rehabilitación para mascotas mayores." },
+];
+
+
 
 // ── STATE ──
 let filters = { search:"", cat:"todos", profesion:"", precio:800, stars:0, verified:false, fecha:"" };
@@ -537,8 +637,10 @@ function avatarColor(id) {
 }
 
 function cardHTML(p) {
-  return `<a class="wf-pcard" href="wefix-perfil.html?id=${p.id}" title="${p.name}">
-    <div class="wf-pcard-avatar" style="background:${avatarColor(p.id)}">
+  const isOnyx = p.onyx;
+  return `<a class="wf-pcard ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?id=${p.id}" title="${p.name}" style="position:relative;">
+    ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
+    <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
       ${initials(p.name)}
       ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
     </div>
@@ -567,6 +669,11 @@ function applyAll() {
 
   document.getElementById('carouselTop').innerHTML   = top.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados</p>';
   document.getElementById('carouselFlash').innerHTML = flash.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados</p>';
+
+  // Onyx carousel
+  let onyxResult = onyxProfessionals.filter(p => filters.cat === 'todos' || p.prof === filters.cat);
+  if (q) onyxResult = onyxResult.filter(p => p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q));
+  document.getElementById('carouselOnyx').innerHTML = onyxResult.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados Onyx</p>';
 
   const noRes = document.getElementById('noResults');
   noRes.style.display = result.length === 0 ? 'block' : 'none';
@@ -640,10 +747,10 @@ function setupArrows(leftId, rightId, carouselId) {
 }
 setupArrows('arrowTopL',   'arrowTopR',   'carouselTop');
 setupArrows('arrowFlashL', 'arrowFlashR', 'carouselFlash');
+setupArrows('arrowOnyxL',  'arrowOnyxR',  'carouselOnyx');
 
 // ── INIT ──
 applyAll();
 </script>
 </body>
 </html>
-
