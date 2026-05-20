@@ -108,30 +108,40 @@
     .wf-info-row .value { font-weight: 500; color: var(--text); }
     .wf-info-row .value.price { color: var(--accent); font-weight: 600; }
 
-    /* ── ANTES / DESPUÉS ── */
-    .wf-portfolio { display: flex; flex-direction: column; gap: 12px; }
-    .wf-portfolio-pair {
-      border-radius: 12px; overflow: hidden;
-      border: 1px solid var(--border);
+    /* ── PORTAFOLIO 1 imagen cuadrada ── */
+    .wf-portfolio-carousel { position:relative;overflow:hidden;border-radius:16px;border:1px solid var(--border); }
+    .wf-portfolio-track { display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1); }
+    .wf-portfolio-slide { min-width:100%;flex-shrink:0; }
+    .wf-portfolio-img-wrap { position:relative; }
+    .wf-portfolio-img-single { width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#e8eef5; }
+    .wf-portfolio-badge {
+      position:absolute;top:10px;left:10px;padding:4px 12px;
+      border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px;
     }
-    .wf-portfolio-labels {
-      display: grid; grid-template-columns: 1fr 1fr;
-      background: var(--brand);
+    .wf-portfolio-badge.before { background:rgba(220,38,38,.85);color:#fff; }
+    .wf-portfolio-badge.after  { background:rgba(22,163,74,.85);color:#fff; }
+    .wf-portfolio-counter-badge {
+      position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);
+      color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
     }
-    .wf-portfolio-label {
-      padding: 6px; text-align: center;
-      font-size: 10px; font-weight: 700; color: var(--white);
-      letter-spacing: .8px; text-transform: uppercase;
+    .wf-portfolio-caption {
+      padding:10px 14px 12px;background:var(--white);
+      font-size:12px;color:var(--muted);line-height:1.5;
     }
-    .wf-portfolio-label.before { border-right: 1px solid rgba(255,255,255,.2); }
-    .wf-portfolio-images {
-      display: grid; grid-template-columns: 1fr 1fr;
+    .wf-portfolio-dots { display:flex;justify-content:center;gap:6px;margin-top:10px; }
+    .wf-portfolio-dot { width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .2s,transform .2s; }
+    .wf-portfolio-dot.active { background:var(--brand);transform:scale(1.35); }
+    .wf-portfolio-arrow {
+      position:absolute;top:45%;transform:translateY(-50%);
+      background:rgba(255,255,255,.9);border:1.5px solid var(--border);
+      border-radius:50%;width:30px;height:30px;display:flex;align-items:center;
+      justify-content:center;cursor:pointer;z-index:5;
+      box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:15px;color:var(--brand);
+      transition:background .15s,border .15s;
     }
-    .wf-portfolio-img {
-      width: 100%; aspect-ratio: 1;
-      object-fit: cover; display: block; background: #dde1e7;
-    }
-    .wf-portfolio-img.before { border-right: 1px solid var(--white); }
+    .wf-portfolio-arrow:hover { background:var(--brand);color:var(--white);border-color:var(--brand); }
+    .wf-portfolio-arrow.left  { left:8px; }
+    .wf-portfolio-arrow.right { right:8px; }
 
     /* ── RESEÑAS ── */
     .wf-review { padding: 14px 0; border-bottom: 1px solid var(--border); }
@@ -604,11 +614,14 @@ const reviews = {
            {name:"Cliente satisfecho", stars:5, text:"Profesional y puntual, excelente experiencia.", img:null}]
 };
 
-// Portafolio antes/después (compartido entre perfiles como demo)
+// 6 slides: feo1, bonito1, feo2, bonito2, feo3, bonito3
 const portfolio = [
-  { before:"feo1.png", after:"bonito1.png" },
-  { before:"feo2.png", after:"bonito2.png" },
-  { before:"feo3.png", after:"bonito3.png" },
+  { img:"feo1.avif",   type:"before", caption:"El jardin tenia plaga, plantas secas y hierba sin cortar." },
+  { img:"bonito1.jpg", type:"after",  caption:"Riego, plantas nuevas y producto anti-plaga. Luce vibrante." },
+  { img:"feo2.jpg",    type:"before", caption:"Terraza con tierra acumulada, musgo y macetones vacios." },
+  { img:"bonito2.jpg", type:"after",  caption:"Lavado a presion, mobiliario pintado y plantas de temporada." },
+  { img:"feo3.webp",   type:"before", caption:"Entrada con maleza desbordada y piso manchado de tierra." },
+  { img:"bonito3.jpg", type:"after",  caption:"Deshierbe, piso limpio y especies de bajo mantenimiento." },
 ];
 
 // ── Helpers ──
@@ -627,22 +640,35 @@ const revs   = reviews[pro.id] || reviews.default;
 
 document.getElementById('sheetTitle').textContent = `Contratar a ${pro.name}`;
 
-// Portfolio HTML
-const portfolioHTML = portfolio.map(p => `
-  <div class="wf-portfolio-pair">
-    <div class="wf-portfolio-labels">
-      <div class="wf-portfolio-label before">Antes</div>
-      <div class="wf-portfolio-label">Después</div>
-    </div>
-    <div class="wf-portfolio-images">
-      <img class="wf-portfolio-img before" src="${p.before}"
-           alt="Antes"
-           onerror="this.style.background='#e0e0e0';this.alt='Antes'"/>
-      <img class="wf-portfolio-img" src="${p.after}"
-           alt="Después"
-           onerror="this.style.background='#c8e6c9';this.alt='Después'"/>
-    </div>
-  </div>`).join('');
+// Portfolio HTML: 1 imagen cuadrada por slide
+const portfolioHTML = (function() {
+  const slides = portfolio.map(function(p, i) {
+    const badgeClass = p.type;
+    const badgeText  = p.type === 'before' ? '● Antes' : '● Después';
+    const bgFallback = p.type === 'before' ? '#fee2e2' : '#dcfce7';
+    const counter    = (i+1) + ' / ' + portfolio.length;
+    return '<div class="wf-portfolio-slide">'
+      + '<div class="wf-portfolio-img-wrap">'
+      + '<img class="wf-portfolio-img-single" src="' + p.img + '" alt="' + badgeText + '"'
+      + ' onerror="this.style.background=\'' + bgFallback + '\'"/>'
+      + '<div class="wf-portfolio-badge ' + badgeClass + '">' + badgeText + '</div>'
+      + '<div class="wf-portfolio-counter-badge">' + counter + '</div>'
+      + '</div>'
+      + '<div class="wf-portfolio-caption">' + p.caption + '</div>'
+      + '</div>';
+  }).join('');
+
+  const dots = portfolio.map(function(_, i) {
+    return '<div class="wf-portfolio-dot ' + (i===0?'active':'') + '" onclick="portfolioGo(' + i + ')"></div>';
+  }).join('');
+
+  return '<div class="wf-portfolio-carousel" id="portfolioCarousel">'
+    + '<div class="wf-portfolio-track" id="portfolioTrack">' + slides + '</div>'
+    + '<div class="wf-portfolio-arrow left" onclick="portfolioNav(-1)">&#8249;</div>'
+    + '<div class="wf-portfolio-arrow right" onclick="portfolioNav(1)">&#8250;</div>'
+    + '</div>'
+    + '<div class="wf-portfolio-dots" id="portfolioDots">' + dots + '</div>';
+})();
 
 // Reviews HTML
 const reviewsHTML = revs.map(r => {
@@ -700,7 +726,7 @@ document.getElementById('profileContent').innerHTML = `
 
   <div class="wf-section">
     <h3>Trabajos anteriores · Antes &amp; Después</h3>
-    <div class="wf-portfolio">${portfolioHTML}</div>
+    ${portfolioHTML}
   </div>
 
   <div class="wf-section">
@@ -920,6 +946,33 @@ function showToast(msg) {
 
 // ── INIT CALENDAR ──
 renderCalendar();
+
+// ── PORTFOLIO CAROUSEL ──
+let portfolioIdx = 0;
+function portfolioGo(idx) {
+  portfolioIdx = idx;
+  const track = document.getElementById('portfolioTrack');
+  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+  document.querySelectorAll('.wf-portfolio-dot').forEach((d,i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+function portfolioNav(dir) {
+  const next = (portfolioIdx + dir + portfolio.length) % portfolio.length;
+  portfolioGo(next);
+}
+
+// Swipe touch support
+(function() {
+  let startX = 0;
+  const car = document.getElementById('portfolioCarousel');
+  if (!car) return;
+  car.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  car.addEventListener('touchend',   e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) portfolioNav(diff > 0 ? 1 : -1);
+  }, {passive:true});
+})();
 </script>
 </body>
 </html>
