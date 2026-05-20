@@ -82,8 +82,14 @@
     }
     .wf-hero-img {
       position: absolute; inset: 0;
+      background: url('familia.png') center/cover no-repeat;
+      opacity: 0.55;
+    }
+    .wf-hero-img-fallback {
+      position: absolute; inset: 0;
       background: url('https://images.unsplash.com/photo-1511895426328-dc8714191011?w=600&q=80') center/cover no-repeat;
-      opacity: 0.45;
+      opacity: 0.35;
+      z-index: 0;
     }
     .wf-hero-content {
       position: relative; z-index: 2;
@@ -357,6 +363,35 @@
       color: var(--accent); margin-top: 4px;
     }
 
+    /* ── FLASH amarillo ── */
+    .wf-carousel-wrap.flash-wrap { background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); }
+    .wf-carousel-wrap.flash-wrap .wf-section-head h2 { color: #92400e; }
+    .wf-carousel-wrap.flash-wrap .wf-section-head .icon { filter: drop-shadow(0 0 3px #f59e0b); }
+    .wf-carousel-wrap.flash-wrap .wf-see-all { color: #d97706; }
+    .wf-carousel-wrap.flash-wrap .wf-arrow:hover { background: #f59e0b; border-color: #f59e0b; }
+    /* ── TODOS grid ── */
+    .wf-all-section { padding: 16px; background: var(--bg); }
+    .wf-all-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+    .wf-all-head-left { display:flex;align-items:center;gap:6px; }
+    .wf-all-head h2 { font-size:15px;font-weight:600;color:var(--text); }
+    .wf-all-head .icon { font-size:17px; }
+    .wf-all-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .wf-all-card {
+      background:var(--white);border:1.5px solid var(--border);border-radius:14px;
+      padding:14px 12px 12px;cursor:pointer;box-shadow:var(--card-shadow);
+      transition:transform .18s,box-shadow .18s,border .18s;
+      text-decoration:none;display:flex;flex-direction:column;position:relative;
+    }
+    .wf-all-card:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(18,56,83,.15);border-color:var(--brand); }
+    .wf-all-card .wf-pcard-avatar { width:40px;height:40px;font-size:16px;margin-bottom:6px; }
+    .wf-all-card .wf-pcard-name { font-size:12px; }
+    .wf-all-card .wf-pcard-prof { font-size:10px; }
+    .wf-all-card .wf-pcard-desc { font-size:10px;-webkit-line-clamp:2; }
+    .wf-all-card .wf-pcard-price { font-size:10px; }
+    /* Onyx price note */
+    .wf-onyx-note {
+      font-size:9px;color:#f97316;font-weight:600;margin-top:2px;
+    }
     /* ── NO RESULTS ── */
     .wf-no-results {
       display: none;
@@ -379,7 +414,9 @@
   </a>
   <div class="wf-nav-icons">
     <a class="wf-nav-icon" href="wefix-favoritos.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V21l-4-2v-5.586L4.293 6.707A1 1 0 014 6V4a1 1 0 011-1z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/>
+      </svg>
       Favoritos
     </a>
     <a class="wf-nav-icon" href="wefix-notificaciones.html" style="position:relative;">
@@ -387,11 +424,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Notificaciones
     </a>
-    <a class="wf-nav-icon" href="#">
+    <a class="wf-nav-icon" href="wefix-home.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
       Búsqueda
     </a>
-    <a class="wf-nav-icon" href="#">
+    <a class="wf-nav-icon" href="wefix-perfil-usuario.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Perfil
     </a>
@@ -400,6 +437,7 @@
 
 <!-- HERO -->
 <section class="wf-hero">
+  <div class="wf-hero-img-fallback"></div>
   <div class="wf-hero-img"></div>
   <div class="wf-hero-content">
     <div class="brand-name">WeFix</div>
@@ -507,8 +545,18 @@
 
 <div class="wf-divider"></div>
 
+<!-- ONYX BANNER — aparece antes de Flash -->
+<div class="wf-onyx-banner" onclick="window.location.href='wefix-members.html'" style="margin-top:12px;">
+  <div class="wf-onyx-banner-icon">💎</div>
+  <div class="wf-onyx-banner-text">
+    <div class="bn-title">WeFix Onyx — Membresía Premium</div>
+    <div class="bn-sub">Con Onyx tienes descuento en todos los servicios + Cashback 3%</div>
+  </div>
+  <div class="wf-onyx-banner-arrow">›</div>
+</div>
+
 <!-- FLASH -->
-<div class="wf-carousel-wrap" id="sectionFlash">
+<div class="wf-carousel-wrap flash-wrap" id="sectionFlash">
   <div class="wf-section-head">
     <div class="wf-section-head-left">
       <span class="icon">⚡</span>
@@ -527,27 +575,19 @@
   </div>
 </div>
 
-<div class="wf-divider"></div>
 
-<!-- ONYX BANNER -->
-<div class="wf-onyx-banner" onclick="window.location.href='wefix-members.html'">
-  <div class="wf-onyx-banner-icon">💎</div>
-  <div class="wf-onyx-banner-text">
-    <div class="bn-title">WeFix Onyx — Membresía Premium</div>
-    <div class="bn-sub">Accede a profesionales exclusivos, Cashback 3% y servicio Flash</div>
-  </div>
-  <div class="wf-onyx-banner-arrow">›</div>
+<div class="wf-no-results" id="noResults">
+  No se encontraron profesionales con esos criterios.
 </div>
 
-<!-- PREMIUM ONYX -->
-<div class="wf-carousel-wrap" id="sectionOnyx">
+<!-- PREMIUM — disponible para todos, descuento con Onyx -->
+<div class="wf-carousel-wrap" id="sectionOnyx" style="margin-top:4px;">
   <div class="wf-onyx-section-head" style="margin-top:16px;">
     <div class="wf-onyx-section-head-left">
       <span style="font-size:17px;">✦</span>
       <span class="wf-onyx-title">Premium</span>
-      <span class="wf-onyx-pill">💎 Onyx</span>
+      <span class="wf-onyx-pill">💎 Con Onyx precio especial</span>
     </div>
-    <a class="wf-onyx-see-all" href="wefix-members.html">Activar Onyx</a>
   </div>
   <div class="wf-carousel-outer">
     <button class="wf-arrow" id="arrowOnyxL">
@@ -560,9 +600,22 @@
   </div>
 </div>
 
-<div class="wf-no-results" id="noResults">
-  No se encontraron profesionales con esos criterios.
+<div class="wf-divider"></div>
+
+<!-- TODOS LOS PROFESIONALES -->
+<div class="wf-all-section" id="sectionTodos">
+  <div class="wf-all-head">
+    <div class="wf-all-head-left">
+      <span class="icon">👥</span>
+      <h2>Todos los profesionales</h2>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5;">
+    Aquí encuentras a todos nuestros profesionales. Pulsa cualquier tarjeta para ver su perfil y contratarlo.
+  </p>
+  <div class="wf-all-grid" id="allGrid"></div>
 </div>
+
 
 <script>
 // ── DATA ──
@@ -649,6 +702,7 @@ function cardHTML(p) {
     <div class="wf-pcard-desc">${p.desc}</div>
     <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
     <div class="wf-pcard-price">$${p.price}/hr</div>
+    ${isOnyx ? `<div class='wf-onyx-note'>💎 Con Onyx: $${Math.round(p.price*0.8)}/hr (-20%)</div>` : ''}
   </a>`;
 }
 
@@ -679,6 +733,7 @@ function applyAll() {
   noRes.style.display = result.length === 0 ? 'block' : 'none';
   document.getElementById('sectionTop').style.display   = result.length ? '' : 'none';
   document.getElementById('sectionFlash').style.display = result.length ? '' : 'none';
+  if(typeof renderAllGrid === 'function') renderAllGrid();
 }
 
 // ── CHIPS ──
@@ -751,6 +806,33 @@ setupArrows('arrowOnyxL',  'arrowOnyxR',  'carouselOnyx');
 
 // ── INIT ──
 applyAll();
+
+function renderAllGrid() {
+  const q = filters.search.toLowerCase();
+  const all = [...professionals, ...onyxProfessionals].filter(p => {
+    const matchCat = filters.cat === 'todos' || p.prof === filters.cat;
+    const matchQ   = !q || p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  }).sort((a,b) => b.stars - a.stars);
+
+  document.getElementById('allGrid').innerHTML = all.map(p => {
+    const isOnyx = p.onyx;
+    return `<a class="wf-all-card ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?id=${p.id}" style="position:relative;">
+      ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
+      <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
+        ${initials(p.name)}
+        ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
+      </div>
+      <div class="wf-pcard-name">${p.name}</div>
+      <div class="wf-pcard-prof">${p.label}</div>
+      <div class="wf-pcard-desc">${p.desc}</div>
+      <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
+      <div class="wf-pcard-price">$${p.price}/hr</div>
+      ${isOnyx ? `<div class='wf-onyx-note'>💎 Con Onyx: $${Math.round(p.price*0.8)}/hr (-20%)</div>` : ''}
+    </a>`;
+  }).join('');
+}
+renderAllGrid();
 </script>
 </body>
 </html>
