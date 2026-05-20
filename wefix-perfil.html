@@ -4,8 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>WeFix — Perfil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:    #f4f4f6;
@@ -15,6 +15,7 @@
       --border:#dde1e7;
       --text:  #1a1a2e;
       --muted: #6b7280;
+      --green: #22c55e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -24,7 +25,7 @@
       max-width: 500px; margin: 0 auto; min-height: 100vh;
     }
 
-    /* NAVBAR */
+    /* ── NAVBAR ── */
     .wf-nav {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 20px; background: var(--white);
@@ -33,145 +34,332 @@
     }
     .wf-logo {
       display: flex; align-items: center; gap: 8px;
-      font-family: 'Raleway', sans-serif;
-      font-size: 20px; font-weight: 700;
+      font-family: 'Raleway', sans-serif; font-size: 20px; font-weight: 700;
       color: var(--brand); text-decoration: none;
     }
     .wf-logo-icon {
-      width: 32px; height: 32px;
-      border: 2px solid var(--brand); border-radius: 6px;
+      width: 32px; height: 32px; border: 2px solid var(--brand); border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700;
+      font-size: 14px; font-weight: 700; color: var(--brand);
     }
     .wf-back {
-      background: none; border: none;
-      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; display: flex; align-items: center; gap: 6px;
       color: var(--brand); font-size: 13px; font-weight: 500;
       cursor: pointer; font-family: 'Poppins', sans-serif;
     }
     .wf-back svg { width: 18px; height: 18px; }
 
-    /* PROFILE HEADER */
+    /* ── PROFILE HEADER ── */
     .wf-profile-header {
-      background: var(--white);
-      padding: 24px 20px 20px;
+      background: var(--white); padding: 24px 20px 20px;
       border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
     }
     .wf-big-avatar {
-      width: 80px; height: 80px; border-radius: 50%;
-      background: var(--brand);
+      width: 84px; height: 84px; border-radius: 50%; background: var(--brand);
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 600; color: var(--white);
+      font-size: 28px; font-weight: 700; color: var(--white);
       margin-bottom: 12px; position: relative;
+      box-shadow: 0 4px 16px rgba(18,56,83,.2);
     }
     .wf-big-avatar .verified-badge {
       position: absolute; bottom: 2px; right: 2px;
       width: 22px; height: 22px; border-radius: 50%;
-      background: #22c55e; border: 2px solid var(--white);
+      background: var(--green); border: 2px solid var(--white);
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; color: var(--white); font-weight: 700;
     }
-    .wf-profile-name {
-      font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px;
-    }
-    .wf-profile-prof {
-      font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 8px;
-    }
-    .wf-profile-stars {
-      display: flex; gap: 3px; margin-bottom: 6px; justify-content: center;
-    }
-    .wf-profile-stars span { font-size: 16px; }
+    .wf-profile-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .wf-profile-prof { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 8px; }
+    .wf-profile-stars { display: flex; gap: 3px; margin-bottom: 4px; justify-content: center; }
+    .wf-profile-stars span { font-size: 17px; }
     .wf-star-filled { color: #f5a623; }
     .wf-star-empty  { color: #ddd; }
-    .wf-profile-rating-text {
-      font-size: 12px; color: var(--muted); margin-bottom: 12px;
-    }
-    .wf-profile-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
-    .wf-tag {
-      background: #e8f0fb; color: var(--brand);
-      border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 500;
-    }
+    .wf-profile-rating-text { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .wf-profile-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 18px; }
+    .wf-tag { background: #e8f0fb; color: var(--brand); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 500; }
     .wf-tag.accent { background: #fde8e8; color: #b91c1c; }
     .wf-hire-btn {
-      background: var(--brand); color: var(--white);
-      border: none; border-radius: 24px;
-      padding: 12px 40px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: 'Poppins', sans-serif;
-      transition: background .18s;
+      background: var(--brand); color: var(--white); border: none;
+      border-radius: 24px; padding: 13px 44px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: 'Poppins', sans-serif; transition: background .18s;
+      box-shadow: 0 4px 14px rgba(18,56,83,.25);
     }
     .wf-hire-btn:hover { background: #1a4f72; }
 
-    /* SECTIONS */
+    /* ── SECTIONS ── */
     .wf-section {
-      background: var(--white);
-      margin: 12px 12px 0;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 16px;
+      background: var(--white); margin: 12px 12px 0;
+      border-radius: 14px; border: 1px solid var(--border); padding: 16px;
     }
     .wf-section h3 {
-      font-size: 13px; font-weight: 600;
-      color: var(--brand); margin-bottom: 10px;
-      text-transform: uppercase; letter-spacing: .5px;
+      font-size: 12px; font-weight: 600; color: var(--brand);
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .6px;
     }
-    .wf-section p {
-      font-size: 13px; color: var(--muted); line-height: 1.6;
-    }
+    .wf-section p { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-    /* INFO ROWS */
+    /* ── INFO ROWS ── */
     .wf-info-row {
-      display: flex; justify-content: space-between;
-      align-items: center; padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;
     }
     .wf-info-row:last-child { border-bottom: none; }
     .wf-info-row .label { color: var(--muted); }
     .wf-info-row .value { font-weight: 500; color: var(--text); }
     .wf-info-row .value.price { color: var(--accent); font-weight: 600; }
 
-    /* REVIEWS */
-    .wf-review {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
+    /* ── ANTES / DESPUÉS ── */
+    .wf-portfolio { display: flex; flex-direction: column; gap: 12px; }
+    .wf-portfolio-pair {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
     }
+    .wf-portfolio-labels {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: var(--brand);
+    }
+    .wf-portfolio-label {
+      padding: 6px; text-align: center;
+      font-size: 10px; font-weight: 700; color: var(--white);
+      letter-spacing: .8px; text-transform: uppercase;
+    }
+    .wf-portfolio-label.before { border-right: 1px solid rgba(255,255,255,.2); }
+    .wf-portfolio-images {
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .wf-portfolio-img {
+      width: 100%; aspect-ratio: 1;
+      object-fit: cover; display: block; background: #dde1e7;
+    }
+    .wf-portfolio-img.before { border-right: 1px solid var(--white); }
+
+    /* ── RESEÑAS ── */
+    .wf-review { padding: 14px 0; border-bottom: 1px solid var(--border); }
     .wf-review:last-child { border-bottom: none; }
     .wf-review-header {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
     }
+    .wf-review-avatar {
+      width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--border); flex-shrink: 0; background: var(--bg);
+    }
+    .wf-review-avatar-fallback {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--white); flex-shrink: 0;
+    }
+    .wf-review-meta { flex: 1; }
     .wf-review-name { font-size: 12px; font-weight: 600; color: var(--text); }
-    .wf-review-stars { display: flex; gap: 2px; }
-    .wf-review-stars span { font-size: 12px; }
+    .wf-review-stars { display: flex; gap: 2px; margin-top: 1px; }
+    .wf-review-stars span { font-size: 11px; }
     .wf-review-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .wf-review-date { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
-    /* CALENDAR */
-    .wf-calendar-hint {
-      font-size: 12px; color: var(--muted); margin-bottom: 10px;
+    /* ── SPACER ── */
+    .wf-spacer { height: 32px; }
+
+    /* ══════════════════════════════════
+       BOOKING SHEET (bottom sheet)
+    ══════════════════════════════════ */
+    .wf-sheet-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 200;
+      align-items: flex-end; justify-content: center;
     }
-    .wf-date-input {
-      width: 100%; font-family: 'Poppins', sans-serif;
-      font-size: 13px; color: var(--text);
-      border: 1px solid var(--border); border-radius: 8px;
-      padding: 10px 12px; outline: none; background: var(--bg);
-      margin-bottom: 10px;
+    .wf-sheet-overlay.open { display: flex; }
+
+    .wf-sheet {
+      background: var(--white); border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 500px;
+      max-height: 92vh; overflow-y: auto;
+      padding: 0 0 32px; animation: slideUp .3s ease;
     }
-    .wf-date-input:focus { border-color: var(--brand); }
-    .wf-confirm-btn {
+    @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+
+    .wf-sheet-handle-wrap {
+      position: sticky; top: 0; background: var(--white);
+      padding: 12px 20px 10px; border-bottom: 1px solid var(--border); z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .wf-sheet-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 0 auto;
+    }
+    .wf-sheet-title {
+      font-size: 15px; font-weight: 700; color: var(--text); flex: 1; text-align: center;
+    }
+    .wf-sheet-close {
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: var(--muted); padding: 0;
+    }
+
+    /* Step indicator */
+    .wf-steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 14px 20px 10px;
+    }
+    .wf-step {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .wf-step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--border); color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; transition: all .2s;
+    }
+    .wf-step-dot.active { background: var(--brand); color: var(--white); }
+    .wf-step-dot.done   { background: var(--green); color: var(--white); }
+    .wf-step-label { font-size: 9px; color: var(--muted); font-weight: 500; }
+    .wf-step-label.active { color: var(--brand); font-weight: 600; }
+    .wf-step-line { width: 28px; height: 2px; background: var(--border); margin-bottom: 14px; }
+    .wf-step-line.done { background: var(--green); }
+
+    /* Sheet steps content */
+    .wf-sheet-step { display: none; padding: 0 20px; }
+    .wf-sheet-step.active { display: block; }
+
+    /* ── Step 1: Fecha ── */
+    .wf-sheet-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+
+    /* Calendar grid */
+    .wf-cal {
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px;
+    }
+    .wf-cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: var(--brand);
+    }
+    .wf-cal-month { font-size: 14px; font-weight: 700; color: var(--white); }
+    .wf-cal-nav {
+      background: rgba(255,255,255,.15); border: none; border-radius: 50%;
+      width: 28px; height: 28px; color: var(--white); cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .wf-cal-nav:hover { background: rgba(255,255,255,.3); }
+    .wf-cal-days-header {
+      display: grid; grid-template-columns: repeat(7,1fr);
+      background: #f0f5fb;
+    }
+    .wf-cal-day-name {
+      text-align: center; padding: 6px 0;
+      font-size: 10px; font-weight: 600; color: var(--muted);
+    }
+    .wf-cal-grid {
+      display: grid; grid-template-columns: repeat(7,1fr);
+      background: var(--white);
+    }
+    .wf-cal-cell {
+      text-align: center; padding: 8px 4px;
+      font-size: 12px; cursor: pointer; color: var(--text);
+      border-radius: 8px; margin: 2px; transition: background .15s, color .15s;
+    }
+    .wf-cal-cell:hover:not(.empty):not(.past) { background: #e8f0fb; color: var(--brand); }
+    .wf-cal-cell.selected { background: var(--brand); color: var(--white); font-weight: 700; border-radius: 50%; }
+    .wf-cal-cell.today { font-weight: 700; color: var(--accent); }
+    .wf-cal-cell.past  { color: #ccc; cursor: default; }
+    .wf-cal-cell.empty { cursor: default; }
+    .wf-cal-cell.unavailable { color: #e0e0e0; cursor: not-allowed; text-decoration: line-through; }
+
+    /* ── Step 1: Hora ── */
+    .wf-time-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 16px;
+    }
+    .wf-time-btn {
+      padding: 8px 4px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 12px; font-weight: 500; color: var(--text); text-align: center;
+      cursor: pointer; background: var(--white); transition: all .15s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .wf-time-btn:hover:not(.unavail) { border-color: var(--brand); color: var(--brand); }
+    .wf-time-btn.selected { background: var(--brand); color: var(--white); border-color: var(--brand); }
+    .wf-time-btn.unavail { background: var(--bg); color: #ccc; cursor: not-allowed; font-size: 10px; }
+
+    /* ── Step 2: Detalles ── */
+    .wf-form-group { margin-bottom: 14px; }
+    .wf-form-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; display: block; letter-spacing: .3px; }
+    .wf-form-input, .wf-form-select, .wf-form-textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 13px; font-family: 'Poppins', sans-serif;
+      color: var(--text); outline: none; transition: border .2s; background: var(--white);
+    }
+    .wf-form-input:focus, .wf-form-select:focus, .wf-form-textarea:focus { border-color: var(--brand); }
+    .wf-form-textarea { resize: none; }
+
+    /* Price summary */
+    .wf-price-summary {
+      background: #f0f5fb; border-radius: 12px; padding: 14px; margin-bottom: 16px;
+    }
+    .wf-price-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; padding: 4px 0; color: var(--muted);
+    }
+    .wf-price-row.total {
+      font-weight: 700; color: var(--text); font-size: 14px;
+      border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px;
+    }
+    .wf-price-row .val { font-weight: 600; color: var(--text); }
+    .wf-price-row.total .val { color: var(--brand); }
+
+    /* ── Step 3: Pago ── */
+    .wf-payment-methods { display: flex; gap: 8px; margin-bottom: 16px; }
+    .wf-pay-method {
+      flex: 1; padding: 10px 8px; border: 1.5px solid var(--border);
+      border-radius: 12px; text-align: center; cursor: pointer;
+      font-size: 11px; font-weight: 500; color: var(--muted);
+      transition: all .15s;
+    }
+    .wf-pay-method .pay-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .wf-pay-method.selected { border-color: var(--brand); background: #f0f5fb; color: var(--brand); }
+
+    .wf-card-form { display: flex; flex-direction: column; gap: 12px; }
+    .wf-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wf-secure-note {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--muted); margin-top: 4px;
+    }
+    .wf-secure-note svg { width: 14px; height: 14px; color: var(--green); flex-shrink: 0; }
+
+    /* Confirm button */
+    .wf-sheet-btn {
       width: 100%; background: var(--brand); color: var(--white);
-      border: none; border-radius: 10px; padding: 11px;
-      font-size: 14px; font-weight: 500; cursor: pointer;
+      border: none; border-radius: 14px; padding: 14px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: background .18s;
+      margin-top: 16px; box-shadow: 0 4px 14px rgba(18,56,83,.25);
     }
-    .wf-confirm-btn:hover { background: #1a4f72; }
-    .wf-confirm-msg {
-      display: none; margin-top: 10px; text-align: center;
-      font-size: 13px; color: #16a34a; font-weight: 500;
+    .wf-sheet-btn:hover { background: #1a4f72; }
+    .wf-sheet-btn.outline {
+      background: none; color: var(--muted); border: 1.5px solid var(--border);
+      box-shadow: none; margin-top: 8px;
     }
 
-    .wf-spacer { height: 24px; }
+    /* ── Step 4: Confirmación ── */
+    .wf-confirm-screen {
+      text-align: center; padding: 20px 0 10px;
+    }
+    .wf-confirm-icon { font-size: 56px; margin-bottom: 14px; animation: popIn .4s ease; }
+    @keyframes popIn { from{transform:scale(.5);opacity:0;} to{transform:scale(1);opacity:1;} }
+    .wf-confirm-title { font-size: 20px; font-weight: 700; color: var(--brand); margin-bottom: 8px; }
+    .wf-confirm-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .wf-confirm-card {
+      background: var(--brand); border-radius: 16px; padding: 16px;
+      margin: 0 auto 20px; text-align: left;
+    }
+    .wf-confirm-card-row {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: rgba(255,255,255,.7); padding: 4px 0;
+    }
+    .wf-confirm-card-row .cval { color: var(--white); font-weight: 600; }
+
+    /* Toast */
+    .wf-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--brand); color: var(--white); border-radius: 30px;
+      padding: 10px 22px; font-size: 13px; font-weight: 500; z-index: 999;
+      box-shadow: 0 4px 18px rgba(18,56,83,.25); transition: transform .3s ease; white-space: nowrap;
+    }
+    .wf-toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -189,10 +377,204 @@
   <div style="width:60px;"></div>
 </nav>
 
-<!-- PROFILE (populated by JS) -->
+<!-- PROFILE -->
 <div id="profileContent"></div>
 
+<!-- ════════════════════════════════
+     BOOKING SHEET
+════════════════════════════════ -->
+<div class="wf-sheet-overlay" id="sheetOverlay">
+  <div class="wf-sheet" id="bookingSheet">
+
+    <!-- Handle + título -->
+    <div class="wf-sheet-handle-wrap">
+      <button class="wf-sheet-close" onclick="closeSheet()">✕</button>
+      <div class="wf-sheet-title" id="sheetTitle">Contratar servicio</div>
+      <div style="width:28px;"></div>
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="wf-steps">
+      <div class="wf-step">
+        <div class="wf-step-dot active" id="dot1">1</div>
+        <div class="wf-step-label active" id="lbl1">Fecha</div>
+      </div>
+      <div class="wf-step-line" id="line1"></div>
+      <div class="wf-step">
+        <div class="wf-step-dot" id="dot2">2</div>
+        <div class="wf-step-label" id="lbl2">Detalles</div>
+      </div>
+      <div class="wf-step-line" id="line2"></div>
+      <div class="wf-step">
+        <div class="wf-step-dot" id="dot3">3</div>
+        <div class="wf-step-label" id="lbl3">Pago</div>
+      </div>
+      <div class="wf-step-line" id="line3"></div>
+      <div class="wf-step">
+        <div class="wf-step-dot" id="dot4">✓</div>
+        <div class="wf-step-label" id="lbl4">Listo</div>
+      </div>
+    </div>
+
+    <!-- ─── STEP 1: Fecha y hora ─── -->
+    <div class="wf-sheet-step active" id="step1">
+      <p class="wf-sheet-subtitle">Elige el día y horario que mejor te convenga.</p>
+
+      <!-- Calendario -->
+      <div class="wf-cal">
+        <div class="wf-cal-header">
+          <button class="wf-cal-nav" id="calPrev">‹</button>
+          <div class="wf-cal-month" id="calMonth"></div>
+          <button class="wf-cal-nav" id="calNext">›</button>
+        </div>
+        <div class="wf-cal-days-header">
+          <div class="wf-cal-day-name">Dom</div>
+          <div class="wf-cal-day-name">Lun</div>
+          <div class="wf-cal-day-name">Mar</div>
+          <div class="wf-cal-day-name">Mié</div>
+          <div class="wf-cal-day-name">Jue</div>
+          <div class="wf-cal-day-name">Vie</div>
+          <div class="wf-cal-day-name">Sáb</div>
+        </div>
+        <div class="wf-cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Horas disponibles -->
+      <div id="timeSection" style="display:none;">
+        <h4 style="font-size:12px;font-weight:600;color:var(--brand);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Horario disponible</h4>
+        <div class="wf-time-grid" id="timeGrid"></div>
+      </div>
+
+      <button class="wf-sheet-btn" id="step1Next" onclick="goStep(2)" style="display:none;">
+        Continuar →
+      </button>
+    </div>
+
+    <!-- ─── STEP 2: Detalles del servicio ─── -->
+    <div class="wf-sheet-step" id="step2">
+      <p class="wf-sheet-subtitle">Cuéntanos más sobre lo que necesitas.</p>
+
+      <div class="wf-form-group">
+        <label class="wf-form-label">Dirección del servicio</label>
+        <input class="wf-form-input" type="text" id="serviceAddr" placeholder="Calle, número, colonia…"/>
+      </div>
+      <div class="wf-form-group">
+        <label class="wf-form-label">Duración estimada</label>
+        <select class="wf-form-select" id="serviceDuration">
+          <option value="1">1 hora</option>
+          <option value="2" selected>2 horas</option>
+          <option value="3">3 horas</option>
+          <option value="4">4 horas</option>
+          <option value="5">5+ horas</option>
+        </select>
+      </div>
+      <div class="wf-form-group">
+        <label class="wf-form-label">Notas adicionales (opcional)</label>
+        <textarea class="wf-form-textarea" id="serviceNotes" rows="3" placeholder="Ej: tengo dos perros, el acceso es por la puerta trasera…"></textarea>
+      </div>
+
+      <!-- Resumen de precio -->
+      <div class="wf-price-summary" id="priceSummary"></div>
+
+      <button class="wf-sheet-btn" onclick="goStep(3)">Continuar →</button>
+      <button class="wf-sheet-btn outline" onclick="goStep(1)">← Cambiar fecha</button>
+    </div>
+
+    <!-- ─── STEP 3: Pago ─── -->
+    <div class="wf-sheet-step" id="step3">
+      <p class="wf-sheet-subtitle">Elige tu método de pago. Tus datos están protegidos con cifrado SSL.</p>
+
+      <div class="wf-payment-methods">
+        <div class="wf-pay-method selected" id="payCard" onclick="selectPay('card')">
+          <span class="pay-icon">💳</span>Tarjeta
+        </div>
+        <div class="wf-pay-method" id="paySpei" onclick="selectPay('spei')">
+          <span class="pay-icon">🏦</span>SPEI
+        </div>
+        <div class="wf-pay-method" id="payWallet" onclick="selectPay('wallet')">
+          <span class="pay-icon">💰</span>Saldo WeFix
+        </div>
+      </div>
+
+      <!-- Formulario tarjeta -->
+      <div class="wf-card-form" id="cardForm">
+        <div class="wf-form-group" style="margin:0;">
+          <label class="wf-form-label">Número de tarjeta</label>
+          <input class="wf-form-input" type="text" id="cardNumber"
+                 placeholder="0000 0000 0000 0000" maxlength="19"
+                 oninput="formatCard(this)"/>
+        </div>
+        <div class="wf-form-group" style="margin:0;">
+          <label class="wf-form-label">Nombre en la tarjeta</label>
+          <input class="wf-form-input" type="text" id="cardName" placeholder="Como aparece en la tarjeta"/>
+        </div>
+        <div class="wf-card-row">
+          <div class="wf-form-group" style="margin:0;">
+            <label class="wf-form-label">Vencimiento</label>
+            <input class="wf-form-input" type="text" id="cardExp"
+                   placeholder="MM/AA" maxlength="5"
+                   oninput="formatExp(this)"/>
+          </div>
+          <div class="wf-form-group" style="margin:0;">
+            <label class="wf-form-label">CVV</label>
+            <input class="wf-form-input" type="password" id="cardCvv"
+                   placeholder="•••" maxlength="4"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPEI -->
+      <div id="speiForm" style="display:none;">
+        <div class="wf-price-summary">
+          <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:8px;">Datos para transferencia SPEI</p>
+          <div class="wf-price-row"><span>Banco</span><span class="val">BBVA</span></div>
+          <div class="wf-price-row"><span>CLABE</span><span class="val">012345678901234567</span></div>
+          <div class="wf-price-row"><span>Beneficiario</span><span class="val">WeFix SAPI de CV</span></div>
+          <div class="wf-price-row total"><span>Total a transferir</span><span class="val" id="speiTotal"></span></div>
+        </div>
+      </div>
+
+      <!-- Saldo WeFix -->
+      <div id="walletForm" style="display:none;">
+        <div class="wf-price-summary">
+          <div class="wf-price-row"><span>Saldo disponible</span><span class="val" style="color:var(--green);">$42 MXN</span></div>
+          <div class="wf-price-row total"><span>Total del servicio</span><span class="val" id="walletTotal"></span></div>
+        </div>
+        <p style="font-size:11px;color:var(--accent);margin-top:6px;">⚠️ Tu saldo no cubre el total. Se cargará el restante a tu tarjeta registrada.</p>
+      </div>
+
+      <div class="wf-secure-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+        </svg>
+        Pago 100% seguro · Cifrado SSL · No guardamos datos de tu tarjeta
+      </div>
+
+      <button class="wf-sheet-btn" onclick="confirmPayment()">Confirmar y pagar →</button>
+      <button class="wf-sheet-btn outline" onclick="goStep(2)">← Volver</button>
+    </div>
+
+    <!-- ─── STEP 4: Confirmación ─── -->
+    <div class="wf-sheet-step" id="step4">
+      <div class="wf-confirm-screen">
+        <div class="wf-confirm-icon">🎉</div>
+        <div class="wf-confirm-title">¡Servicio confirmado!</div>
+        <div class="wf-confirm-sub" id="confirmSub"></div>
+        <div class="wf-confirm-card" id="confirmCard"></div>
+        <button class="wf-sheet-btn" onclick="closeSheet()">Ver mis servicios</button>
+        <button class="wf-sheet-btn outline" onclick="closeSheet()">Regresar al perfil</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="wf-toast" id="toast"></div>
+
 <script>
+// ══════════════════════════════════
+// DATA
+// ══════════════════════════════════
 const professionals = [
   { id:1,  name:"Jose Torres",       prof:"chofer",   label:"Chofer",              stars:4, price:350, verified:true,  desc:"Hola soy Jose Torres, hablo español e inglés. 5 años de experiencia en traslados privados y ejecutivos. Cuento con unidad propia de alta gama, puntualidad garantizada." },
   { id:2,  name:"Margarita Flores",  prof:"limpieza", label:"Servicio de limpieza",stars:5, price:250, verified:true,  desc:"Especialista en limpieza profunda de hogares y oficinas. Trabajo con productos eco-amigables y técnicas modernas. Más de 200 clientes satisfechos." },
@@ -212,42 +594,94 @@ const professionals = [
 ];
 
 const reviews = {
-  1: [{name:"Karen M.", stars:5, text:"Muy puntual y profesional. Lo recomiendo ampliamente."},{name:"Rodrigo P.", stars:4, text:"Buen servicio, llegó a tiempo y su unidad estaba muy limpia."}],
-  2: [{name:"Laura T.", stars:5, text:"Dejó mi casa impecable, super detallista."},{name:"Carlos A.", stars:5, text:"Excelente trabajo, muy confiable y discreta."}],
-  3: [{name:"Ivonne R.", stars:4, text:"La cena estuvo deliciosa, todos quedaron encantados."},{name:"Marcos F.", stars:4, text:"Muy profesional, buena sazón y presentación."}],
-  default:[{name:"Usuario WeFix", stars:4, text:"Muy buen servicio, lo contrataría de nuevo."},{name:"Cliente satisfecho", stars:5, text:"Profesional y puntual, excelente experiencia."}]
+  1:[{name:"Karen M.",    stars:5, text:"Muy puntual y profesional. Lo recomiendo ampliamente.", img:"flores.png"},
+     {name:"Rodrigo P.",  stars:4, text:"Buen servicio, llegó a tiempo y su unidad estaba muy limpia.", img:null}],
+  2:[{name:"Laura T.",    stars:5, text:"Dejó mi casa impecable, super detallista.", img:"flores.png"},
+     {name:"Carlos A.",   stars:5, text:"Excelente trabajo, muy confiable y discreta.", img:null}],
+  3:[{name:"Ivonne R.",   stars:4, text:"La cena estuvo deliciosa, todos quedaron encantados.", img:null},
+     {name:"Marcos F.",   stars:4, text:"Muy profesional, buena sazón y presentación.", img:"flores.png"}],
+  default:[{name:"Usuario WeFix", stars:4, text:"Muy buen servicio, lo contrataría de nuevo.", img:"flores.png"},
+           {name:"Cliente satisfecho", stars:5, text:"Profesional y puntual, excelente experiencia.", img:null}]
 };
 
+// Portafolio antes/después (compartido entre perfiles como demo)
+const portfolio = [
+  { before:"feo1.png", after:"bonito1.png" },
+  { before:"feo2.png", after:"bonito2.png" },
+  { before:"feo3.png", after:"bonito3.png" },
+];
+
+// ── Helpers ──
 function starsHTML(n, size=14) {
   return [1,2,3,4,5].map(i=>
     `<span style="font-size:${size}px" class="${i<=n?'wf-star-filled':'wf-star-empty'}">★</span>`
   ).join('');
 }
-
 function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
 
+// ── Load profile ──
 const params = new URLSearchParams(window.location.search);
 const id     = parseInt(params.get('id')) || 1;
 const pro    = professionals.find(p=>p.id===id) || professionals[0];
 const revs   = reviews[pro.id] || reviews.default;
 
-const content = document.getElementById('profileContent');
-content.innerHTML = `
+document.getElementById('sheetTitle').textContent = `Contratar a ${pro.name}`;
+
+// Portfolio HTML
+const portfolioHTML = portfolio.map(p => `
+  <div class="wf-portfolio-pair">
+    <div class="wf-portfolio-labels">
+      <div class="wf-portfolio-label before">Antes</div>
+      <div class="wf-portfolio-label">Después</div>
+    </div>
+    <div class="wf-portfolio-images">
+      <img class="wf-portfolio-img before" src="${p.before}"
+           alt="Antes"
+           onerror="this.style.background='#e0e0e0';this.alt='Antes'"/>
+      <img class="wf-portfolio-img" src="${p.after}"
+           alt="Después"
+           onerror="this.style.background='#c8e6c9';this.alt='Después'"/>
+    </div>
+  </div>`).join('');
+
+// Reviews HTML
+const reviewsHTML = revs.map(r => {
+  const avatarHTML = r.img
+    ? `<img class="wf-review-avatar" src="${r.img}" alt="${r.name}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>`
+    : '';
+  const fallbackHTML = `<div class="wf-review-avatar-fallback" ${r.img?'style="display:none;"':''}>
+    ${r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+  </div>`;
+  return `
+    <div class="wf-review">
+      <div class="wf-review-header">
+        ${avatarHTML}${fallbackHTML}
+        <div class="wf-review-meta">
+          <div class="wf-review-name">${r.name}</div>
+          <div class="wf-review-stars">${starsHTML(r.stars,12)}</div>
+        </div>
+      </div>
+      <div class="wf-review-text">${r.text}</div>
+    </div>`;
+}).join('');
+
+document.getElementById('profileContent').innerHTML = `
   <div class="wf-profile-header">
-    <div class="wf-big-avatar" style="background:#123853">
+    <div class="wf-big-avatar">
       ${initials(pro.name)}
       ${pro.verified ? '<div class="verified-badge">✓</div>' : ''}
     </div>
     <div class="wf-profile-name">${pro.name}</div>
     <div class="wf-profile-prof">${pro.label}</div>
-    <div class="wf-profile-stars">${starsHTML(pro.stars, 18)}</div>
+    <div class="wf-profile-stars">${starsHTML(pro.stars,18)}</div>
     <div class="wf-profile-rating-text">${pro.stars}.0 / 5 — ${revs.length} reseñas</div>
     <div class="wf-profile-tags">
       <span class="wf-tag">${pro.label}</span>
       ${pro.verified ? '<span class="wf-tag">✓ Verificado</span>' : ''}
       <span class="wf-tag accent">$${pro.price}/hr</span>
     </div>
-    <button class="wf-hire-btn" id="hireBtn">Contratar ahora</button>
+    <button class="wf-hire-btn" onclick="openSheet()">Contratar ahora</button>
   </div>
 
   <div class="wf-section">
@@ -260,46 +694,232 @@ content.innerHTML = `
     <div class="wf-info-row"><span class="label">Profesión</span><span class="value">${pro.label}</span></div>
     <div class="wf-info-row"><span class="label">Precio por hora</span><span class="value price">$${pro.price} MXN</span></div>
     <div class="wf-info-row"><span class="label">Calificación</span><span class="value">${pro.stars}/5 ★</span></div>
-    <div class="wf-info-row"><span class="label">Perfil verificado</span><span class="value">${pro.verified ? '✓ Sí' : '✗ No'}</span></div>
+    <div class="wf-info-row"><span class="label">Perfil verificado</span><span class="value">${pro.verified?'✓ Sí':'✗ No'}</span></div>
     <div class="wf-info-row"><span class="label">Idiomas</span><span class="value">Español, Inglés</span></div>
   </div>
 
   <div class="wf-section">
-    <h3>Agendar cita</h3>
-    <p class="wf-calendar-hint">Selecciona una fecha para ver disponibilidad</p>
-    <input type="date" class="wf-date-input" id="fechaCita"/>
-    <button class="wf-confirm-btn" id="confirmBtn">Verificar disponibilidad</button>
-    <div class="wf-confirm-msg" id="confirmMsg">✓ ¡${pro.name} está disponible! Te contactará pronto.</div>
+    <h3>Trabajos anteriores · Antes &amp; Después</h3>
+    <div class="wf-portfolio">${portfolioHTML}</div>
   </div>
 
   <div class="wf-section">
-    <h3>Reseñas</h3>
-    ${revs.map(r=>`
-      <div class="wf-review">
-        <div class="wf-review-header">
-          <span class="wf-review-name">${r.name}</span>
-          <div class="wf-review-stars">${starsHTML(r.stars,12)}</div>
-        </div>
-        <div class="wf-review-text">${r.text}</div>
-      </div>
-    `).join('')}
+    <h3>Reseñas (${revs.length})</h3>
+    ${reviewsHTML}
   </div>
 
   <div class="wf-spacer"></div>
 `;
 
-document.getElementById('confirmBtn').addEventListener('click', () => {
-  const fecha = document.getElementById('fechaCita').value;
-  const msg   = document.getElementById('confirmMsg');
-  if (!fecha) { alert('Por favor selecciona una fecha.'); return; }
-  msg.style.display = 'block';
+// ══════════════════════════════════
+// BOOKING SHEET LOGIC
+// ══════════════════════════════════
+let currentStep = 1;
+let selectedDate = null;
+let selectedTime = null;
+let selectedPay  = 'card';
+
+function openSheet() {
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  goStep(1);
+}
+function closeSheet() {
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('sheetOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('sheetOverlay')) closeSheet();
 });
 
-document.getElementById('hireBtn').addEventListener('click', () => {
-  const fecha = document.getElementById('fechaCita');
-  fecha.focus();
-  fecha.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function goStep(n) {
+  // Hide all steps
+  document.querySelectorAll('.wf-sheet-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(`step${n}`).classList.add('active');
+  currentStep = n;
+
+  // Update dots
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    const lbl = document.getElementById(`lbl${i}`);
+    dot.classList.remove('active','done');
+    lbl.classList.remove('active');
+    if (i < n)       { dot.classList.add('done'); dot.textContent = '✓'; }
+    else if (i === n) { dot.classList.add('active'); dot.textContent = i; lbl.classList.add('active'); }
+    else              { dot.textContent = i; }
+  }
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`line${i}`).classList.toggle('done', i < n);
+  }
+
+  if (n === 2) buildPriceSummary();
+  if (n === 4) buildConfirmScreen();
+
+  // Scroll sheet to top
+  document.getElementById('bookingSheet').scrollTop = 0;
+}
+
+// ── CALENDAR ──
+const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+const unavailDays = [3, 10, 17, 24]; // Días sin disponibilidad (demo)
+
+function renderCalendar() {
+  document.getElementById('calMonth').textContent = `${monthNames[calMonth]} ${calYear}`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const today   = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+  // Empty cells
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'wf-cal-cell empty';
+    grid.appendChild(cell);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    const cellDate = new Date(calYear, calMonth, d);
+    const isPast   = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isUnavail = unavailDays.includes(d);
+    const isToday  = cellDate.toDateString() === today.toDateString();
+    const isSel    = selectedDate &&
+                     selectedDate.getDate()===d &&
+                     selectedDate.getMonth()===calMonth &&
+                     selectedDate.getFullYear()===calYear;
+
+    cell.className = 'wf-cal-cell' +
+      (isPast ? ' past' : '') +
+      (isUnavail && !isPast ? ' unavailable' : '') +
+      (isToday ? ' today' : '') +
+      (isSel ? ' selected' : '');
+    cell.textContent = d;
+
+    if (!isPast && !isUnavail) {
+      cell.addEventListener('click', () => {
+        selectedDate = new Date(calYear, calMonth, d);
+        selectedTime = null;
+        renderCalendar();
+        renderTimes();
+        document.getElementById('timeSection').style.display = 'block';
+        document.getElementById('step1Next').style.display = 'none';
+      });
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function renderTimes() {
+  const times = ['08:00','09:00','10:00','11:00','12:00','13:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+  const unavailTimes = ['09:00','13:00','16:00'];
+  const grid = document.getElementById('timeGrid');
+  grid.innerHTML = times.map(t => {
+    const isUnavail = unavailTimes.includes(t);
+    const isSel = selectedTime === t;
+    return `<div class="wf-time-btn ${isUnavail?'unavail':''} ${isSel?'selected':''}"
+                 onclick="${isUnavail?'':` selectTime('${t}')`}">
+      ${isUnavail ? '✕ ' : ''}${t}${isUnavail ? '<br><span style="font-size:9px">No disp.</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectTime(t) {
+  selectedTime = t;
+  renderTimes();
+  document.getElementById('step1Next').style.display = 'block';
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
 });
+document.getElementById('calNext').addEventListener('click', () => {
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+});
+
+// ── PRICE SUMMARY ──
+function buildPriceSummary() {
+  const hours = parseInt(document.getElementById('serviceDuration').value) || 2;
+  const subtotal = pro.price * hours;
+  const fee = Math.round(subtotal * 0.05);
+  const total = subtotal + fee;
+  const dateStr = selectedDate
+    ? selectedDate.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'})
+    : '—';
+
+  document.getElementById('priceSummary').innerHTML = `
+    <div class="wf-price-row"><span>📅 Fecha</span><span class="val">${dateStr}</span></div>
+    <div class="wf-price-row"><span>🕐 Hora</span><span class="val">${selectedTime || '—'}</span></div>
+    <div class="wf-price-row"><span>⏱ Duración</span><span class="val">${hours} hora${hours>1?'s':''}</span></div>
+    <div class="wf-price-row"><span>💵 Tarifa ($${pro.price}/hr × ${hours}h)</span><span class="val">$${subtotal} MXN</span></div>
+    <div class="wf-price-row"><span>🧾 Comisión WeFix (5%)</span><span class="val">$${fee} MXN</span></div>
+    <div class="wf-price-row total"><span>Total</span><span class="val">$${total} MXN</span></div>`;
+  document.getElementById('speiTotal').textContent = `$${total} MXN`;
+  document.getElementById('walletTotal').textContent = `$${total} MXN`;
+}
+
+document.getElementById('serviceDuration').addEventListener('change', buildPriceSummary);
+
+// ── PAYMENT METHOD ──
+function selectPay(method) {
+  selectedPay = method;
+  ['card','spei','wallet'].forEach(m => {
+    document.getElementById(`pay${m.charAt(0).toUpperCase()+m.slice(1)}`).classList.toggle('selected', m === method);
+    document.getElementById(`${m}Form`).style.display = m === method ? 'block' : 'none';
+  });
+}
+
+// ── CARD FORMAT ──
+function formatCard(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExp(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.slice(0,2)+'/'+v.slice(2,4);
+  input.value = v;
+}
+
+// ── CONFIRM ──
+function confirmPayment() {
+  const num = document.getElementById('cardNumber')?.value?.trim();
+  if (selectedPay === 'card' && (!num || num.length < 19)) {
+    showToast('Por favor ingresa un número de tarjeta válido'); return;
+  }
+  goStep(4);
+}
+
+function buildConfirmScreen() {
+  const hours   = parseInt(document.getElementById('serviceDuration').value) || 2;
+  const total   = pro.price * hours + Math.round(pro.price * hours * 0.05);
+  const dateStr = selectedDate
+    ? selectedDate.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'})
+    : '—';
+  document.getElementById('confirmSub').textContent =
+    `Tu servicio con ${pro.name} está confirmado. Recibirás una notificación de confirmación en tu correo.`;
+  document.getElementById('confirmCard').innerHTML = `
+    <div class="wf-confirm-card-row"><span>Profesional</span><span class="cval">${pro.name}</span></div>
+    <div class="wf-confirm-card-row"><span>Servicio</span><span class="cval">${pro.label}</span></div>
+    <div class="wf-confirm-card-row"><span>Fecha</span><span class="cval">${dateStr}</span></div>
+    <div class="wf-confirm-card-row"><span>Hora</span><span class="cval">${selectedTime}</span></div>
+    <div class="wf-confirm-card-row"><span>Duración</span><span class="cval">${hours} hora${hours>1?'s':''}</span></div>
+    <div class="wf-confirm-card-row"><span>Total pagado</span><span class="cval">$${total} MXN</span></div>`;
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT CALENDAR ──
+renderCalendar();
 </script>
 </body>
 </html>
