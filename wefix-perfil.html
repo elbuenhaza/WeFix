@@ -949,29 +949,60 @@ renderCalendar();
 
 // ── PORTFOLIO CAROUSEL ──
 let portfolioIdx = 0;
+
 function portfolioGo(idx) {
   portfolioIdx = idx;
-  const track = document.getElementById('portfolioTrack');
-  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
-  document.querySelectorAll('.wf-portfolio-dot').forEach((d,i) => {
+  const track  = document.getElementById('portfolioTrack');
+  const slides = document.querySelectorAll('.wf-portfolio-slide');
+  if (!track || !slides.length) return;
+
+  // Force each slide to exactly 100% of the carousel width
+  const carW = document.getElementById('portfolioCarousel').offsetWidth;
+  slides.forEach(s => { s.style.minWidth = carW + 'px'; });
+
+  // Move track by exact pixel amount — no percentage drift
+  track.style.transform = 'translateX(-' + (idx * carW) + 'px)';
+
+  // Update dots
+  document.querySelectorAll('.wf-portfolio-dot').forEach(function(d, i) {
     d.classList.toggle('active', i === idx);
   });
 }
+
 function portfolioNav(dir) {
-  const next = (portfolioIdx + dir + portfolio.length) % portfolio.length;
+  var next = (portfolioIdx + dir + portfolio.length) % portfolio.length;
   portfolioGo(next);
 }
 
-// Swipe touch support
-(function() {
-  let startX = 0;
+// Init carousel sizes once images/layout is ready
+function initPortfolioCarousel() {
   const car = document.getElementById('portfolioCarousel');
   if (!car) return;
-  car.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
-  car.addEventListener('touchend',   e => {
-    const diff = startX - e.changedTouches[0].clientX;
+  const carW = car.offsetWidth;
+  const slides = document.querySelectorAll('.wf-portfolio-slide');
+  slides.forEach(s => { s.style.minWidth = carW + 'px'; });
+  // Reset to slide 0
+  const track = document.getElementById('portfolioTrack');
+  if (track) track.style.transform = 'translateX(0)';
+  portfolioIdx = 0;
+}
+
+// Run after DOM paint
+window.addEventListener('load', initPortfolioCarousel);
+setTimeout(initPortfolioCarousel, 100);
+
+// Swipe touch support
+(function() {
+  var startX = 0;
+  var car = document.getElementById('portfolioCarousel');
+  if (!car) return;
+  car.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+  }, {passive: true});
+  car.addEventListener('touchend', function(e) {
+    var diff = startX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) portfolioNav(diff > 0 ? 1 : -1);
-  }, {passive:true});
+  }, {passive: true});
 })();
 </script>
 </body>
