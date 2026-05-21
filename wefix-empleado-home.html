@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Panel Profesional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #f4f4f6;
+      --brand:   #123853;
+      --accent:  #f87171;
+      --white:   #ffffff;
+      --border:  #dde1e7;
+      --text:    #1a1a2e;
+      --muted:   #6b7280;
+      --green:   #22c55e;
+      --onyx-a:  #fbbf24;
+      --onyx-b:  #f97316;
+      --shadow:  0 2px 12px rgba(18,56,83,.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg); color: var(--text);
+      max-width: 500px; margin: 0 auto; min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══ NAVBAR ══ */
+    .wf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .wf-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Raleway', sans-serif; font-size: 20px; font-weight: 700;
+      color: var(--brand); text-decoration: none;
+    }
+    .wf-logo-icon {
+      width: 32px; height: 32px; border: 2px solid var(--brand); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--brand);
+    }
+    .wf-nav-right { display: flex; align-items: center; gap: 12px; }
+    .wf-nav-badge-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 9px; font-family: 'Poppins', sans-serif;
+    }
+    .wf-nav-badge-btn svg { width: 22px; height: 22px; }
+    .wf-nav-badge-btn:hover { color: var(--brand); }
+    .wf-dot-badge {
+      position: absolute; top: -3px; right: -3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); color: var(--white);
+      font-size: 8px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wf-pro-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--brand); border-radius: 20px;
+      padding: 4px 10px; font-size: 10px; font-weight: 600; color: var(--white);
+    }
+
+    /* ══ HERO EMPLEADO ══ */
+    .wf-emp-hero {
+      background: var(--brand); padding: 20px 20px 24px;
+      position: relative; overflow: hidden;
+    }
+    .wf-emp-hero::before {
+      content: ''; position: absolute; right: -30px; top: -30px;
+      width: 130px; height: 130px; border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+    .wf-emp-hero::after {
+      content: ''; position: absolute; left: -20px; bottom: -20px;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(248,113,113,.07);
+    }
+    .wf-emp-hero-top {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px; position: relative; z-index: 1;
+    }
+    .wf-emp-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--white); flex-shrink: 0;
+    }
+    .wf-emp-name { font-size: 16px; font-weight: 700; color: var(--white); }
+    .wf-emp-prof { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 1px; }
+    .wf-emp-stars { display: flex; align-items: center; gap: 3px; margin-top: 3px; }
+    .wf-emp-stars span { font-size: 12px; color: var(--onyx-a); }
+    .wf-emp-rating { font-size: 11px; color: rgba(255,255,255,.7); margin-left: 3px; }
+
+    /* Stats fila */
+    .wf-hero-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: rgba(255,255,255,.1);
+      border-radius: 14px; overflow: hidden; position: relative; z-index: 1;
+    }
+    .wf-hero-stat {
+      background: rgba(255,255,255,.07); padding: 12px 8px; text-align: center;
+    }
+    .wf-hero-stat .num {
+      font-size: 20px; font-weight: 700; color: var(--white); display: block;
+    }
+    .wf-hero-stat .lbl { font-size: 10px; color: rgba(255,255,255,.6); }
+
+    /* ══ CARDS ══ */
+    .wf-card {
+      background: var(--white); border-radius: 16px;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      margin: 14px 16px 0; overflow: hidden;
+    }
+    .wf-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+    }
+    .wf-card-title {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 600; color: var(--brand);
+    }
+    .wf-card-title span { font-size: 16px; }
+
+    /* ══ NOTIFICACIONES DE TRABAJO ══ */
+    .wf-job-notif {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 13px 16px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+      position: relative;
+    }
+    .wf-job-notif:last-child { border-bottom: none; }
+    .wf-job-notif:hover { background: #f8faff; }
+    .wf-job-notif.unread { border-left: 3px solid var(--brand); background: #f0f5ff; }
+    .wf-job-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--brand); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .wf-job-icon.flash { background: linear-gradient(135deg, var(--onyx-a), var(--onyx-b)); }
+    .wf-job-icon.premium { background: linear-gradient(135deg, #7c3aed, #4f46e5); }
+    .wf-job-body { flex: 1; min-width: 0; }
+    .wf-job-client { font-size: 13px; font-weight: 600; color: var(--text); }
+    .wf-job-service { font-size: 11px; color: var(--accent); font-weight: 500; margin-bottom: 3px; }
+    .wf-job-detail { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .wf-job-right { text-align: right; flex-shrink: 0; }
+    .wf-job-time { font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+    .wf-job-price { font-size: 13px; font-weight: 700; color: var(--brand); }
+    .wf-job-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .wf-job-btn {
+      flex: 1; padding: 7px; border-radius: 8px; font-size: 11px;
+      font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif;
+      border: none; transition: opacity .15s;
+    }
+    .wf-job-btn.accept { background: var(--brand); color: var(--white); }
+    .wf-job-btn.accept:hover { opacity: .88; }
+    .wf-job-btn.decline { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+    .wf-job-btn.reschedule { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    /* ══ VISUALIZACIONES ══ */
+    .wf-period-tabs {
+      display: flex; gap: 6px; padding: 10px 16px 0;
+    }
+    .wf-period-tab {
+      padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
+      cursor: pointer; border: 1.5px solid var(--border); color: var(--muted);
+      background: var(--white); font-family: 'Poppins', sans-serif; transition: all .15s;
+    }
+    .wf-period-tab.active { background: var(--brand); color: var(--white); border-color: var(--brand); }
+    .wf-chart-area { padding: 14px 16px; }
+    .wf-chart-wrap { position: relative; height: 100px; }
+    .wf-chart-bars {
+      display: flex; align-items: flex-end; gap: 4px; height: 100%; width: 100%;
+    }
+    .wf-chart-bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 3px; }
+    .wf-chart-bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      background: var(--brand); opacity: .7; transition: opacity .2s;
+      cursor: pointer; min-height: 4px;
+    }
+    .wf-chart-bar:hover { opacity: 1; }
+    .wf-chart-bar.highlight { opacity: 1; background: var(--accent); }
+    .wf-chart-label { font-size: 9px; color: var(--muted); text-align: center; }
+    .wf-views-summary {
+      display: flex; gap: 16px; padding: 10px 16px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .wf-views-stat { text-align: center; }
+    .wf-views-num { font-size: 20px; font-weight: 700; color: var(--brand); }
+    .wf-views-lbl { font-size: 10px; color: var(--muted); }
+    .wf-views-trend { font-size: 10px; font-weight: 600; margin-left: 4px; }
+    .wf-views-trend.up   { color: var(--green); }
+    .wf-views-trend.down { color: var(--accent); }
+
+    /* ══ CALENDARIO ══ */
+    .wf-cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: var(--brand); border-radius: 14px 14px 0 0;
+    }
+    .wf-cal-month { font-size: 14px; font-weight: 700; color: var(--white); }
+    .wf-cal-nav {
+      background: rgba(255,255,255,.15); border: none; border-radius: 50%;
+      width: 28px; height: 28px; color: var(--white); cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .wf-cal-nav:hover { background: rgba(255,255,255,.3); }
+    .wf-cal-days-header {
+      display: grid; grid-template-columns: repeat(7,1fr);
+      background: #f0f5fb;
+    }
+    .wf-cal-day-name {
+      text-align: center; padding: 6px 0;
+      font-size: 10px; font-weight: 600; color: var(--muted);
+    }
+    .wf-cal-grid { display: grid; grid-template-columns: repeat(7,1fr); background: var(--white); }
+    .wf-cal-cell {
+      text-align: center; padding: 8px 2px; font-size: 12px;
+      cursor: pointer; color: var(--text); border-radius: 8px; margin: 2px;
+      transition: background .15s; position: relative;
+    }
+    .wf-cal-cell:hover:not(.empty):not(.past) { background: #e8f0fb; }
+    .wf-cal-cell.today { font-weight: 700; color: var(--accent); }
+    .wf-cal-cell.selected { background: var(--brand); color: var(--white); border-radius: 50%; font-weight: 700; }
+    .wf-cal-cell.past { color: #ccc; cursor: default; }
+    .wf-cal-cell.has-jobs::after {
+      content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+      width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+    }
+    .wf-cal-cell.selected.has-jobs::after { background: var(--white); }
+
+    /* Trabajos del día */
+    .wf-day-jobs { padding: 0 16px 14px; }
+    .wf-day-jobs-title { font-size: 12px; font-weight: 600; color: var(--brand); padding: 10px 0 8px; }
+    .wf-day-job-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px; border-radius: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      margin-bottom: 8px; cursor: pointer; transition: border .15s;
+    }
+    .wf-day-job-item:hover { border-color: var(--brand); }
+    .wf-day-job-time {
+      font-size: 12px; font-weight: 700; color: var(--brand);
+      min-width: 44px; text-align: center;
+    }
+    .wf-day-job-info { flex: 1; }
+    .wf-day-job-client { font-size: 12px; font-weight: 600; color: var(--text); }
+    .wf-day-job-service { font-size: 11px; color: var(--muted); }
+    .wf-day-job-price { font-size: 12px; font-weight: 700; color: var(--brand); }
+    .wf-day-job-status {
+      font-size: 9px; font-weight: 700; border-radius: 10px; padding: 2px 8px;
+    }
+    .wf-day-job-status.confirmed { background: #dcfce7; color: #16a34a; }
+    .wf-day-job-status.pending   { background: #fef3c7; color: #92400e; }
+
+    /* ══ PUBLICIDAD ══ */
+    .wf-pub-options { display: flex; flex-direction: column; gap: 0; }
+    .wf-pub-option {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+    }
+    .wf-pub-option:last-child { border-bottom: none; }
+    .wf-pub-option:hover { background: #f8faff; }
+    .wf-pub-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .wf-pub-body { flex: 1; }
+    .wf-pub-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .wf-pub-desc  { font-size: 11px; color: var(--muted); line-height: 1.45; }
+    .wf-pub-tag {
+      display: inline-block; margin-top: 5px; padding: 2px 8px;
+      border-radius: 10px; font-size: 9px; font-weight: 700;
+    }
+    .wf-pub-arrow { color: var(--muted); font-size: 18px; align-self: center; }
+
+    /* ══ FLASH / PREMIUM BADGES ══ */
+    .wf-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+    .wf-mode-card {
+      border-radius: 14px; padding: 14px 12px; cursor: pointer;
+      border: 1.5px solid var(--border); transition: transform .15s, box-shadow .15s;
+      text-align: center; text-decoration: none; display: block;
+    }
+    .wf-mode-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(18,56,83,.12); }
+    .wf-mode-card.flash-card {
+      background: linear-gradient(145deg, #fffbeb, #fef3c7);
+      border-color: rgba(251,191,36,.4);
+    }
+    .wf-mode-card.premium-card {
+      background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+      border-color: rgba(124,58,237,.3);
+    }
+    .wf-mode-icon { font-size: 28px; margin-bottom: 6px; }
+    .wf-mode-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .wf-mode-desc  { font-size: 10px; color: var(--muted); line-height: 1.4; }
+    .wf-mode-badge {
+      display: inline-block; margin-top: 6px; padding: 3px 10px;
+      border-radius: 20px; font-size: 9px; font-weight: 700;
+    }
+    .wf-mode-badge.flash-badge   { background: var(--onyx-a); color: #7c2d12; }
+    .wf-mode-badge.premium-badge { background: #7c3aed; color: var(--white); }
+    .wf-premium-locked {
+      background: rgba(124,58,237,.08); border: 1px solid rgba(124,58,237,.2);
+      border-radius: 10px; padding: 8px 12px; margin: 0 16px 14px;
+      font-size: 11px; color: #6d28d9; line-height: 1.5; text-align: center;
+    }
+
+    /* ══ RESCHEDULE SHEET ══ */
+    .wf-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 200;
+      align-items: flex-end; justify-content: center;
+    }
+    .wf-overlay.open { display: flex; }
+    .wf-sheet {
+      background: var(--white); border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 500px; padding: 20px 20px 36px;
+      animation: slideUp .28s ease;
+    }
+    @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+    .wf-sheet-handle { width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px; }
+    .wf-sheet h3 { font-size:15px;font-weight:700;color:var(--brand);margin-bottom:4px; }
+    .wf-sheet .sub { font-size:12px;color:var(--muted);margin-bottom:16px; }
+    .wf-sheet label { display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px; }
+    .wf-sheet input, .wf-sheet select, .wf-sheet textarea {
+      width:100%;padding:10px 12px;border:1.5px solid var(--border);
+      border-radius:10px;font-size:13px;font-family:'Poppins',sans-serif;
+      outline:none;margin-bottom:12px;transition:border .2s;background:var(--white);
+    }
+    .wf-sheet input:focus, .wf-sheet select:focus, .wf-sheet textarea:focus { border-color:var(--brand); }
+    .wf-sheet textarea { resize:none; }
+    .wf-sheet-btn {
+      width:100%;background:var(--brand);color:var(--white);border:none;
+      border-radius:12px;padding:13px;font-size:14px;font-weight:700;
+      cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;
+    }
+    .wf-sheet-btn:hover { background:#1a4f72; }
+    .wf-sheet-btn.outline {
+      background:none;color:var(--muted);border:1.5px solid var(--border);margin-top:8px;
+    }
+
+
+    /* ══ PUNTOS ══ */
+    .wf-points-hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, var(--brand) 60%, #0d2b3e 100%);
+      border-radius: 16px; padding: 16px; margin: 14px 16px 0;
+      position: relative; overflow: hidden;
+    }
+    .wf-points-hero::before {
+      content:''; position:absolute; right:-20px; top:-20px;
+      width:100px; height:100px; border-radius:50%;
+      background:rgba(251,191,36,.1);
+    }
+    .wf-points-top {
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+    }
+    .wf-points-title {
+      font-size:12px; font-weight:600; color:rgba(255,255,255,.7);
+      text-transform:uppercase; letter-spacing:.8px;
+    }
+    .wf-points-badge {
+      background:linear-gradient(90deg, var(--onyx-a), var(--onyx-b));
+      color:#7c2d12; font-size:10px; font-weight:700;
+      border-radius:20px; padding:3px 10px;
+    }
+    .wf-points-num {
+      font-family:'Raleway',sans-serif;
+      font-size:38px; font-weight:800; color:var(--onyx-a);
+      line-height:1; margin-bottom:4px;
+    }
+    .wf-points-sub { font-size:11px; color:rgba(255,255,255,.55); margin-bottom:14px; }
+    /* Barra de progreso */
+    .wf-points-bar-wrap { margin-bottom:10px; }
+    .wf-points-bar-labels {
+      display:flex; justify-content:space-between;
+      font-size:10px; color:rgba(255,255,255,.5); margin-bottom:5px;
+    }
+    .wf-points-bar-bg {
+      height:8px; border-radius:10px; background:rgba(255,255,255,.12); overflow:hidden;
+    }
+    .wf-points-bar-fill {
+      height:100%; border-radius:10px;
+      background:linear-gradient(90deg, var(--onyx-a), var(--onyx-b));
+      transition: width .6s ease;
+    }
+    /* Cómo ganar puntos */
+    .wf-points-sources {
+      display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;
+    }
+    .wf-points-source {
+      background:rgba(255,255,255,.07); border-radius:10px; padding:10px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .wf-points-source-icon { font-size:18px; flex-shrink:0; }
+    .wf-points-source-info .pts { font-size:12px; font-weight:700; color:var(--onyx-a); }
+    .wf-points-source-info .lbl { font-size:10px; color:rgba(255,255,255,.55); }
+    /* Botones canjear */
+    .wf-points-actions { display:flex; gap:8px; }
+    .wf-points-btn {
+      flex:1; padding:9px; border-radius:10px; font-size:11px; font-weight:700;
+      cursor:pointer; font-family:'Poppins',sans-serif; border:none; transition:opacity .15s;
+    }
+    .wf-points-btn.ads { background:linear-gradient(90deg, var(--onyx-a), var(--onyx-b)); color:#7c2d12; }
+    .wf-points-btn.cash { background:rgba(255,255,255,.12); color:var(--white); border:1px solid rgba(255,255,255,.2); }
+    .wf-points-btn:hover { opacity:.88; }
+
+    /* ══ CHART MEJORADO ══ */
+    .wf-chart-toggle {
+      display:flex; background:var(--bg); border-radius:10px; padding:3px;
+      margin:10px 16px 0;
+    }
+    .wf-chart-toggle-btn {
+      flex:1; padding:7px; border-radius:8px; font-size:11px; font-weight:600;
+      cursor:pointer; border:none; font-family:'Poppins',sans-serif;
+      color:var(--muted); background:transparent; transition:all .18s;
+    }
+    .wf-chart-toggle-btn.active { background:var(--white); color:var(--brand); box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .wf-chart-svg-wrap { padding:14px 16px 0; position:relative; }
+    svg.wf-chart-svg { width:100%; height:110px; overflow:visible; }
+    .wf-chart-tooltip {
+      position:absolute; background:var(--brand); color:var(--white);
+      border-radius:8px; padding:4px 10px; font-size:11px; font-weight:600;
+      pointer-events:none; display:none; z-index:10; white-space:nowrap;
+      transform:translateX(-50%);
+    }
+    .wf-chart-tooltip::after {
+      content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+      border:4px solid transparent; border-top-color:var(--brand);
+    }
+
+    /* ══ PREMIUM REQUISITOS ══ */
+    .wf-premium-reqs { padding:14px 16px; }
+    .wf-req-title { font-size:12px; font-weight:600; color:var(--brand); margin-bottom:10px; }
+    .wf-req-item {
+      display:flex; align-items:flex-start; gap:10px;
+      padding:10px; border-radius:12px; background:var(--bg);
+      border:1px solid var(--border); margin-bottom:8px;
+    }
+    .wf-req-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+    .wf-req-body { flex:1; }
+    .wf-req-name { font-size:12px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .wf-req-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+    .wf-req-status {
+      font-size:10px; font-weight:700; border-radius:20px; padding:3px 10px;
+      align-self:center; flex-shrink:0; white-space:nowrap;
+    }
+    .wf-req-status.ok   { background:#dcfce7; color:#16a34a; }
+    .wf-req-status.fail { background:#fee2e2; color:#dc2626; }
+    .wf-req-status.warn { background:#fef3c7; color:#92400e; }
+
+    /* ══ TOAST ══ */
+    .wf-toast {
+      position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--brand);color:var(--white);border-radius:30px;
+      padding:10px 22px;font-size:13px;font-weight:500;z-index:999;
+      box-shadow:0 4px 18px rgba(18,56,83,.25);transition:transform .3s ease;white-space:nowrap;
+    }
+    .wf-toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* ══ BOTTOM NAV ══ */
+    .wf-bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 500px;
+      background: var(--white); border-top: 1px solid var(--border);
+      display: flex; padding: 8px 0 10px; z-index: 40;
+    }
+    .wf-bnav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 9px; color: var(--muted); cursor: pointer; text-decoration: none;
+      font-family: 'Poppins', sans-serif;
+    }
+    .wf-bnav-item svg { width: 22px; height: 22px; }
+    .wf-bnav-item.active { color: var(--brand); }
+    .wf-bnav-item:hover  { color: var(--brand); }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="index.html">
+    <div class="wf-logo-icon">W</div>WeFix
+  </a>
+  <div class="wf-nav-right">
+    <div class="wf-pro-pill">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+      Profesional
+    </div>
+    <button class="wf-nav-badge-btn" onclick="openReschedule(null)">
+      <div class="wf-dot-badge">2</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Mensajes
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="wf-emp-hero">
+  <div class="wf-emp-hero-top">
+    <div class="wf-emp-avatar">AT</div>
+    <div>
+      <div class="wf-emp-name">Ana Méndez</div>
+      <div class="wf-emp-prof">Jardinera · CDMX</div>
+      <div class="wf-emp-stars">
+        <span>★★★★★</span>
+        <span class="wf-emp-rating">4.8 · 47 reseñas</span>
+      </div>
+    </div>
+  </div>
+  <div class="wf-hero-stats">
+    <div class="wf-hero-stat">
+      <span class="num">$4,200</span>
+      <span class="lbl">Esta semana</span>
+    </div>
+    <div class="wf-hero-stat">
+      <span class="num">6</span>
+      <span class="lbl">Trabajos activos</span>
+    </div>
+    <div class="wf-hero-stat">
+      <span class="num">98%</span>
+      <span class="lbl">Satisfacción</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOTIFICACIONES DE TRABAJO ══ -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🔔</span> Nuevas solicitudes</div>
+    <span style="font-size:11px;color:var(--accent);font-weight:600;">3 nuevas</span>
+  </div>
+
+  <!-- Trabajo 1 — normal -->
+  <div class="wf-job-notif unread" id="job1">
+    <div class="wf-job-icon">🌿</div>
+    <div class="wf-job-body">
+      <div class="wf-job-service">Jardinería y mantenimiento</div>
+      <div class="wf-job-client">María González</div>
+      <div class="wf-job-detail">📍 Del Valle, CDMX · 📅 Mié 28 mayo · 🕙 10:00 AM · 3 hrs</div>
+      <div class="wf-job-actions">
+        <button class="wf-job-btn accept" onclick="acceptJob(1)">✓ Aceptar</button>
+        <button class="wf-job-btn reschedule" onclick="openReschedule('María González')">🕐 Reprogramar</button>
+        <button class="wf-job-btn decline" onclick="declineJob(1)">✕</button>
+      </div>
+    </div>
+    <div class="wf-job-right">
+      <div class="wf-job-time">Hace 5 min</div>
+      <div class="wf-job-price">$600</div>
+    </div>
+  </div>
+
+  <!-- Trabajo 2 — Flash -->
+  <div class="wf-job-notif unread" id="job2">
+    <div class="wf-job-icon flash">⚡</div>
+    <div class="wf-job-body">
+      <div class="wf-job-service" style="color:var(--onyx-b);">⚡ Servicio Flash</div>
+      <div class="wf-job-client">Carlos Herrera</div>
+      <div class="wf-job-detail">📍 Polanco, CDMX · 📅 Hoy · 🕑 2:00 PM · 2 hrs</div>
+      <div class="wf-job-actions">
+        <button class="wf-job-btn accept" onclick="acceptJob(2)">✓ Aceptar</button>
+        <button class="wf-job-btn reschedule" onclick="openReschedule('Carlos Herrera')">🕐 Reprogramar</button>
+        <button class="wf-job-btn decline" onclick="declineJob(2)">✕</button>
+      </div>
+    </div>
+    <div class="wf-job-right">
+      <div class="wf-job-time">Hace 12 min</div>
+      <div class="wf-job-price" style="color:var(--onyx-b);">$480<br><span style="font-size:9px;color:var(--green);font-weight:700;">+$60 Flash</span></div>
+    </div>
+  </div>
+
+  <!-- Trabajo 3 — Premium -->
+  <div class="wf-job-notif unread" id="job3">
+    <div class="wf-job-icon premium">💎</div>
+    <div class="wf-job-body">
+      <div class="wf-job-service" style="color:#7c3aed;">💎 Trabajo Premium</div>
+      <div class="wf-job-client">Residencial Las Lomas</div>
+      <div class="wf-job-detail">📍 Lomas de Chapultepec · 📅 Vie 30 mayo · 🕙 9:00 AM · 5 hrs</div>
+      <div class="wf-job-actions">
+        <button class="wf-job-btn accept" onclick="acceptJob(3)">✓ Aceptar</button>
+        <button class="wf-job-btn reschedule" onclick="openReschedule('Residencial Las Lomas')">🕐 Reprogramar</button>
+        <button class="wf-job-btn decline" onclick="declineJob(3)">✕</button>
+      </div>
+    </div>
+    <div class="wf-job-right">
+      <div class="wf-job-time">Hace 1 h</div>
+      <div class="wf-job-price" style="color:#7c3aed;">$1,100</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CALENDARIO ══ -->
+<div class="wf-card" style="overflow:visible;">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>📅</span> Mi agenda</div>
+  </div>
+  <div class="wf-cal-header">
+    <button class="wf-cal-nav" id="calPrev">‹</button>
+    <div class="wf-cal-month" id="calMonth"></div>
+    <button class="wf-cal-nav" id="calNext">›</button>
+  </div>
+  <div class="wf-cal-days-header">
+    <div class="wf-cal-day-name">Dom</div><div class="wf-cal-day-name">Lun</div>
+    <div class="wf-cal-day-name">Mar</div><div class="wf-cal-day-name">Mié</div>
+    <div class="wf-cal-day-name">Jue</div><div class="wf-cal-day-name">Vie</div>
+    <div class="wf-cal-day-name">Sáb</div>
+  </div>
+  <div class="wf-cal-grid" id="calGrid"></div>
+  <div class="wf-day-jobs" id="dayJobs"></div>
+</div>
+
+<!-- ══ VISUALIZACIONES ══ -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>📊</span> Estadísticas</div>
+  </div>
+  <!-- Toggle visitas / ganancias -->
+  <div class="wf-chart-toggle">
+    <button class="wf-chart-toggle-btn active" id="toggleVisitas" onclick="setMetric('visitas',this)">👁 Visitas al perfil</button>
+    <button class="wf-chart-toggle-btn"        id="toggleGanancias" onclick="setMetric('ganancias',this)">💵 Ganancias</button>
+  </div>
+  <!-- Temporalidad -->
+  <div class="wf-period-tabs" style="margin-top:10px;">
+    <button class="wf-period-tab active" data-period="day"   onclick="setPeriod('day',this)">Hoy</button>
+    <button class="wf-period-tab"        data-period="week"  onclick="setPeriod('week',this)">Semana</button>
+    <button class="wf-period-tab"        data-period="month" onclick="setPeriod('month',this)">Mes</button>
+    <button class="wf-period-tab"        data-period="year"  onclick="setPeriod('year',this)">Año</button>
+  </div>
+  <!-- SVG Chart -->
+  <div class="wf-chart-svg-wrap">
+    <div class="wf-chart-tooltip" id="chartTooltip"></div>
+    <svg class="wf-chart-svg" id="chartSVG" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+    <div style="display:flex;justify-content:space-between;padding:4px 2px 0;" id="chartLabels"></div>
+  </div>
+  <div class="wf-views-summary" id="viewsSummary" style="margin-top:6px;"></div>
+</div>
+
+<!-- ══ MODOS DE TRABAJO ══ -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>⚡</span> Modos de trabajo</div>
+  </div>
+  <div class="wf-mode-grid">
+    <div class="wf-mode-card flash-card" onclick="showToast('Modo Flash activado ⚡')">
+      <div class="wf-mode-icon">⚡</div>
+      <div class="wf-mode-title">Flash</div>
+      <div class="wf-mode-desc">Trabajos inmediatos con bono extra por disponibilidad</div>
+      <div class="wf-mode-badge flash-badge">+$60 por trabajo</div>
+    </div>
+    <div class="wf-mode-card premium-card" onclick="checkPremium()">
+      <div class="wf-mode-icon">💎</div>
+      <div class="wf-mode-title">Premium</div>
+      <div class="wf-mode-desc">Clientes exclusivos · Tarifas más altas</div>
+      <div class="wf-mode-badge premium-badge">★ 4.5+ · 30+ reseñas</div>
+    </div>
+  </div>
+  <div class="wf-premium-locked" id="premiumLocked" style="cursor:pointer;" onclick="openOverlay('premiumReqsOverlay')">
+    ✅ Ya calificas para Premium (4.8★ · 47 reseñas). <strong>Ver todos los requisitos →</strong>
+  </div>
+</div>
+
+<!-- ══ SISTEMA DE PUNTOS ══ -->
+<div class="wf-points-hero">
+  <div class="wf-points-top">
+    <div class="wf-points-title">⭐ Mis WeFix Points</div>
+    <div class="wf-points-badge">Nivel Plata</div>
+  </div>
+  <div class="wf-points-num" id="pointsNum">1,240</div>
+  <div class="wf-points-sub">Siguiente nivel: Oro · Faltan 760 pts</div>
+  <div class="wf-points-bar-wrap">
+    <div class="wf-points-bar-labels"><span>0</span><span>2,000 pts (Oro)</span></div>
+    <div class="wf-points-bar-bg"><div class="wf-points-bar-fill" style="width:62%"></div></div>
+  </div>
+  <div class="wf-points-sources">
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">⏰</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+10 pts</div><div class="lbl">Llegar a tiempo</div>
+      </div>
+    </div>
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">⭐</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+15 pts</div><div class="lbl">Reseña 5 estrellas</div>
+      </div>
+    </div>
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">✅</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+8 pts</div><div class="lbl">Trabajo completado</div>
+      </div>
+    </div>
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">📝</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+20 pts</div><div class="lbl">Blog público</div>
+      </div>
+    </div>
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">💎</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+35 pts</div><div class="lbl">Blog Premium</div>
+      </div>
+    </div>
+    <div class="wf-points-source">
+      <div class="wf-points-source-icon">🔄</div>
+      <div class="wf-points-source-info">
+        <div class="pts">+5 pts</div><div class="lbl">Sin rechazos</div>
+      </div>
+    </div>
+  </div>
+  <div class="wf-points-actions">
+    <button class="wf-points-btn ads" onclick="openPointsSheet('ads')">🎯 Canjear en publicidad</button>
+    <button class="wf-points-btn cash" onclick="openPointsSheet('cash')">💵 Convertir a dinero</button>
+  </div>
+</div>
+
+<!-- ══ PUBLICIDAD ══ -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>📢</span> Publicitar mi perfil</div>
+    <span style="font-size:10px;color:var(--muted);">Más visibilidad = más clientes</span>
+  </div>
+  <div class="wf-pub-options">
+
+    <!-- Opción 1: Comisión aumentada -->
+    <div class="wf-pub-option" onclick="openAdSheet('comision')">
+      <div class="wf-pub-icon" style="background:#e8f0fb;">📈</div>
+      <div class="wf-pub-body">
+        <div class="wf-pub-title">Publicidad con comisión</div>
+        <div class="wf-pub-desc">WeFix aumenta tu visibilidad a cambio de una comisión mayor por trabajo (del 20% al 30%). Sin costo inicial — solo pagas cuando trabajas.</div>
+        <span class="wf-pub-tag" style="background:#e8f0fb;color:var(--brand);">Sin inversión inicial</span>
+      </div>
+      <div class="wf-pub-arrow">›</div>
+    </div>
+
+    <!-- Opción 2: Publicidad económica -->
+    <div class="wf-pub-option" onclick="openAdSheet('economica')">
+      <div class="wf-pub-icon" style="background:#fef3c7;">💰</div>
+      <div class="wf-pub-body">
+        <div class="wf-pub-title">Publicidad económica</div>
+        <div class="wf-pub-desc">Paga lo que quieras con tarjeta. Cada $1 = 15 min de visibilidad destacada. Tú controlas el presupuesto y la duración.</div>
+        <span class="wf-pub-tag" style="background:#fef3c7;color:#92400e;">Desde $10</span>
+      </div>
+      <div class="wf-pub-arrow">›</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PREMIUM REQUISITOS OVERLAY ══ -->
+<div class="wf-overlay" id="premiumReqsOverlay">
+  <div class="wf-sheet" style="max-height:90vh;overflow-y:auto;">
+    <div class="wf-sheet-handle"></div>
+    <h3>💎 Requisitos para trabajos Premium</h3>
+    <p class="sub">Cumple todos los requisitos para acceder a clientes Premium con tarifas más altas.</p>
+    <div class="wf-premium-reqs">
+      <div class="wf-req-title">Requisitos de calidad</div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">⭐</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Calificación mínima 4.5★</div>
+          <div class="wf-req-desc">Tu promedio debe mantenerse en 4.5 o superior. Si baja, se suspende el acceso Premium.</div>
+        </div>
+        <div class="wf-req-status ok">4.8★ ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">📝</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Mínimo 30 reseñas verificadas</div>
+          <div class="wf-req-desc">Reseñas reales de clientes WeFix. No se cuentan reseñas externas.</div>
+        </div>
+        <div class="wf-req-status ok">47 ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">🔧</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Herramientas de alta calidad certificadas</div>
+          <div class="wf-req-desc">Para limpieza: aspiradora Dyson, Miele o similar (mínimo $8,000 MXN). Para jardinería: herramientas profesionales de acero inoxidable. Deberás subir fotos de tu equipo para validación.</div>
+        </div>
+        <div class="wf-req-status ok">Certificado ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">📋</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Verificación de identidad completa</div>
+          <div class="wf-req-desc">INE vigente, CURP y comprobante de domicilio. Verificación facial en app.</div>
+        </div>
+        <div class="wf-req-status ok">Verificado ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">📸</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Portafolio de al menos 5 trabajos con Antes/Después</div>
+          <div class="wf-req-desc">Fotos reales de trabajos anteriores subidas directamente en la app.</div>
+        </div>
+        <div class="wf-req-status ok">5 trabajos ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">⏰</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Puntualidad ≥ 95%</div>
+          <div class="wf-req-desc">Calculado en base a tus últimos 20 trabajos. Un retraso de más de 10 min cuenta como impuntual.</div>
+        </div>
+        <div class="wf-req-status ok">97% ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">❌</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Tasa de rechazo menor al 10%</div>
+          <div class="wf-req-desc">No puedes rechazar más del 10% de los trabajos asignados en los últimos 30 días.</div>
+        </div>
+        <div class="wf-req-status ok">5% ✓</div>
+      </div>
+
+      <div class="wf-req-item">
+        <div class="wf-req-icon">📱</div>
+        <div class="wf-req-body">
+          <div class="wf-req-name">Al menos 2 artículos publicados en el blog</div>
+          <div class="wf-req-desc">Uno en el blog público y uno en el blog Premium para demostrar conocimiento de tu especialidad.</div>
+        </div>
+        <div class="wf-req-status warn">1 / 2</div>
+      </div>
+    </div>
+    <button class="wf-sheet-btn" onclick="closeOverlay('premiumReqsOverlay')">Entendido</button>
+  </div>
+</div>
+
+<!-- ══ POINTS EXCHANGE SHEET ══ -->
+<div class="wf-overlay" id="pointsSheetOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3 id="pointsSheetTitle">Canjear puntos</h3>
+    <p class="sub" id="pointsSheetSub"></p>
+    <div id="pointsSheetBody"></div>
+    <button class="wf-sheet-btn" onclick="confirmPoints()">Confirmar canje</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('pointsSheetOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ RESCHEDULE SHEET ══ -->
+<div class="wf-overlay" id="rescheduleOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3>Solicitar cambio de horario</h3>
+    <p class="sub">Le enviaremos un mensaje al cliente con tu propuesta. Él deberá aceptar el nuevo horario.</p>
+    <label>Cliente</label>
+    <input type="text" id="rescheduleClient" readonly/>
+    <label>Nueva fecha propuesta</label>
+    <input type="date" id="rescheduleDate"/>
+    <label>Nueva hora propuesta</label>
+    <input type="time" id="rescheduleTime"/>
+    <label>Motivo del cambio</label>
+    <textarea rows="3" id="rescheduleReason" placeholder="Ej: Tengo un imprevisto en el trayecto y no llegaré a tiempo. Propongo las 11:00am…"></textarea>
+    <button class="wf-sheet-btn" onclick="sendReschedule()">Enviar solicitud al cliente</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('rescheduleOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ AD SHEET: Comisión ══ -->
+<div class="wf-overlay" id="adComisionOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3>📈 Publicidad con comisión</h3>
+    <p class="sub">Durante el periodo activo tu perfil aparecerá primero en búsquedas. WeFix retiene el 30% (en vez del 20%) por cada trabajo realizado.</p>
+    <label>Duración de la campaña</label>
+    <select id="adDuration">
+      <option value="3">3 días</option>
+      <option value="7" selected>1 semana</option>
+      <option value="14">2 semanas</option>
+      <option value="30">1 mes</option>
+    </select>
+    <div style="background:#f0f5fb;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.6;">
+      Ejemplo: Si cobras <strong>$300/trabajo</strong>, WeFix retiene <strong>$90</strong> (30%) en vez de $60 (20%). <br>
+      Diferencia: <strong style="color:var(--accent);">-$30 por trabajo</strong>, pero tu perfil tendrá máxima visibilidad.
+    </div>
+    <button class="wf-sheet-btn" onclick="activateAd('comision')">Activar campaña</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('adComisionOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ AD SHEET: Económica ══ -->
+<div class="wf-overlay" id="adEconomicaOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3>💰 Publicidad económica</h3>
+    <p class="sub">Cada $1 MXN = 15 minutos de perfil destacado en búsquedas. Paga con tarjeta, el sistema calcula la duración automáticamente.</p>
+    <label>Presupuesto (MXN)</label>
+    <input type="number" id="adBudget" placeholder="Ej: 100" min="10" oninput="calcAdTime()"/>
+    <div style="background:#fef3c7;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.6;" id="adTimeCalc">
+      Ingresa un monto para calcular la duración.
+    </div>
+    <label>Número de tarjeta</label>
+    <input type="text" id="adCard" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fmtAdCard(this)"/>
+    <button class="wf-sheet-btn" onclick="activateAd('economica')">Pagar y activar</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('adEconomicaOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<div class="wf-toast" id="toast"></div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="wf-bottom-nav">
+  <a class="wf-bnav-item active" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </a>
+  <a class="wf-bnav-item" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Agenda
+  </a>
+  <a class="wf-bnav-item" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Mensajes
+  </a>
+  <a class="wf-bnav-item" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Mi perfil
+  </a>
+</nav>
+
+<script>
+// ══ DATA ══
+const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// Trabajos agendados por día (demo)
+const scheduledJobs = {
+  20: [{time:'09:00', client:'Laura T.',      service:'Jardinería', price:600, status:'confirmed'}],
+  22: [{time:'10:00', client:'Rodrigo P.',    service:'Jardinería', price:400, status:'confirmed'},
+       {time:'15:00', client:'Ivonne R.',     service:'Mantenimiento', price:350, status:'pending'}],
+  25: [{time:'08:00', client:'María G.',      service:'Jardinería', price:600, status:'confirmed'}],
+  27: [{time:'11:00', client:'Carlos H.',     service:'Flash · Jardín', price:540, status:'confirmed'},
+       {time:'14:00', client:'Las Lomas',     service:'Premium · Diseño', price:1100, status:'confirmed'},
+       {time:'17:00', client:'Sandra M.',     service:'Poda',        price:300, status:'pending'}],
+  28: [{time:'10:00', client:'María González',service:'Jardinería', price:600, status:'pending'}],
+  30: [{time:'09:00', client:'Residencial',   service:'Premium · Diseño', price:1100, status:'confirmed'}],
+};
+
+// ══ TOAST ══
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══ JOB ACTIONS ══
+function acceptJob(id) {
+  const el = document.getElementById('job'+id);
+  if (!el) return;
+  el.classList.remove('unread');
+  el.style.opacity = '.6';
+  el.querySelector('.wf-job-actions').innerHTML =
+    '<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Aceptado — aparece en tu agenda</span>';
+  showToast('Trabajo aceptado ✓');
+}
+function declineJob(id) {
+  const el = document.getElementById('job'+id);
+  if (el) { el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),320); }
+  showToast('Trabajo rechazado');
+}
+
+// ══ CALENDAR ══
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selDay   = new Date().getDate();
+
+function renderCalendar() {
+  document.getElementById('calMonth').textContent = monthNames[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const today    = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const c = document.createElement('div');
+    c.className = 'wf-cal-cell empty'; grid.appendChild(c);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell  = document.createElement('div');
+    const isPast = new Date(calYear,calMonth,d) < new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const isToday = d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear();
+    const hasjobs = scheduledJobs[d] !== undefined;
+    const isSel  = d === selDay && calMonth === today.getMonth();
+    cell.className = 'wf-cal-cell'
+      + (isPast?' past':'')
+      + (isToday?' today':'')
+      + (isSel?' selected':'')
+      + (hasjobs?' has-jobs':'');
+    cell.textContent = d;
+    if (!isPast) cell.addEventListener('click', () => { selDay=d; renderCalendar(); showDayJobs(d); });
+    grid.appendChild(cell);
+  }
+  showDayJobs(selDay);
+}
+
+function showDayJobs(d) {
+  const container = document.getElementById('dayJobs');
+  const jobs = scheduledJobs[d];
+  if (!jobs || !jobs.length) {
+    container.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:10px 0;text-align:center;">Sin trabajos para este día</p>';
+    return;
+  }
+  container.innerHTML = '<div class="wf-day-jobs-title">Trabajos del dia ' + d + '</div>'
+    + jobs.map(function(j) {
+        return '<div class="wf-day-job-item" onclick="openReschedule(' + JSON.stringify(j.client) + ')">'
+          + '<div class="wf-day-job-time">' + j.time + '</div>'
+          + '<div class="wf-day-job-info">'
+          + '<div class="wf-day-job-client">' + j.client + '</div>'
+          + '<div class="wf-day-job-service">' + j.service + '</div>'
+          + '</div>'
+          + '<div>'
+          + '<div class="wf-day-job-price">$' + j.price + '</div>'
+          + '<div class="wf-day-job-status ' + j.status + '">' + (j.status === 'confirmed' ? 'Confirmado' : 'Pendiente') + '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar();
+});
+
+// ══ CHART DATA ══
+const chartData = {
+  visitas: {
+    day:   { labels:['6am','9am','12pm','3pm','6pm','9pm'], values:[3,8,12,15,9,6],   total:56,   prev:42,   unit:'visitas' },
+    week:  { labels:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], values:[18,24,31,19,28,40,22], total:182, prev:156, unit:'visitas' },
+    month: { labels:['S1','S2','S3','S4'],                    values:[68,82,95,74],   total:319,  prev:280,  unit:'visitas' },
+    year:  { labels:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+             values:[120,98,145,167,200,188,155,142,178,195,210,183], total:1981, prev:1640, unit:'visitas' },
+  },
+  ganancias: {
+    day:   { labels:['6am','9am','12pm','3pm','6pm','9pm'], values:[0,200,600,0,400,0],   total:1200,  prev:900,   unit:'$' },
+    week:  { labels:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], values:[600,0,1200,400,800,1600,0], total:4600, prev:3800, unit:'$' },
+    month: { labels:['S1','S2','S3','S4'],                    values:[3200,4100,4800,3900], total:16000, prev:13500, unit:'$' },
+    year:  { labels:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+             values:[8000,6500,9200,11000,13500,12000,9800,9200,11500,13000,14200,11800], total:129700, prev:98000, unit:'$' },
+  }
+};
+let currentMetric = 'visitas';
+let currentPeriod = 'day';
+
+function setMetric(metric, btn) {
+  currentMetric = metric;
+  document.querySelectorAll('.wf-chart-toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart();
+}
+
+function setPeriod(period, btn) {
+  currentPeriod = period;
+  document.querySelectorAll('.wf-period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart();
+}
+
+function renderChart() {
+  const data   = chartData[currentMetric][currentPeriod];
+  const vals   = data.values;
+  const maxVal = Math.max(...vals);
+  const minVal = 0;
+  const W = 400; const H = 90; const PAD = 6;
+
+  // Build SVG polyline
+  const pts = vals.map((v,i) => {
+    const x = PAD + (i / (vals.length-1)) * (W - PAD*2);
+    const y = H - PAD - ((v - minVal)/(maxVal - minVal || 1)) * (H - PAD*2);
+    return [x, y];
+  });
+
+  const lineD = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const areaD = lineD + ' L'+pts[pts.length-1][0].toFixed(1)+','+(H-PAD)+' L'+pts[0][0].toFixed(1)+','+(H-PAD)+' Z';
+
+  const isGains = currentMetric === 'ganancias';
+  const lineColor  = isGains ? '#22c55e' : 'var(--brand, #123853)';
+  const areaColor1 = isGains ? '#86efac' : '#93c5fd';
+  const areaColor2 = isGains ? '#dcfce7' : '#eff6ff';
+  const dotColor   = isGains ? '#16a34a' : '#123853';
+
+  const gradId = 'chartGrad_' + currentMetric;
+
+  let svgHTML = '<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0%" stop-color="'+areaColor1+'" stop-opacity="0.35"/>'
+    + '<stop offset="100%" stop-color="'+areaColor2+'" stop-opacity="0.02"/>'
+    + '</linearGradient></defs>';
+
+  // Area fill
+  svgHTML += '<path d="'+areaD+'" fill="url(#'+gradId+')" stroke="none"/>';
+  // Line
+  svgHTML += '<path d="'+lineD+'" fill="none" stroke="'+lineColor+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+  // Dots + hover areas
+  pts.forEach(function(p, i) {
+    var valStr = isGains ? '$' + vals[i].toLocaleString() : vals[i] + ' visitas';
+    svgHTML += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="white" stroke-width="1.5"/>';
+    svgHTML += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="10" fill="transparent"'
+      + ' onmouseenter="showTip(event, this)" data-val="' + valStr + '"'
+      + ' onmouseleave="hideTip()"'
+      + ' ontouchstart="showTip(event, this)"'
+      + '/>';
+  });
+
+  document.getElementById('chartSVG').innerHTML = svgHTML;
+
+  // Labels
+  document.getElementById('chartLabels').innerHTML = data.labels.map(l=>
+    '<span style="flex:1;text-align:center;font-size:9px;color:var(--muted);">'+l+'</span>'
+  ).join('');
+
+  // Summary
+  const diff = data.total - data.prev;
+  const pct  = Math.round((diff/(data.prev||1))*100);
+  const up   = diff >= 0;
+  const fmtTotal = isGains ? '$'+data.total.toLocaleString() : data.total;
+  document.getElementById('viewsSummary').innerHTML =
+    '<div class="wf-views-stat">'
+    + '<div class="wf-views-num">'+fmtTotal+'<span class="wf-views-trend '+(up?'up':'down')+'">'+(up?'↑':'↓')+Math.abs(pct)+'%</span></div>'
+    + '<div class="wf-views-lbl">'+(isGains?'Ingresos totales':'Visitas totales')+'</div>'
+    + '</div>'
+    + (isGains
+      ? '<div class="wf-views-stat"><div class="wf-views-num">$'+Math.round(data.total*0.8).toLocaleString()+'</div><div class="wf-views-lbl">Neto (tras comisión)</div></div>'
+        + '<div class="wf-views-stat"><div class="wf-views-num">'+Math.round(data.total/200)+'</div><div class="wf-views-lbl">Trabajos realizados</div></div>'
+      : '<div class="wf-views-stat"><div class="wf-views-num">'+Math.round(data.total*0.18)+'</div><div class="wf-views-lbl">Contactos</div></div>'
+        + '<div class="wf-views-stat"><div class="wf-views-num">'+Math.round(data.total*0.07)+'</div><div class="wf-views-lbl">Contratos</div></div>'
+    );
+}
+
+function showTip(e, el) {
+  var text = el.getAttribute('data-val');
+  var tip  = document.getElementById('chartTooltip');
+  var wrap = document.querySelector('.wf-chart-svg-wrap');
+  var rect = wrap.getBoundingClientRect();
+  var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  var x = clientX - rect.left;
+  tip.textContent   = text;
+  tip.style.left    = x + 'px';
+  tip.style.top     = '-28px';
+  tip.style.display = 'block';
+}
+function hideTip() { document.getElementById('chartTooltip').style.display = 'none'; }
+
+// ══ POINTS SYSTEM ══
+let pointsSheetType = 'ads';
+function openPointsSheet(type) {
+  pointsSheetType = type;
+  if (type === 'ads') {
+    document.getElementById('pointsSheetTitle').textContent = '🎯 Canjear puntos en publicidad';
+    document.getElementById('pointsSheetSub').textContent = '100 puntos = 1 hora de visibilidad destacada en búsquedas.';
+    document.getElementById('pointsSheetBody').innerHTML =
+      '<div style="background:#f0f5fb;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);">'
+      + 'Tienes <strong style="color:var(--brand);">1,240 pts</strong> disponibles.<br>'
+      + 'Equivalen a <strong>12 horas</strong> de publicidad destacada.</div>'
+      + '<label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Horas a canjear</label>'
+      + '<input type="number" min="1" max="12" value="5" id="adsHours"'
+      + ' style="width:100%;padding:10px 12px;border:1.5px solid #dde1e7;border-radius:10px;font-size:13px;margin-bottom:12px;outline:none;"'
+      + ' oninput="calcAdsPoints(this.value)"/>'
+      + '<div id="adsPtsCost" style="font-size:12px;color:var(--muted);">Costo: <strong>500 pts</strong></div>';
+  } else {
+    document.getElementById('pointsSheetTitle').textContent = '💵 Convertir puntos a dinero';
+    document.getElementById('pointsSheetSub').textContent = '500 puntos = $50 MXN depositados en tu cuenta WeFix.';
+    document.getElementById('pointsSheetBody').innerHTML =
+      '<div style="background:#f0fdf4;border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);">'
+      + 'Tienes <strong style="color:#22c55e;">1,240 pts</strong> · equivalen a <strong>$124 MXN</strong></div>'
+      + '<label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Puntos a convertir</label>'
+      + '<input type="number" min="500" max="1240" step="500" value="500" id="cashPts"'
+      + ' style="width:100%;padding:10px 12px;border:1.5px solid #dde1e7;border-radius:10px;font-size:13px;margin-bottom:12px;outline:none;"'
+      + ' oninput="calcCashValue(this.value)"/>'
+      + '<div id="cashValue" style="font-size:12px;color:var(--muted);">Recibirás: <strong>$50 MXN</strong></div>';
+  }
+  openOverlay('pointsSheetOverlay');
+}
+function calcAdsPoints(h) {
+  document.getElementById('adsPtsCost').innerHTML = 'Costo: <strong>' + (h*100) + ' pts</strong>';
+}
+function calcCashValue(p) {
+  document.getElementById('cashValue').innerHTML = 'Recibirás: <strong>$' + Math.floor(p/500)*50 + ' MXN</strong>';
+}
+function confirmPoints() {
+  closeOverlay('pointsSheetOverlay');
+  showToast(pointsSheetType==='ads' ? 'Publicidad activada con puntos 🎯' : 'Puntos convertidos a saldo 💵');
+}
+
+// ══ PREMIUM CHECK ══
+function checkPremium() {
+  // Ana has 4.8★ and 47 reviews — she qualifies
+  showToast('¡Ya tienes acceso a trabajos Premium! 💎');
+}
+
+// ══ OVERLAYS ══
+function openOverlay(id) { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+
+// Close on bg click
+document.querySelectorAll('.wf-overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if(e.target===ov) ov.classList.remove('open'); });
+});
+
+function openReschedule(clientName) {
+  document.getElementById('rescheduleClient').value = clientName || '';
+  openOverlay('rescheduleOverlay');
+}
+function sendReschedule() {
+  const reason = document.getElementById('rescheduleReason').value.trim();
+  if (!reason) { showToast('Por favor escribe el motivo'); return; }
+  closeOverlay('rescheduleOverlay');
+  showToast('Solicitud enviada al cliente ✓');
+}
+
+function openAdSheet(type) {
+  openOverlay(type==='comision' ? 'adComisionOverlay' : 'adEconomicaOverlay');
+}
+function activateAd(type) {
+  closeOverlay('adComisionOverlay');
+  closeOverlay('adEconomicaOverlay');
+  showToast(type==='comision' ? 'Campaña activada 📈' : 'Publicidad activa 💰');
+}
+
+function calcAdTime() {
+  const budget = parseInt(document.getElementById('adBudget').value) || 0;
+  const mins   = budget * 15;
+  const hrs    = Math.floor(mins/60);
+  const rem    = mins % 60;
+  document.getElementById('adTimeCalc').innerHTML =
+    budget < 10
+      ? 'Minimo $10 MXN para activar publicidad.'
+      : 'Con <strong>$' + budget + '</strong> obtienes <strong>'
+        + (hrs > 0 ? hrs + 'h ' : '') + (rem > 0 ? rem + 'min' : '')
+        + '</strong> de visibilidad destacada.';
+}
+
+function fmtAdCard(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+// ══ INIT ══
+renderCalendar();
+renderChart();
+</script>
+</body>
+</html>
