@@ -563,7 +563,7 @@
            style="border:2px solid #dde1e7;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#ffffff;transition:all .15s;position:relative;">
         <div style="font-size:26px;margin-bottom:4px;">🔧</div>
         <div style="font-size:12px;font-weight:600;color:#6b7280;">Soy Profesional</div>
-        <div style="font-size:9px;color:#f97316;font-weight:700;margin-top:3px;letter-spacing:.3px;">PRÓXIMAMENTE</div>
+        <div style="font-size:9px;color:#22c55e;font-weight:700;margin-top:3px;letter-spacing:.3px;">¡Ya disponible!</div>
       </div>
     </div>
 
@@ -605,15 +605,44 @@
       </div>
     </div>
 
-    <!-- ── EMPLEADO: próximamente ── -->
+    <!-- ── EMPLEADO: login ── -->
     <div id="formEmpleado" style="display:none;">
-      <div class="wf-modal-coming">
-        <div class="big-icon">🔧</div>
-        <h3>Portal de Profesionales</h3>
-        <p>Estamos preparando el portal exclusivo para que puedas registrarte como profesional, gestionar tus servicios y conectar con clientes WeFix.</p>
-        <button class="wf-modal-notify-btn" onclick="notifyMe()">
-          Avísame cuando esté listo
-        </button>
+      <div id="empLogin">
+        <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Portal Profesional</h2>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Accede a tu panel de trabajo, agenda y estadísticas.</p>
+        <label>Correo electrónico</label>
+        <input type="email" id="empEmail" placeholder="tuprofesional@correo.com"/>
+        <label>Contraseña</label>
+        <input type="password" id="empPassword" placeholder="••••••••"/>
+        <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="goToEmpleado()">Entrar al portal</button>
+        <div class="wf-modal-switch">
+          ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
+        </div>
+      </div>
+
+      <div id="empRegister" style="display:none;">
+        <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Únete como Profesional</h2>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Empieza a recibir clientes y gestiona tus servicios con WeFix.</p>
+        <label>Nombre completo</label>
+        <input type="text" id="empNombre" placeholder="Tu nombre completo"/>
+        <label>Especialidad</label>
+        <select id="empEspecialidad" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;margin-bottom:14px;outline:none;background:#fff;">
+          <option value="">Selecciona tu especialidad</option>
+          <option>Chofer</option>
+          <option>Servicio de limpieza</option>
+          <option>Jardinería y mantenimiento</option>
+          <option>Chef Privado</option>
+          <option>Car Wash</option>
+          <option>Paseo de mascotas</option>
+        </select>
+        <label>Correo electrónico</label>
+        <input type="email" id="empEmailReg" placeholder="tuprofesional@correo.com"/>
+        <label>Contraseña</label>
+        <input type="password" id="empPasswordReg" placeholder="Mínimo 8 caracteres"/>
+        <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="goToEmpleado()">Crear cuenta y entrar</button>
+        <div class="wf-modal-switch">
+          ¿Ya tienes cuenta? <a id="switchToEmpLogin" style="cursor:pointer;">Inicia sesión</a>
+        </div>
       </div>
     </div>
 
@@ -668,6 +697,13 @@
     formLogin.style.display    = form === 'login'    ? 'block' : 'none';
     formRegister.style.display = form === 'register' ? 'block' : 'none';
     formEmpleado.style.display = form === 'empleado' ? 'block' : 'none';
+    // Siempre mostrar login al abrir el panel empleado
+    if (form === 'empleado') {
+      var el = document.getElementById('empLogin');
+      var er = document.getElementById('empRegister');
+      if (el) el.style.display = 'block';
+      if (er) er.style.display = 'none';
+    }
   }
 
   function closeModal() { overlay.classList.remove('active'); }
@@ -695,10 +731,26 @@
     openModal('empleado', 'empleado');
   }
 
-  // ── Notificarme ──
+  // ── Ir al panel de empleado ──
+  function goToEmpleado() {
+    closeModal();
+    window.location.href = 'wefix-empleado-home.html';
+  }
+
+  // ── Switches empleado ──
+  document.getElementById('switchToEmpRegister').addEventListener('click', function() {
+    document.getElementById('empLogin').style.display   = 'none';
+    document.getElementById('empRegister').style.display = 'block';
+  });
+  document.getElementById('switchToEmpLogin').addEventListener('click', function() {
+    document.getElementById('empRegister').style.display = 'none';
+    document.getElementById('empLogin').style.display    = 'block';
+  });
+
+  // ── Notificarme (legacy) ──
   function notifyMe() {
     closeModal();
-    showToast('¡Te avisaremos cuando esté listo! 🎉');
+    showToast('Ya puedes registrarte como profesional 🎉');
   }
 
   // ── Toast ──
