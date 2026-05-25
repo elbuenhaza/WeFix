@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Mi Perfil Profesional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--onyx-a:#fbbf24;--onyx-b:#f97316;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:80px;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-family:'Raleway',sans-serif;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-back{background:none;border:none;display:flex;align-items:center;gap:6px;color:var(--brand);font-size:13px;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-back svg{width:18px;height:18px;}
+
+    /* HERO */
+    .wf-hero{background:var(--brand);padding:24px 20px 70px;position:relative;text-align:center;overflow:hidden;}
+    .wf-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:var(--bg);border-radius:24px 24px 0 0;}
+    .wf-hero-circles span{position:absolute;border-radius:50%;background:rgba(255,255,255,.05);}
+    .wf-hero-circles span:nth-child(1){width:120px;height:120px;top:-30px;right:-20px;}
+    .wf-hero-circles span:nth-child(2){width:80px;height:80px;bottom:20px;left:-10px;}
+
+    /* Avatar */
+    .wf-avatar-wrap{position:relative;display:inline-block;margin-bottom:10px;}
+    .wf-avatar{width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg,#1a4f72,#0d2b3e);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--white);cursor:pointer;overflow:hidden;position:relative;margin:0 auto;}
+    .wf-avatar img{width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;}
+    .wf-avatar-edit{position:absolute;bottom:2px;right:2px;width:24px;height:24px;border-radius:50%;background:var(--accent);border:2px solid var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;}
+    #avatarInput{display:none;}
+    .wf-hero-name{font-size:17px;font-weight:700;color:var(--white);margin-bottom:2px;}
+    .wf-hero-prof{font-size:12px;color:rgba(255,255,255,.65);}
+    .wf-hero-stars{display:flex;align-items:center;justify-content:center;gap:3px;margin-top:6px;}
+    .wf-hero-stars span{font-size:13px;color:var(--onyx-a);}
+    .wf-hero-rating{font-size:11px;color:rgba(255,255,255,.65);margin-left:3px;}
+
+    /* CARDS */
+    .wf-card{background:var(--white);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);margin:14px 16px 0;overflow:hidden;}
+    .wf-card-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 10px;border-bottom:1px solid var(--border);}
+    .wf-card-title{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--brand);}
+    .wf-card-title span{font-size:16px;}
+    .wf-edit-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;}
+    .wf-edit-btn:hover,.wf-edit-btn.active{background:var(--brand);color:var(--white);border-color:var(--brand);}
+    .wf-save-btn{background:var(--brand);color:var(--white);border:none;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;display:none;}
+
+    /* FIELDS */
+    .wf-field{padding:11px 16px;border-bottom:1px solid var(--border);}
+    .wf-field:last-child{border-bottom:none;}
+    .wf-field-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:3px;}
+    .wf-field-value{font-size:13px;color:var(--text);font-weight:500;}
+    .wf-field input,.wf-field select,.wf-field textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Poppins',sans-serif;color:var(--text);outline:none;background:var(--bg);display:none;transition:border .2s;resize:none;}
+    .wf-field input:focus,.wf-field select:focus,.wf-field textarea:focus{border-color:var(--brand);}
+    .wf-field.editing .wf-field-value{display:none;}
+    .wf-field.editing input,.wf-field.editing select,.wf-field.editing textarea{display:block;}
+
+    /* TOGGLE */
+    .wf-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
+    .wf-toggle-row:last-child{border-bottom:none;}
+    .wf-toggle-info{flex:1;}
+    .wf-toggle-label{font-size:13px;font-weight:500;color:var(--text);}
+    .wf-toggle-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+    .wf-toggle{position:relative;width:42px;height:24px;flex-shrink:0;margin-left:12px;}
+    .wf-toggle input{opacity:0;width:0;height:0;}
+    .wf-slider{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:background .2s;}
+    .wf-slider::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--white);left:3px;top:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .wf-toggle input:checked + .wf-slider{background:var(--brand);}
+    .wf-toggle input:checked + .wf-slider::before{transform:translateX(18px);}
+
+    /* PORTFOLIO */
+    .wf-portfolio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;}
+    .wf-portfolio-pair{border-radius:10px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:border .15s;}
+    .wf-portfolio-pair:hover{border-color:var(--brand);}
+    .wf-portfolio-pair-imgs{display:grid;grid-template-columns:1fr 1fr;}
+    .wf-portfolio-thumb{width:100%;aspect-ratio:1;object-fit:cover;background:#e8eef5;}
+    .wf-portfolio-pair-label{background:var(--brand);padding:4px;text-align:center;font-size:9px;font-weight:700;color:var(--white);letter-spacing:.5px;}
+    .wf-add-portfolio{border:2px dashed var(--border);border-radius:10px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;gap:6px;transition:border .15s,color .15s;}
+    .wf-add-portfolio:hover{border-color:var(--brand);color:var(--brand);}
+    .wf-add-portfolio svg{width:24px;height:24px;}
+
+    /* VERIFICACION */
+    .wf-verif-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
+    .wf-verif-item:last-child{border-bottom:none;}
+    .wf-verif-icon{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .wf-verif-body{flex:1;}
+    .wf-verif-name{font-size:13px;font-weight:600;color:var(--text);}
+    .wf-verif-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+    .wf-verif-status{font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px;flex-shrink:0;}
+    .wf-verif-status.ok{background:#dcfce7;color:#16a34a;}
+    .wf-verif-status.pending{background:#fef3c7;color:#92400e;}
+    .wf-verif-status.needed{background:#fee2e2;color:#dc2626;cursor:pointer;}
+    .wf-upload-btn{background:var(--brand);color:var(--white);border:none;border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:5px;}
+
+    /* DESCUENTO */
+    .wf-discount-card{margin:0 16px 0;background:linear-gradient(135deg,#1a4f72,var(--brand));border-radius:14px;padding:16px;position:relative;overflow:hidden;}
+    .wf-discount-card::before{content:'%';position:absolute;right:10px;top:-5px;font-size:80px;font-weight:900;color:rgba(255,255,255,.06);font-family:'Raleway',sans-serif;}
+    .wf-discount-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px;}
+    .wf-discount-desc{font-size:11px;color:rgba(255,255,255,.65);margin-bottom:14px;line-height:1.5;}
+    .wf-discount-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .wf-discount-input{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;color:var(--white);outline:none;width:80px;text-align:center;}
+    .wf-discount-input::placeholder{color:rgba(255,255,255,.4);}
+    .wf-discount-label{font-size:12px;color:rgba(255,255,255,.7);}
+    .wf-discount-btn{background:var(--white);color:var(--brand);border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:opacity .15s;}
+    .wf-discount-btn:hover{opacity:.88;}
+    .wf-discount-active{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px 12px;font-size:11px;color:#86efac;display:none;}
+
+    /* TOAST */
+    .wf-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brand);color:var(--white);border-radius:30px;padding:10px 22px;font-size:13px;font-weight:500;z-index:999;box-shadow:0 4px 18px rgba(18,56,83,.25);transition:transform .3s ease;white-space:nowrap;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+
+    /* BOTTOM NAV */
+    .wf-bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 10px;z-index:40;}
+    .wf-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--muted);cursor:pointer;text-decoration:none;font-family:'Poppins',sans-serif;}
+    .wf-bnav-item svg{width:22px;height:22px;}
+    .wf-bnav-item.active{color:var(--brand);}
+  </style>
+</head>
+<body>
+
+<nav class="wf-nav">
+  <button class="wf-back" onclick="history.back()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    Volver
+  </button>
+  <a class="wf-logo" href="wefix-empleado-home.html">
+    <div class="wf-logo-icon">W</div>WeFix
+  </a>
+  <div style="width:60px;"></div>
+</nav>
+
+<!-- HERO PERFIL -->
+<div class="wf-hero">
+  <div class="wf-hero-circles"><span></span><span></span></div>
+  <div class="wf-avatar-wrap">
+    <div class="wf-avatar" id="avatarCircle" onclick="document.getElementById('avatarInput').click()">
+      <img id="avatarImg" src="" alt=""/>
+      <span id="avatarInitials">AM</span>
+    </div>
+    <div class="wf-avatar-edit" onclick="document.getElementById('avatarInput').click()">📷</div>
+    <input type="file" id="avatarInput" accept="image/*"/>
+  </div>
+  <div class="wf-hero-name" id="heroName">Ana Méndez</div>
+  <div class="wf-hero-prof" id="heroProf">Jardinera · CDMX</div>
+  <div class="wf-hero-stars">
+    <span>★★★★★</span>
+    <span class="wf-hero-rating">4.8 · 47 reseñas</span>
+  </div>
+</div>
+
+<!-- INFO PERSONAL -->
+<div class="wf-card" id="cardPersonal">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>👤</span> Información personal</div>
+    <button class="wf-edit-btn" onclick="toggleEdit('personal')">Editar</button>
+    <button class="wf-save-btn" id="savePersonal" onclick="saveSection('personal')">Guardar</button>
+  </div>
+  <div class="wf-field" id="f-nombre">
+    <div class="wf-field-label">Nombre completo</div>
+    <div class="wf-field-value">Ana Méndez</div>
+    <input type="text" value="Ana Méndez" placeholder="Tu nombre completo"/>
+  </div>
+  <div class="wf-field" id="f-telefono">
+    <div class="wf-field-label">Teléfono</div>
+    <div class="wf-field-value">+52 55 9876 5432</div>
+    <input type="tel" value="+52 55 9876 5432"/>
+  </div>
+  <div class="wf-field" id="f-email">
+    <div class="wf-field-label">Correo electrónico</div>
+    <div class="wf-field-value">ana.mendez@correo.com</div>
+    <input type="email" value="ana.mendez@correo.com"/>
+  </div>
+  <div class="wf-field" id="f-especialidad">
+    <div class="wf-field-label">Especialidad</div>
+    <div class="wf-field-value">Jardinería y mantenimiento</div>
+    <select>
+      <option>Chofer</option>
+      <option>Servicio de limpieza</option>
+      <option selected>Jardinería y mantenimiento</option>
+      <option>Chef Privado</option>
+      <option>Car Wash</option>
+      <option>Paseo de mascotas</option>
+    </select>
+  </div>
+  <div class="wf-field" id="f-zona">
+    <div class="wf-field-label">Zona de servicio</div>
+    <div class="wf-field-value">Del Valle, Benito Juárez, Coyoacán</div>
+    <input type="text" value="Del Valle, Benito Juárez, Coyoacán"/>
+  </div>
+  <div class="wf-field" id="f-bio">
+    <div class="wf-field-label">Descripción / Bio</div>
+    <div class="wf-field-value">Diseño y mantenimiento de jardines. Poda, riego y paisajismo. Certificada en horticultura.</div>
+    <textarea rows="3">Diseño y mantenimiento de jardines. Poda, riego y paisajismo. Certificada en horticultura.</textarea>
+  </div>
+  <div class="wf-field" id="f-precio">
+    <div class="wf-field-label">Precio por hora (MXN)</div>
+    <div class="wf-field-value">$200 / hr</div>
+    <input type="number" value="200" min="50"/>
+  </div>
+</div>
+
+<!-- DESCUENTOS -->
+<div class="wf-card" style="overflow:visible;">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🏷️</span> Ofrecer descuento</div>
+  </div>
+  <div style="padding:14px 16px 0;">
+    <div class="wf-discount-card">
+      <div class="wf-discount-title">Activa un descuento especial</div>
+      <div class="wf-discount-desc">Tus clientes verán el descuento en tu perfil. Atrae más solicitudes con una oferta limitada.</div>
+      <div class="wf-discount-row">
+        <input class="wf-discount-input" type="number" id="discountVal" min="5" max="50" placeholder="10"/>
+        <span class="wf-discount-label">% de descuento</span>
+        <button class="wf-discount-btn" onclick="activateDiscount()">Activar</button>
+      </div>
+      <div class="wf-discount-active" id="discountActive">✓ Descuento activo en tu perfil</div>
+    </div>
+  </div>
+  <div class="wf-toggle-row" style="margin-top:12px;">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Primer servicio gratis</div>
+      <div class="wf-toggle-desc">Ofrece el primer servicio sin costo para ganar reseñas</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox"/><span class="wf-slider"></span></label>
+  </div>
+  <div class="wf-toggle-row">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Descuento cliente frecuente</div>
+      <div class="wf-toggle-desc">10% automático a partir del 3er servicio</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox" checked/><span class="wf-slider"></span></label>
+  </div>
+</div>
+
+<!-- PORTAFOLIO ANTES/DESPUÉS -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>📸</span> Portafolio · Antes & Después</div>
+  </div>
+  <div class="wf-portfolio-grid" id="portfolioGrid">
+    <!-- Par 1 -->
+    <div class="wf-portfolio-pair">
+      <div class="wf-portfolio-pair-label">Jardín residencial</div>
+      <div class="wf-portfolio-pair-imgs">
+        <img class="wf-portfolio-thumb" src="feo1.avif" onerror="this.style.background='#fee2e2'" alt="Antes"/>
+        <img class="wf-portfolio-thumb" src="bonito1.jpg" onerror="this.style.background='#dcfce7'" alt="Después"/>
+      </div>
+    </div>
+    <!-- Par 2 -->
+    <div class="wf-portfolio-pair">
+      <div class="wf-portfolio-pair-label">Terraza exterior</div>
+      <div class="wf-portfolio-pair-imgs">
+        <img class="wf-portfolio-thumb" src="feo2.jpg" onerror="this.style.background='#fee2e2'" alt="Antes"/>
+        <img class="wf-portfolio-thumb" src="bonito2.jpg" onerror="this.style.background='#dcfce7'" alt="Después"/>
+      </div>
+    </div>
+    <!-- Par 3 -->
+    <div class="wf-portfolio-pair">
+      <div class="wf-portfolio-pair-label">Área de acceso</div>
+      <div class="wf-portfolio-pair-imgs">
+        <img class="wf-portfolio-thumb" src="feo3.webp" onerror="this.style.background='#fee2e2'" alt="Antes"/>
+        <img class="wf-portfolio-thumb" src="bonito3.jpg" onerror="this.style.background='#dcfce7'" alt="Después"/>
+      </div>
+    </div>
+    <!-- Agregar nuevo -->
+    <div class="wf-add-portfolio" onclick="showToast('Función de carga próximamente 📸')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Agregar par
+    </div>
+  </div>
+</div>
+
+<!-- VERIFICACIÓN -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🛡️</span> Verificación de identidad</div>
+  </div>
+  <div class="wf-verif-item">
+    <div class="wf-verif-icon">🪪</div>
+    <div class="wf-verif-body">
+      <div class="wf-verif-name">INE / Pasaporte</div>
+      <div class="wf-verif-desc">Documento oficial de identidad vigente</div>
+      <button class="wf-upload-btn" onclick="showToast('Subiendo documento… 📄')">Subir documento</button>
+    </div>
+    <div class="wf-verif-status ok">Verificado ✓</div>
+  </div>
+  <div class="wf-verif-item">
+    <div class="wf-verif-icon">🤳</div>
+    <div class="wf-verif-body">
+      <div class="wf-verif-name">Verificación facial</div>
+      <div class="wf-verif-desc">Selfie con documento en mano</div>
+    </div>
+    <div class="wf-verif-status ok">Verificado ✓</div>
+  </div>
+  <div class="wf-verif-item">
+    <div class="wf-verif-icon">🔧</div>
+    <div class="wf-verif-body">
+      <div class="wf-verif-name">Herramientas certificadas</div>
+      <div class="wf-verif-desc">Foto de tus herramientas de trabajo</div>
+      <button class="wf-upload-btn" onclick="showToast('Subiendo fotos… 📸')">Subir fotos</button>
+    </div>
+    <div class="wf-verif-status ok">Certificado ✓</div>
+  </div>
+  <div class="wf-verif-item">
+    <div class="wf-verif-icon">📋</div>
+    <div class="wf-verif-body">
+      <div class="wf-verif-name">Antecedentes no penales</div>
+      <div class="wf-verif-desc">Carta de no antecedentes reciente</div>
+      <button class="wf-upload-btn" onclick="showToast('Subiendo documento… 📄')">Subir documento</button>
+    </div>
+    <div class="wf-verif-status pending">En revisión</div>
+  </div>
+  <div class="wf-verif-item">
+    <div class="wf-verif-icon">🏦</div>
+    <div class="wf-verif-body">
+      <div class="wf-verif-name">Cuenta bancaria</div>
+      <div class="wf-verif-desc">CLABE para recibir pagos</div>
+      <button class="wf-upload-btn" onclick="showToast('Abriendo formulario bancario…')">Agregar cuenta</button>
+    </div>
+    <div class="wf-verif-status needed">Pendiente</div>
+  </div>
+</div>
+
+<!-- PREFERENCIAS -->
+<div class="wf-card">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🔔</span> Notificaciones y mensajes</div>
+  </div>
+  <div class="wf-toggle-row">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Nuevas solicitudes de trabajo</div>
+      <div class="wf-toggle-desc">Recibe alertas al instante</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox" checked/><span class="wf-slider"></span></label>
+  </div>
+  <div class="wf-toggle-row">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Mensajes de clientes</div>
+      <div class="wf-toggle-desc">Mensajes directos y cambios de horario</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox" checked/><span class="wf-slider"></span></label>
+  </div>
+  <div class="wf-toggle-row">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Nuevas reseñas</div>
+      <div class="wf-toggle-desc">Entérate cuando un cliente te califica</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox" checked/><span class="wf-slider"></span></label>
+  </div>
+  <div class="wf-toggle-row">
+    <div class="wf-toggle-info">
+      <div class="wf-toggle-label">Disponible ahora (modo Flash)</div>
+      <div class="wf-toggle-desc">Apareces en trabajos inmediatos con bono</div>
+    </div>
+    <label class="wf-toggle"><input type="checkbox"/><span class="wf-slider"></span></label>
+  </div>
+</div>
+
+<!-- CERRAR SESION -->
+<button onclick="window.location.href='index.html'" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 16px 32px;padding:13px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;color:var(--brand);cursor:pointer;font-family:'Poppins',sans-serif;width:calc(100% - 32px);transition:all .15s;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+  Cerrar sesión
+</button>
+
+<div class="wf-toast" id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="wf-bottom-nav">
+  <a class="wf-bnav-item" href="wefix-empleado-home.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </a>
+  <a class="wf-bnav-item" href="wefix-empleado-agenda.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Agenda
+  </a>
+  <a class="wf-bnav-item" href="wefix-mensajes.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Mensajes
+  </a>
+  <a class="wf-bnav-item active" href="wefix-empleado-perfil.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Mi perfil
+  </a>
+</nav>
+
+<script>
+// AVATAR
+document.getElementById('avatarInput').addEventListener('change', function() {
+  var file = this.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById('avatarImg');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('avatarInitials').style.display = 'none';
+    showToast('Foto actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+});
+
+// EDIT SECTIONS
+var sectionFields = {
+  personal: ['f-nombre','f-telefono','f-email','f-especialidad','f-zona','f-bio','f-precio']
+};
+function toggleEdit(sec) {
+  var fields = sectionFields[sec];
+  var editBtn = document.querySelector('#card' + capitalize(sec) + ' .wf-edit-btn');
+  var saveBtn = document.getElementById('save' + capitalize(sec));
+  var isEditing = editBtn.classList.contains('active');
+  fields.forEach(function(id) { document.getElementById(id).classList.toggle('editing', !isEditing); });
+  editBtn.classList.toggle('active', !isEditing);
+  editBtn.textContent = isEditing ? 'Editar' : 'Cancelar';
+  saveBtn.style.display = isEditing ? 'none' : 'inline-block';
+}
+function saveSection(sec) {
+  var fields = sectionFields[sec];
+  var editBtn = document.querySelector('#card' + capitalize(sec) + ' .wf-edit-btn');
+  var saveBtn = document.getElementById('save' + capitalize(sec));
+  fields.forEach(function(id) {
+    var field = document.getElementById(id);
+    var input = field.querySelector('input,select,textarea');
+    var valEl = field.querySelector('.wf-field-value');
+    if (input && valEl && input.value.trim()) valEl.textContent = input.type === 'number' ? '$' + input.value + ' / hr' : input.value;
+    field.classList.remove('editing');
+  });
+  editBtn.classList.remove('active'); editBtn.textContent = 'Editar'; saveBtn.style.display = 'none';
+  // Update hero
+  var nombre = document.querySelector('#f-nombre .wf-field-value').textContent;
+  document.getElementById('heroName').textContent = nombre;
+  showToast('Cambios guardados ✓');
+}
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// DISCOUNT
+function activateDiscount() {
+  var val = document.getElementById('discountVal').value;
+  if (!val || val < 5) { showToast('Ingresa un descuento de mínimo 5%'); return; }
+  document.getElementById('discountActive').style.display = 'block';
+  document.getElementById('discountActive').textContent = '✓ Descuento del ' + val + '% activo en tu perfil';
+  showToast('Descuento del ' + val + '% activado 🏷️');
+}
+
+// TOAST
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
