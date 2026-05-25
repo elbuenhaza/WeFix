@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Mensajes Profesional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--online:#22c55e;--onyx-a:#fbbf24;--onyx-b:#f97316;--shadow:0 2px 10px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);max-width:500px;margin:0 auto;min-height:100vh;overflow-x:hidden;padding-bottom:80px;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-family:'Raleway',sans-serif;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-pro-pill{display:flex;align-items:center;gap:4px;background:var(--brand);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--white);}
+
+    /* VIEWS */
+    #viewInbox{display:block;}
+    #viewChat{display:none;}
+
+    /* INBOX HEADER */
+    .wf-inbox-header{background:var(--brand);padding:20px 20px 16px;}
+    .wf-inbox-title{font-family:'Raleway',sans-serif;font-size:22px;font-weight:800;color:var(--white);margin-bottom:12px;}
+    .wf-inbox-search{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 14px;transition:background .2s;}
+    .wf-inbox-search:focus-within{background:rgba(255,255,255,.2);}
+    .wf-inbox-search svg{width:16px;height:16px;color:rgba(255,255,255,.6);flex-shrink:0;}
+    .wf-inbox-search input{border:none;outline:none;background:transparent;font-family:'Poppins',sans-serif;font-size:13px;color:var(--white);width:100%;}
+    .wf-inbox-search input::placeholder{color:rgba(255,255,255,.5);}
+
+    /* FILTER TABS */
+    .wf-inbox-tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;scrollbar-width:none;}
+    .wf-inbox-tabs::-webkit-scrollbar{display:none;}
+    .wf-inbox-tab{padding:11px 14px;font-size:12px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Poppins',sans-serif;transition:color .15s,border-color .15s;}
+    .wf-inbox-tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+
+    /* CONVO LIST */
+    .wf-convo-list{padding:8px 0 0;}
+    .wf-convo-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;position:relative;}
+    .wf-convo-item:hover{background:#f8faff;}
+    .wf-convo-item.unread{background:#f0f5ff;}
+    .wf-convo-avatar{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--white);position:relative;}
+    .wf-online-dot{position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--online);border:2px solid var(--white);}
+    .wf-offline-dot{position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--muted);border:2px solid var(--white);}
+    .wf-convo-body{flex:1;min-width:0;}
+    .wf-convo-job-tag{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+    .wf-convo-job-tag.flash{color:var(--onyx-b);}
+    .wf-convo-job-tag.premium{color:#7c3aed;}
+    .wf-convo-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+    .wf-convo-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+    .wf-convo-time{font-size:10px;color:var(--muted);flex-shrink:0;}
+    .wf-convo-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;}
+    .wf-convo-preview.unread-text{color:var(--text);font-weight:500;}
+    .wf-convo-badge{background:var(--brand);color:var(--white);border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+    /* WORK STATUS MINI */
+    .wf-convo-status-bar{display:flex;align-items:center;gap:6px;margin-top:3px;}
+    .wf-convo-status-pill{font-size:9px;font-weight:700;border-radius:10px;padding:2px 7px;}
+    .wf-convo-status-pill.confirmed{background:#dcfce7;color:#16a34a;}
+    .wf-convo-status-pill.pending{background:#fef3c7;color:#92400e;}
+    .wf-convo-status-pill.completed{background:#e8f0fb;color:var(--brand);}
+    .wf-convo-date{font-size:10px;color:var(--muted);}
+
+    /* EMPTY */
+    .wf-empty-inbox{display:none;text-align:center;padding:60px 24px;color:var(--muted);}
+    .wf-empty-inbox svg{width:48px;height:48px;color:var(--border);margin-bottom:12px;}
+    .wf-empty-inbox p{font-size:14px;}
+
+    /* ═══ CHAT HEADER ═══ */
+    .wf-chat-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:40;}
+    .wf-chat-back{background:none;border:none;cursor:pointer;color:var(--brand);padding:4px;display:flex;align-items:center;}
+    .wf-chat-back svg{width:20px;height:20px;}
+    .wf-chat-avatar{width:38px;height:38px;border-radius:50%;background:var(--brand);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);position:relative;}
+    .wf-status-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--white);}
+    .wf-chat-info{flex:1;min-width:0;cursor:pointer;}
+    .wf-chat-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wf-chat-status{font-size:11px;}
+    .wf-chat-status.online{color:var(--online);}
+    .wf-chat-status.offline{color:var(--muted);}
+    .wf-chat-actions{display:flex;gap:8px;}
+    .wf-chat-action-btn{background:none;border:none;cursor:pointer;color:var(--brand);padding:4px;display:flex;align-items:center;}
+    .wf-chat-action-btn svg{width:20px;height:20px;}
+
+    /* JOB BANNER inside chat */
+    .wf-job-banner{background:var(--brand);margin:10px 16px;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+    .wf-job-banner-icon{font-size:22px;flex-shrink:0;}
+    .wf-job-banner-body{flex:1;min-width:0;}
+    .wf-job-banner-service{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;}
+    .wf-job-banner-client{font-size:13px;font-weight:700;color:var(--white);}
+    .wf-job-banner-detail{font-size:10px;color:rgba(255,255,255,.65);}
+    .wf-job-banner-price{font-size:14px;font-weight:800;color:var(--onyx-a);flex-shrink:0;}
+
+    /* MESSAGES */
+    .wf-messages-area{padding:10px 16px;display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 280px);padding-bottom:90px;}
+    .wf-date-sep{text-align:center;font-size:11px;color:var(--muted);margin:6px 0;display:flex;align-items:center;gap:8px;}
+    .wf-date-sep::before,.wf-date-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+    .wf-msg{display:flex;gap:8px;max-width:85%;}
+    .wf-msg.mine{align-self:flex-end;flex-direction:row-reverse;}
+    .wf-msg.theirs{align-self:flex-start;}
+    .wf-msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--white);align-self:flex-end;}
+    .wf-bubble-wrap{display:flex;flex-direction:column;gap:2px;}
+    .wf-msg.mine .wf-bubble-wrap{align-items:flex-end;}
+    .wf-bubble{padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.45;word-break:break-word;}
+    .wf-msg.theirs .wf-bubble{background:var(--white);color:var(--text);border-radius:4px 18px 18px 18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .wf-msg.mine .wf-bubble{background:var(--brand);color:var(--white);border-radius:18px 4px 18px 18px;}
+    .wf-msg-meta{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);}
+    .wf-msg.mine .wf-msg-meta{justify-content:flex-end;}
+    .wf-read-icon{font-size:11px;}
+    .wf-read-icon.read{color:var(--brand);}
+    .wf-read-icon.sent{color:var(--muted);}
+
+    /* Special message cards */
+    .wf-msg-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:12px;max-width:260px;align-self:flex-start;}
+    .wf-msg-card.mine{align-self:flex-end;border-color:rgba(18,56,83,.2);}
+    .wf-msg-card-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+    .wf-msg-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+    .wf-msg-card-detail{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.4;}
+    .wf-msg-card-btn{width:100%;background:var(--brand);color:var(--white);border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-msg-card-btn.green{background:var(--online);}
+    .wf-msg-card-btn.outline{background:none;color:var(--brand);border:1px solid var(--border);margin-top:5px;}
+
+    /* TYPING */
+    .wf-typing{display:none;align-self:flex-start;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:10px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .wf-typing.show{display:flex;gap:4px;align-items:center;}
+    .wf-typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;animation:typingDot 1.2s infinite;}
+    .wf-typing span:nth-child(2){animation-delay:.2s;}
+    .wf-typing span:nth-child(3){animation-delay:.4s;}
+    @keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+
+    /* INPUT BAR */
+    .wf-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);padding:8px 12px;display:flex;align-items:flex-end;gap:8px;z-index:40;}
+    .wf-quick-actions{display:flex;gap:6px;padding:0 16px 6px;}
+    .wf-quick-btn{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:500;color:var(--brand);cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;transition:all .15s;}
+    .wf-quick-btn:hover{background:var(--brand);color:var(--white);border-color:var(--brand);}
+    .wf-attach-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:50%;display:flex;align-items:center;transition:background .15s,color .15s;flex-shrink:0;}
+    .wf-attach-btn:hover{background:var(--bg);color:var(--brand);}
+    .wf-attach-btn svg{width:22px;height:22px;}
+    #fileInput{display:none;}
+    .wf-msg-input-wrap{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:22px;padding:8px 14px;display:flex;align-items:flex-end;gap:8px;transition:border .2s;min-height:40px;}
+    .wf-msg-input-wrap:focus-within{border-color:var(--brand);}
+    .wf-msg-input{flex:1;border:none;outline:none;background:transparent;font-family:'Poppins',sans-serif;font-size:13px;color:var(--text);resize:none;max-height:100px;line-height:1.4;overflow-y:auto;scrollbar-width:none;}
+    .wf-msg-input::placeholder{color:#bbb;}
+    .wf-emoji-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:0;flex-shrink:0;line-height:1;opacity:.6;transition:opacity .15s;}
+    .wf-emoji-btn:hover{opacity:1;}
+    .wf-send-btn{width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--white);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;box-shadow:0 2px 8px rgba(18,56,83,.25);}
+    .wf-send-btn:hover{background:#1a4f72;transform:scale(1.06);}
+    .wf-send-btn svg{width:18px;height:18px;}
+
+    /* EMOJI PICKER */
+    .wf-emoji-picker{display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:468px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:12px;z-index:50;box-shadow:0 8px 32px rgba(18,56,83,.15);}
+    .wf-emoji-picker.open{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;}
+    .wf-emoji-picker span{font-size:22px;text-align:center;cursor:pointer;padding:6px;border-radius:8px;transition:background .1s;}
+    .wf-emoji-picker span:hover{background:var(--bg);}
+
+    /* DISCOUNT SHEET */
+    .wf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+    .wf-overlay.open{display:flex;}
+    .wf-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px 20px 36px;animation:slideUp .28s ease;}
+    @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+    .wf-sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px;}
+    .wf-sheet h3{font-size:15px;font-weight:700;color:var(--brand);margin-bottom:4px;}
+    .wf-sheet .sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+    .wf-sheet label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;}
+    .wf-sheet input,.wf-sheet select,.wf-sheet textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;margin-bottom:12px;transition:border .2s;}
+    .wf-sheet input:focus,.wf-sheet select:focus,.wf-sheet textarea:focus{border-color:var(--brand);}
+    .wf-sheet-btn{width:100%;background:var(--brand);color:var(--white);border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;}
+    .wf-sheet-btn:hover{background:#1a4f72;}
+    .wf-sheet-btn.outline{background:none;color:var(--muted);border:1.5px solid var(--border);margin-top:8px;}
+
+    /* PROFILE SHEET */
+    .wf-profile-sheet{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;}
+    .wf-profile-sheet.open{display:flex;}
+    .wf-profile-sheet-inner{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:24px 20px 36px;animation:slideUp .25s ease;}
+    .wf-sheet-avatar{width:64px;height:64px;border-radius:50%;background:var(--brand);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--white);}
+    .wf-sheet-name{text-align:center;font-size:17px;font-weight:600;color:var(--text);}
+    .wf-sheet-prof{text-align:center;font-size:12px;color:var(--accent);margin-bottom:10px;}
+    .wf-sheet-job-info{background:var(--bg);border-radius:12px;padding:12px;margin-bottom:14px;}
+    .wf-sheet-job-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--muted);}
+    .wf-sheet-job-row .val{font-weight:600;color:var(--text);}
+    .wf-sheet-actions{display:flex;gap:10px;}
+    .wf-sheet-action-btn{flex:1;background:var(--brand);color:var(--white);border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;text-align:center;transition:background .15s;}
+    .wf-sheet-action-btn:hover{background:#1a4f72;}
+    .wf-sheet-action-btn.outline{background:none;color:var(--brand);border:1.5px solid var(--border);}
+
+    /* TOAST */
+    .wf-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brand);color:var(--white);border-radius:30px;padding:10px 22px;font-size:13px;font-weight:500;z-index:999;box-shadow:0 4px 18px rgba(18,56,83,.25);transition:transform .3s ease;white-space:nowrap;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+
+    /* BOTTOM NAV */
+    .wf-bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 10px;z-index:40;}
+    .wf-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--muted);cursor:pointer;text-decoration:none;font-family:'Poppins',sans-serif;}
+    .wf-bnav-item svg{width:22px;height:22px;}
+    .wf-bnav-item.active{color:var(--brand);}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="wefix-empleado-home.html">
+    <div class="wf-logo-icon">W</div>WeFix
+  </a>
+  <div class="wf-pro-pill">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+    Profesional
+  </div>
+</nav>
+
+<!-- ═══ INBOX ═══ -->
+<div id="viewInbox">
+  <div class="wf-inbox-header">
+    <div class="wf-inbox-title">Mis clientes</div>
+    <div class="wf-inbox-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchConvos" placeholder="Buscar cliente o servicio…"/>
+    </div>
+  </div>
+
+  <div class="wf-inbox-tabs">
+    <button class="wf-inbox-tab active" data-filter="todos">Todos</button>
+    <button class="wf-inbox-tab" data-filter="activos">Activos</button>
+    <button class="wf-inbox-tab" data-filter="no-leidos">No leídos</button>
+    <button class="wf-inbox-tab" data-filter="completados">Completados</button>
+  </div>
+
+  <div class="wf-convo-list" id="convoList"></div>
+  <div class="wf-empty-inbox" id="emptyInbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <p>No hay conversaciones aquí.</p>
+  </div>
+</div>
+
+<!-- ═══ CHAT ═══ -->
+<div id="viewChat">
+  <div class="wf-chat-header">
+    <button class="wf-chat-back" onclick="backToInbox()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="wf-chat-avatar" id="chatAvatar"><div class="wf-status-dot" id="chatStatusDot"></div></div>
+    <div class="wf-chat-info" id="chatInfoBtn">
+      <div class="wf-chat-name" id="chatName"></div>
+      <div class="wf-chat-status" id="chatStatus"></div>
+    </div>
+    <div class="wf-chat-actions">
+      <button class="wf-chat-action-btn" onclick="openDiscountSheet()" title="Ofrecer descuento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </button>
+      <button class="wf-chat-action-btn" onclick="openProfileSheet()" title="Ver trabajo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="wf-quick-actions" id="quickActions">
+    <button class="wf-quick-btn" onclick="sendQuick('llegar')">⏰ Ya voy llegando</button>
+    <button class="wf-quick-btn" onclick="sendQuick('confirmar')">✅ Confirmo cita</button>
+    <button class="wf-quick-btn" onclick="openRescheduleSheet()">🔄 Reprogramar</button>
+    <button class="wf-quick-btn" onclick="openDiscountSheet()">🏷️ Descuento</button>
+  </div>
+
+  <div class="wf-messages-area" id="messagesArea"></div>
+  <div class="wf-typing" id="typingIndicator"><span></span><span></span><span></span></div>
+
+  <div class="wf-input-bar">
+    <button class="wf-attach-btn" onclick="document.getElementById('fileInput').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+    </button>
+    <input type="file" id="fileInput" accept="image/*,.pdf"/>
+    <div class="wf-msg-input-wrap">
+      <textarea class="wf-msg-input" id="msgInput" rows="1" placeholder="Escribe un mensaje…"></textarea>
+      <button class="wf-emoji-btn" id="emojiToggle">😊</button>
+    </div>
+    <button class="wf-send-btn" id="sendBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 19-7z"/></svg>
+    </button>
+  </div>
+  <div class="wf-emoji-picker" id="emojiPicker"></div>
+</div>
+
+<!-- DISCOUNT SHEET -->
+<div class="wf-overlay" id="discountOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3>🏷️ Ofrecer descuento al cliente</h3>
+    <p class="sub">El cliente verá tu oferta directamente en el chat. Si acepta, el descuento se aplica automáticamente en su próxima contratación.</p>
+    <label>Porcentaje de descuento</label>
+    <select id="discountPct">
+      <option value="5">5% de descuento</option>
+      <option value="10" selected>10% de descuento</option>
+      <option value="15">15% de descuento</option>
+      <option value="20">20% de descuento</option>
+      <option value="primer">Primer servicio especial</option>
+    </select>
+    <label>Válido por</label>
+    <select id="discountExpiry">
+      <option value="7">7 días</option>
+      <option value="15" selected>15 días</option>
+      <option value="30">30 días</option>
+      <option value="60">60 días</option>
+    </select>
+    <label>Mensaje personalizado (opcional)</label>
+    <textarea rows="2" id="discountMsg" placeholder="Ej: Para ti que eres un cliente especial, te ofrezco un descuento en tu próxima cita 🌟"></textarea>
+    <button class="wf-sheet-btn" onclick="sendDiscount()">Enviar oferta al cliente</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('discountOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<!-- RESCHEDULE SHEET -->
+<div class="wf-overlay" id="rescheduleOverlay">
+  <div class="wf-sheet">
+    <div class="wf-sheet-handle"></div>
+    <h3>🔄 Solicitar cambio de horario</h3>
+    <p class="sub">Le enviaremos al cliente tu propuesta. Deberá aceptar el nuevo horario para confirmar el cambio.</p>
+    <label>Nueva fecha</label>
+    <input type="date" id="newDate"/>
+    <label>Nueva hora</label>
+    <input type="time" id="newTime"/>
+    <label>Motivo del cambio</label>
+    <textarea rows="3" id="rescheduleReason" placeholder="Ej: Tengo un contratiempo y no podré llegar a tiempo. Propongo las 11am…"></textarea>
+    <button class="wf-sheet-btn" onclick="sendReschedule()">Enviar propuesta al cliente</button>
+    <button class="wf-sheet-btn outline" onclick="closeOverlay('rescheduleOverlay')">Cancelar</button>
+  </div>
+</div>
+
+<!-- CLIENT PROFILE SHEET -->
+<div class="wf-profile-sheet" id="profileSheet" onclick="closeProfileSheetBg(event)">
+  <div class="wf-profile-sheet-inner">
+    <div class="wf-sheet-handle"></div>
+    <div class="wf-sheet-avatar" id="sheetAvatar"></div>
+    <div class="wf-sheet-name" id="sheetName"></div>
+    <div class="wf-sheet-prof" id="sheetProf"></div>
+    <div class="wf-sheet-job-info" id="sheetJobInfo"></div>
+    <div class="wf-sheet-actions">
+      <button class="wf-sheet-action-btn" onclick="openDiscountSheet();closeProfileSheet()">🏷️ Ofrecer descuento</button>
+      <button class="wf-sheet-action-btn outline" onclick="closeProfileSheet()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="wf-toast" id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="wf-bottom-nav">
+  <a class="wf-bnav-item" href="wefix-empleado-home.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </a>
+  <a class="wf-bnav-item" href="wefix-empleado-agenda.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Agenda
+  </a>
+  <a class="wf-bnav-item active" href="wefix-empleado-mensajes.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Mensajes
+  </a>
+  <a class="wf-bnav-item" href="wefix-empleado-perfil.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Mi perfil
+  </a>
+</nav>
+
+<script>
+// DATA — desde el punto de vista del profesional
+// "me" = el trabajador (Ana), "them" = el cliente
+var conversations = [
+  {
+    id:1, name:"María González", initials:"MG", color:"#123853",
+    online:true, unread:2, time:"hace 5 min", filter:"activos",
+    jobType:"normal", jobIcon:"🌿",
+    jobService:"Jardinería y mantenimiento",
+    jobDate:"Mié 28 mayo", jobTime:"10:00 AM", jobDuration:"3 hrs",
+    jobPrice:600, jobStatus:"confirmed",
+    preview:"Hola, confirmo para mañana a las 10am",
+    messages:[
+      {id:1,from:"them",text:"Hola Ana, ¿sigue en pie para mañana a las 10am?",time:"09:00",read:true},
+      {id:2,from:"me",text:"¡Claro que sí! Ya tengo todo listo. Llevo mis herramientas de poda y producto anti-plaga.",time:"09:05",read:true},
+      {id:3,from:"them",text:"Perfecto. La puerta azul en el número 34.",time:"09:10",read:true},
+      {id:4,from:"them",text:"Hola, confirmo para mañana a las 10am",time:"hace 5 min",read:false},
+      {id:5,from:"them",text:"¿Podrías traer también algo para el pasto?",time:"hace 4 min",read:false},
+    ]
+  },
+  {
+    id:2, name:"Carlos Herrera", initials:"CH", color:"#1a4f72",
+    online:true, unread:0, time:"hace 20 min", filter:"activos",
+    jobType:"flash", jobIcon:"⚡",
+    jobService:"Flash · Jardinería urgente",
+    jobDate:"Hoy", jobTime:"2:00 PM", jobDuration:"2 hrs",
+    jobPrice:540, jobStatus:"confirmed",
+    preview:"Ok perfecto, estaremos en casa",
+    messages:[
+      {id:1,from:"system",type:"job_confirmed",
+        jobText:"Nuevo trabajo Flash asignado",
+        detail:"Carlos Herrera · Hoy 2:00 PM · $540",time:"11:30"},
+      {id:2,from:"me",text:"Hola Carlos, confirmo que estaré a las 2pm. ¿Alguna indicación especial?",time:"11:32",read:true},
+      {id:3,from:"them",text:"Ok perfecto, estaremos en casa",time:"11:45",read:true},
+    ]
+  },
+  {
+    id:3, name:"Laura Torres", initials:"LT", color:"#0d2b3e",
+    online:false, unread:0, time:"ayer", filter:"completados",
+    jobType:"normal", jobIcon:"🌿",
+    jobService:"Jardinería y mantenimiento",
+    jobDate:"Lun 19 mayo", jobTime:"9:00 AM", jobDuration:"3 hrs",
+    jobPrice:600, jobStatus:"completed",
+    preview:"Muchas gracias Ana, te dejé 5 estrellas ⭐",
+    messages:[
+      {id:1,from:"me",text:"Hola Laura, acabo de terminar. El jardín quedó hermoso, espero que le guste.",time:"12:00",read:true},
+      {id:2,from:"them",text:"¡Quedó increíble! Muchas gracias.",time:"12:30",read:true},
+      {id:3,from:"me",type:"discount_offer",discount:"15",expiry:"30 días",
+        customMsg:"Como te agradezco tu confianza, te dejo un 15% de descuento para tu próxima cita.",time:"12:35",read:true},
+      {id:4,from:"them",text:"Muchas gracias Ana, te dejé 5 estrellas ⭐",time:"13:00",read:true},
+    ]
+  },
+  {
+    id:4, name:"Rodrigo Pérez", initials:"RP", color:"#1e6091",
+    online:false, unread:1, time:"hace 2 h", filter:"activos",
+    jobType:"premium", jobIcon:"💎",
+    jobService:"Premium · Diseño paisajístico",
+    jobDate:"Vie 30 mayo", jobTime:"9:00 AM", jobDuration:"5 hrs",
+    jobPrice:1100, jobStatus:"pending",
+    preview:"¿Puedes confirmar los materiales que necesitas?",
+    messages:[
+      {id:1,from:"system",type:"job_assigned",
+        jobText:"Trabajo Premium asignado",
+        detail:"Rodrigo Pérez · Vie 30 mayo · $1,100",time:"Ayer 10:00"},
+      {id:2,from:"them",text:"Hola Ana, vi tu portafolio y me encantó el trabajo del jardín zen.",time:"Ayer 10:30",read:true},
+      {id:3,from:"me",text:"¡Muchas gracias! Con gusto le diseño algo similar para su propiedad.",time:"Ayer 10:45",read:true},
+      {id:4,from:"them",text:"¿Puedes confirmar los materiales que necesitas?",time:"hace 2 h",read:false},
+    ]
+  },
+];
+
+var emojis = ["😊","😂","❤️","👍","🙏","✅","🔥","😎","🤔","😅","👏","🎉","💪","🙌","😍","🤝","⭐","💯","🌿","✨","🌟","😄","👋","💬","📅","🚗","🧹","🍳","🐾","🏠","🌸"];
+
+var currentConvo = null;
+var currentFilter = "todos";
+var searchQ = "";
+var pendingFile = null;
+
+// EMOJI
+document.getElementById('emojiPicker').innerHTML = emojis.map(function(e) {
+  return '<span onclick="insertEmoji(\'' + e + '\')">' + e + '</span>';
+}).join('');
+
+// ════ INBOX ════
+function renderInbox() {
+  var q = searchQ.toLowerCase();
+  var list = document.getElementById('convoList');
+  var empty = document.getElementById('emptyInbox');
+
+  var filtered = conversations.filter(function(c) {
+    var mq = !q || c.name.toLowerCase().includes(q) || c.jobService.toLowerCase().includes(q);
+    var mf = currentFilter === "todos"
+          || (currentFilter === "activos" && c.filter === "activos")
+          || (currentFilter === "no-leidos" && c.unread > 0)
+          || (currentFilter === "completados" && c.filter === "completados");
+    return mq && mf;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = ''; empty.style.display = 'block'; return;
+  }
+  empty.style.display = 'none';
+
+  var statusLabel = {confirmed:'Confirmado',pending:'Pendiente',completed:'Completado'};
+  var tagClass = {normal:'',flash:'flash',premium:'premium'};
+  var tagLabel = {normal:'Trabajo activo',flash:'⚡ Flash',premium:'💎 Premium'};
+
+  list.innerHTML = filtered.map(function(c) {
+    return '<div class="wf-convo-item' + (c.unread?' unread':'') + '" onclick="openChat(' + c.id + ')">'
+      + '<div class="wf-convo-avatar" style="background:' + c.color + '">' + c.initials
+      + '<div class="' + (c.online?'wf-online-dot':'wf-offline-dot') + '"></div></div>'
+      + '<div class="wf-convo-body">'
+      + '<div class="wf-convo-job-tag ' + tagClass[c.jobType] + '">' + tagLabel[c.jobType] + '</div>'
+      + '<div class="wf-convo-top"><span class="wf-convo-name">' + c.name + '</span><span class="wf-convo-time">' + c.time + '</span></div>'
+      + '<div class="wf-convo-status-bar">'
+      + '<span class="wf-convo-status-pill ' + c.jobStatus + '">' + statusLabel[c.jobStatus] + '</span>'
+      + '<span class="wf-convo-date">' + c.jobDate + ' ' + c.jobTime + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">'
+      + '<span class="wf-convo-preview' + (c.unread?' unread-text':'') + '">' + c.preview + '</span>'
+      + (c.unread ? '<span class="wf-convo-badge">' + c.unread + '</span>' : '')
+      + '</div></div></div>';
+  }).join('');
+}
+
+document.querySelectorAll('.wf-inbox-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.wf-inbox-tab').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderInbox();
+  });
+});
+document.getElementById('searchConvos').addEventListener('input', function(e) {
+  searchQ = e.target.value; renderInbox();
+});
+
+// ════ OPEN CHAT ════
+function openChat(id) {
+  currentConvo = conversations.find(function(c){return c.id===id;});
+  if (!currentConvo) return;
+  currentConvo.unread = 0;
+  currentConvo.messages.forEach(function(m){m.read=true;});
+
+  // Header
+  var av = document.getElementById('chatAvatar');
+  av.childNodes[0].textContent = currentConvo.initials;
+  av.style.background = currentConvo.color;
+  document.getElementById('chatStatusDot').style.background = currentConvo.online ? '#22c55e' : '#6b7280';
+  document.getElementById('chatName').textContent = currentConvo.name;
+  var st = document.getElementById('chatStatus');
+  st.textContent = currentConvo.online ? '● En línea' : '● Desconectado';
+  st.className = 'wf-chat-status ' + (currentConvo.online?'online':'offline');
+
+  // Sheet
+  document.getElementById('sheetAvatar').textContent = currentConvo.initials;
+  document.getElementById('sheetAvatar').style.background = currentConvo.color;
+  document.getElementById('sheetName').textContent = currentConvo.name;
+  document.getElementById('sheetProf').textContent = currentConvo.jobService;
+  document.getElementById('sheetJobInfo').innerHTML =
+    '<div class="wf-sheet-job-row"><span>Fecha</span><span class="val">' + currentConvo.jobDate + '</span></div>'
+    + '<div class="wf-sheet-job-row"><span>Hora</span><span class="val">' + currentConvo.jobTime + '</span></div>'
+    + '<div class="wf-sheet-job-row"><span>Duración</span><span class="val">' + currentConvo.jobDuration + '</span></div>'
+    + '<div class="wf-sheet-job-row"><span>Precio</span><span class="val" style="color:var(--brand);font-weight:700;">$' + currentConvo.jobPrice + '</span></div>';
+
+  document.getElementById('viewInbox').style.display = 'none';
+  document.getElementById('viewChat').style.display = 'block';
+  renderMessages();
+  scrollBottom();
+
+  if (currentConvo.online) {
+    setTimeout(function(){
+      document.getElementById('typingIndicator').classList.add('show');
+      setTimeout(function(){document.getElementById('typingIndicator').classList.remove('show');},2200);
+    },1800);
+  }
+}
+
+function backToInbox() {
+  document.getElementById('viewChat').style.display = 'none';
+  document.getElementById('viewInbox').style.display = 'block';
+  currentConvo = null;
+  document.getElementById('emojiPicker').classList.remove('open');
+  renderInbox();
+}
+
+// ════ RENDER MESSAGES ════
+function renderMessages() {
+  if (!currentConvo) return;
+  var area = document.getElementById('messagesArea');
+  var html = '<div class="wf-date-sep">Hoy</div>';
+
+  // Job banner at top
+  html += '<div class="wf-job-banner">'
+    + '<div class="wf-job-banner-icon">' + currentConvo.jobIcon + '</div>'
+    + '<div class="wf-job-banner-body">'
+    + '<div class="wf-job-banner-service">' + currentConvo.jobService + '</div>'
+    + '<div class="wf-job-banner-client">' + currentConvo.name + '</div>'
+    + '<div class="wf-job-banner-detail">📅 ' + currentConvo.jobDate + ' · 🕐 ' + currentConvo.jobTime + ' · ⏱ ' + currentConvo.jobDuration + '</div>'
+    + '</div><div class="wf-job-banner-price">$' + currentConvo.jobPrice + '</div></div>';
+
+  currentConvo.messages.forEach(function(m) {
+    var isMine = m.from === 'me';
+
+    if (m.from === 'system') {
+      html += '<div class="wf-msg-card">'
+        + '<div class="wf-msg-card-label">🔔 WeFix</div>'
+        + '<div class="wf-msg-card-title">' + m.jobText + '</div>'
+        + '<div class="wf-msg-card-detail">' + m.detail + '</div>'
+        + '</div>';
+      return;
+    }
+
+    if (m.type === 'discount_offer') {
+      html += '<div class="wf-msg-card mine">'
+        + '<div class="wf-msg-card-label">🏷️ Oferta especial</div>'
+        + '<div class="wf-msg-card-title">' + m.discount + '% de descuento</div>'
+        + '<div class="wf-msg-card-detail">' + m.customMsg + '<br><strong>Válido por ' + m.expiry + '</strong></div>'
+        + '<button class="wf-msg-card-btn outline" style="font-size:10px;color:var(--muted);">Oferta enviada ✓</button>'
+        + '</div>';
+      return;
+    }
+
+    if (m.type === 'reschedule_request') {
+      html += '<div class="wf-msg-card mine">'
+        + '<div class="wf-msg-card-label">🔄 Cambio de horario</div>'
+        + '<div class="wf-msg-card-title">Nueva propuesta: ' + m.newDate + ' · ' + m.newTime + '</div>'
+        + '<div class="wf-msg-card-detail">' + m.reason + '</div>'
+        + '<button class="wf-msg-card-btn outline" style="font-size:10px;color:var(--muted);">Enviado al cliente ✓</button>'
+        + '</div>';
+      return;
+    }
+
+    html += '<div class="wf-msg ' + (isMine?'mine':'theirs') + '">'
+      + (!isMine ? '<div class="wf-msg-avatar" style="background:' + currentConvo.color + '">' + currentConvo.initials + '</div>' : '')
+      + '<div class="wf-bubble-wrap">'
+      + '<div class="wf-bubble">' + m.text + '</div>'
+      + '<div class="wf-msg-meta"><span>' + m.time + '</span>'
+      + (isMine ? '<span class="wf-read-icon ' + (m.read?'read':'sent') + '">✓✓</span>' : '')
+      + '</div></div></div>';
+  });
+
+  area.innerHTML = html;
+}
+
+function scrollBottom() {
+  var area = document.getElementById('messagesArea');
+  setTimeout(function(){area.scrollTop = area.scrollHeight;}, 50);
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ════ SEND ════
+function sendMessage() {
+  var input = document.getElementById('msgInput');
+  var text = input.value.trim();
+  if (!text || !currentConvo) return;
+  currentConvo.messages.push({id:Date.now(),from:'me',text:text,time:getTime(),read:false});
+  currentConvo.preview = text;
+  input.value = ''; input.style.height = 'auto';
+  renderMessages(); scrollBottom();
+  setTimeout(function(){
+    var last = currentConvo.messages[currentConvo.messages.length-1];
+    if (last) { last.read = true; renderMessages(); }
+  }, 1500);
+  if (currentConvo.online) {
+    setTimeout(function(){
+      document.getElementById('typingIndicator').classList.add('show');
+      setTimeout(function(){
+        document.getElementById('typingIndicator').classList.remove('show');
+        var replies = ["Perfecto, gracias!","Entendido, hasta entonces.","Muchas gracias por confirmar.","Ok! Nos vemos.","Excelente, te espero."];
+        var rep = replies[Math.floor(Math.random()*replies.length)];
+        currentConvo.messages.push({id:Date.now()+1,from:'them',text:rep,time:getTime(),read:true});
+        currentConvo.preview = rep; renderMessages(); scrollBottom();
+      },2000);
+    },800);
+  }
+}
+
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('msgInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+document.getElementById('msgInput').addEventListener('input', function(){
+  this.style.height='auto';
+  this.style.height=Math.min(this.scrollHeight,100)+'px';
+});
+
+// ════ QUICK MESSAGES ════
+function sendQuick(type) {
+  if (!currentConvo) return;
+  var texts = {
+    llegar: "Ya voy en camino, llegaré en unos minutos ⏰",
+    confirmar: "Confirmo nuestra cita para el " + currentConvo.jobDate + " a las " + currentConvo.jobTime + " ✅"
+  };
+  if (texts[type]) {
+    currentConvo.messages.push({id:Date.now(),from:'me',text:texts[type],time:getTime(),read:false});
+    currentConvo.preview = texts[type];
+    renderMessages(); scrollBottom();
+    showToast('Mensaje enviado ✓');
+  }
+}
+
+// ════ FILE ════
+document.getElementById('fileInput').addEventListener('change', function(){
+  var file = this.files[0]; if(!file||!currentConvo) return;
+  showToast('Archivo enviado 📎');
+  this.value='';
+});
+
+// ════ EMOJI ════
+document.getElementById('emojiToggle').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('emojiPicker').classList.toggle('open');
+});
+function insertEmoji(emoji){
+  document.getElementById('msgInput').value += emoji;
+  document.getElementById('msgInput').focus();
+  document.getElementById('emojiPicker').classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  var p = document.getElementById('emojiPicker');
+  if(!p.contains(e.target)&&e.target.id!=='emojiToggle') p.classList.remove('open');
+});
+
+// ════ DISCOUNT ════
+function openDiscountSheet(){ openOverlay('discountOverlay'); }
+function sendDiscount(){
+  if(!currentConvo) return;
+  var pct = document.getElementById('discountPct').value;
+  var exp = document.getElementById('discountExpiry').value;
+  var msg = document.getElementById('discountMsg').value.trim()
+    || ('Te ofrezco un descuento especial en tu próxima contratación. ¡Gracias por tu confianza! 🌟');
+  var label = pct === 'primer' ? 'Precio especial primer servicio' : pct + '% de descuento';
+  currentConvo.messages.push({id:Date.now(),from:'me',type:'discount_offer',
+    discount:label, expiry:exp+' días', customMsg:msg, time:getTime(),read:false});
+  currentConvo.preview = 'Oferta: ' + label;
+  closeOverlay('discountOverlay');
+  renderMessages(); scrollBottom();
+  showToast('Oferta enviada al cliente 🏷️');
+}
+
+// ════ RESCHEDULE ════
+function openRescheduleSheet(){ openOverlay('rescheduleOverlay'); }
+function sendReschedule(){
+  var date = document.getElementById('newDate').value;
+  var time = document.getElementById('newTime').value;
+  var reason = document.getElementById('rescheduleReason').value.trim();
+  if(!date||!time||!reason){showToast('Completa todos los campos');return;}
+  currentConvo.messages.push({id:Date.now(),from:'me',type:'reschedule_request',
+    newDate:date, newTime:time, reason:reason, time:getTime(),read:false});
+  currentConvo.preview = 'Propuesta de cambio de horario';
+  closeOverlay('rescheduleOverlay');
+  renderMessages(); scrollBottom();
+  showToast('Solicitud enviada al cliente ✓');
+}
+
+// ════ PROFILE SHEET ════
+function openProfileSheet(){ document.getElementById('profileSheet').classList.add('open'); }
+function closeProfileSheet(){ document.getElementById('profileSheet').classList.remove('open'); }
+function closeProfileSheetBg(e){ if(e.target===document.getElementById('profileSheet')) closeProfileSheet(); }
+document.getElementById('chatInfoBtn').addEventListener('click', openProfileSheet);
+
+// ════ OVERLAYS ════
+function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.wf-overlay').forEach(function(ov){
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open');});
+});
+
+// ════ TOAST ════
+var toastTimer;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+// INIT
+renderInbox();
+</script>
+</body>
+</html>
