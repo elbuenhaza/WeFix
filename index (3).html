@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups"/>
+  <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Servicios premium para el hogar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand:  #123853;
+      --accent: #f87171;
+      --onyx-a: #fbbf24;
+      --onyx-b: #f97316;
+      --white:  #ffffff;
+      --bg:     #f4f4f6;
+      --border: #e0e0e0;
+      --text:   #1a1a1a;
+      --muted:  #6b7280;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--white);
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════
+       NAVBAR
+    ══════════════════════════ */
+    .wf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+
+    /* Logo con imagen JPEG */
+    .wf-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 18px; font-weight: 700;
+      color: var(--brand); text-decoration: none;
+    }
+    .wf-logo-img {
+      width: 36px; height: 36px; border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid var(--brand);
+    }
+    /* Fallback si la imagen no carga */
+    .wf-logo-fallback {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--brand);
+      display: none;
+      align-items: center; justify-content: center;
+      font-family: 'Raleway', sans-serif;
+      font-size: 16px; font-weight: 800;
+      color: var(--white);
+    }
+
+    .wf-nav-icons { display: flex; gap: 14px; }
+    .wf-nav-icon {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; color: var(--muted); font-size: 9px;
+      background: none; border: none;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none; position: relative;
+    }
+    .wf-nav-icon svg { width: 20px; height: 20px; }
+    .wf-nav-icon:hover { color: var(--brand); }
+
+    /* ══════════════════════════
+       HERO con imagen de fondo
+    ══════════════════════════ */
+    .wf-hero {
+      position: relative;
+      min-height: 240px;
+      overflow: hidden;
+      display: flex; align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    /* Imagen de fondo — "Imagen realista de c.png" de tu repo */
+    .wf-hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(18,56,83,0.45) 0%, rgba(18,56,83,0.65) 100%),
+        url('Imagen realista de c.png') center/cover no-repeat;
+      z-index: 0;
+    }
+
+    .wf-hero-content {
+      position: relative; z-index: 2;
+      padding: 20px;
+    }
+
+    /* Botón "Iniciar Sesión" texto plano */
+    .wf-hero-login {
+      color: var(--white);
+      font-size: 16px; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      margin-bottom: 10px;
+      background: none; border: none; padding: 0;
+      display: block; opacity: .85;
+      font-family: 'Poppins', sans-serif;
+    }
+    .wf-hero-login:hover { opacity: 1; text-decoration: underline; }
+
+    .wf-hero-btn {
+      background: var(--brand); color: var(--accent);
+      border: none; border-radius: 24px;
+      padding: 10px 28px; font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer; margin-bottom: 16px;
+      display: block; transition: background .2s;
+      font-weight: 600;
+    }
+    .wf-hero-btn:hover { background: #1a4f72; }
+
+    .wf-hero-tagline {
+      font-size: 15px; font-weight: 600;
+      color: var(--white); line-height: 1.3;
+    }
+    .wf-hero-tagline .brand {
+      font-family: 'Raleway', sans-serif;
+      font-size: 17px; color: var(--accent); font-weight: 700;
+    }
+
+    /* ══════════════════════════
+       SELECTOR CLIENTE / EMPLEADO
+    ══════════════════════════ */
+    .wf-user-selector {
+      background: var(--white);
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wf-user-selector-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--brand); margin-bottom: 12px;
+      text-align: center; letter-spacing: .3px;
+    }
+    .wf-user-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .wf-user-card {
+      border: 2px solid var(--border); border-radius: 14px;
+      padding: 16px 12px; text-align: center;
+      cursor: pointer; text-decoration: none;
+      transition: border-color .18s, box-shadow .18s, transform .15s;
+      background: var(--white); display: block;
+    }
+    .wf-user-card:hover {
+      border-color: var(--brand);
+      box-shadow: 0 4px 16px rgba(18,56,83,.12);
+      transform: translateY(-2px);
+    }
+    .wf-user-card.active { border-color: var(--brand); }
+    .wf-user-card-icon { font-size: 32px; margin-bottom: 8px; }
+    .wf-user-card-title {
+      font-size: 13px; font-weight: 600; color: var(--brand); margin-bottom: 3px;
+    }
+    .wf-user-card-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+    /* Empleado — próximamente */
+    .wf-user-card.coming {
+      opacity: .6; cursor: default;
+      background: var(--white);
+    }
+    .wf-user-card.coming:hover {
+      border-color: var(--border);
+      box-shadow: none; transform: none;
+    }
+    .wf-coming-badge {
+      display: inline-block; margin-top: 6px;
+      background: var(--white); color: var(--muted);
+      border-radius: 10px; padding: 2px 8px;
+      font-size: 9px; font-weight: 600;
+      border: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════
+       SERVICES
+    ══════════════════════════ */
+    .wf-section {
+      padding: 24px 16px;
+      background: var(--white);
+    }
+    .wf-section-title {
+      font-size: 15px; font-weight: 600;
+      color: var(--text); text-align: center; margin-bottom: 18px;
+    }
+    .wf-services {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; text-align: center;
+    }
+    .wf-service {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px; cursor: pointer;
+      text-decoration: none;
+    }
+    .wf-service-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--white); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; transition: transform .2s, background .2s;
+    }
+    .wf-service:hover .wf-service-icon {
+      background: #e8f0fb; transform: scale(1.07);
+    }
+    .wf-service-label { font-size: 10px; color: var(--muted); line-height: 1.3; }
+
+    /* ══════════════════════════
+       BOTTOM GRID
+    ══════════════════════════ */
+    .wf-bottom { display: grid; grid-template-columns: 1fr 1fr; }
+
+    .wf-trust { background: var(--brand); padding: 24px 16px; }
+    .wf-trust-title {
+      color: var(--accent); font-size: 17px; font-weight: 600;
+      line-height: 1.3; margin-bottom: 16px; text-align: center;
+    }
+    .wf-trust-list {
+      list-style: none; display: flex; flex-direction: column; gap: 12px;
+    }
+    .wf-trust-list li {
+      color: #D85A30; font-size: 13px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .wf-trust-list li::before {
+      content: "•"; font-size: 18px; line-height: 1; flex-shrink: 0;
+    }
+
+    .wf-about { padding: 24px 16px; background: var(--white); }
+    .wf-stars {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .wf-stars-label { font-size: 14px; font-weight: 600; color: var(--text); }
+    .wf-star { font-size: 15px; }
+    .wf-star.filled { color: #f5a623; }
+    .wf-star.empty  { color: #ddd; }
+    .wf-about-subtitle { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .wf-about-text { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+    .wf-faq-btn {
+      background: var(--brand); color: var(--white);
+      border: none; border-radius: 20px; padding: 8px 18px;
+      font-size: 12px; font-family: 'Poppins', sans-serif;
+      cursor: pointer; transition: background .2s; display: inline-block;
+      text-decoration: none;
+    }
+    .wf-faq-btn:hover { background: #1a4f72; }
+
+    /* ══════════════════════════
+       MODAL — login/register con selector tipo
+    ══════════════════════════ */
+    .wf-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .wf-modal-overlay.active { display: flex; }
+
+    .wf-modal {
+      background: var(--white); border-radius: 20px;
+      padding: 28px 24px; width: 90%; max-width: 360px;
+      position: relative; animation: popIn .2s ease;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform:scale(.95); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    .wf-modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: var(--muted);
+    }
+    .wf-modal-close:hover { color: var(--accent); }
+
+    /* Tipo selector dentro del modal */
+    .wf-modal-type-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+    .wf-modal-type-tab {
+      flex: 1; padding: 8px 6px; border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--white); cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500;
+      color: var(--muted); text-align: center;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .wf-modal-type-tab.active {
+      border-color: var(--brand); background: var(--brand); color: var(--white);
+    }
+    .wf-modal-type-tab .tab-icon { font-size: 16px; display: block; margin-bottom: 3px; }
+
+    .wf-modal h2 {
+      font-size: 17px; font-weight: 600; color: var(--brand); margin-bottom: 16px;
+    }
+    .wf-modal label {
+      display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .wf-modal input {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 13px; font-family: 'Poppins', sans-serif;
+      margin-bottom: 12px; outline: none; transition: border .2s; background: var(--white);
+    }
+    .wf-modal input:focus { border-color: var(--brand); background: var(--white); }
+
+    .wf-modal-submit {
+      width: 100%; background: var(--brand); color: var(--white);
+      border: none; border-radius: 24px; padding: 12px;
+      font-size: 14px; font-weight: 600; font-family: 'Poppins', sans-serif;
+      cursor: pointer; transition: background .2s; margin-top: 4px;
+    }
+    .wf-modal-submit:hover { background: #1a4f72; }
+
+    .wf-modal-switch {
+      text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted);
+    }
+    .wf-modal-switch a { color: #D85A30; cursor: pointer; text-decoration: underline; }
+
+    /* Empleado — próximamente en modal */
+    .wf-modal-coming {
+      text-align: center; padding: 20px 0 10px;
+    }
+    .wf-modal-coming .big-icon { font-size: 40px; margin-bottom: 10px; }
+    .wf-modal-coming h3 { font-size: 15px; font-weight: 600; color: var(--brand); margin-bottom: 6px; }
+    .wf-modal-coming p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .wf-modal-notify-btn {
+      margin-top: 14px; background: none;
+      border: 1.5px solid var(--brand); border-radius: 20px;
+      padding: 8px 20px; font-size: 12px; font-weight: 600;
+      color: var(--brand); cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background .15s, color .15s;
+    }
+    .wf-modal-notify-btn:hover { background: var(--brand); color: var(--white); }
+
+    /* ── BLOG BANNER ── */
+    .wf-blog-banner {
+      margin: 0; padding: 20px 16px;
+      background: var(--white);
+      border-top: 1px solid #f0f0f0;
+    }
+    .wf-blog-card {
+      background: var(--brand);
+      border-radius: 20px;
+      padding: 22px 20px;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer; text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .wf-blog-card::before {
+      content: "";
+      position: absolute; top: -30px; right: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: rgba(255,255,255,.06);
+    }
+    .wf-blog-card::after {
+      content: "";
+      position: absolute; bottom: -20px; right: 40px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(248,113,113,.1);
+    }
+    .wf-blog-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(18,56,83,.25);
+    }
+    .wf-blog-icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0; z-index: 1;
+    }
+    .wf-blog-text { flex: 1; z-index: 1; }
+    .wf-blog-eyebrow {
+      font-size: 9px; font-weight: 600; letter-spacing: 1.5px;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .wf-blog-title {
+      font-family: "Raleway", sans-serif;
+      font-size: 16px; font-weight: 800; color: var(--white);
+      line-height: 1.2; margin-bottom: 5px;
+    }
+    .wf-blog-desc {
+      font-size: 11px; color: rgba(255,255,255,.65); line-height: 1.5;
+    }
+    .wf-blog-arrow {
+      z-index: 1; color: rgba(255,255,255,.5);
+      font-size: 22px; flex-shrink: 0;
+      transition: transform .2s, color .2s;
+    }
+    .wf-blog-card:hover .wf-blog-arrow {
+      color: var(--white); transform: translateX(4px);
+    }
+    .wf-blog-tag {
+      display: inline-block; margin-top: 8px;
+      background: rgba(248,113,113,.2); border: 1px solid rgba(248,113,113,.3);
+      color: var(--accent); border-radius: 20px;
+      padding: 2px 10px; font-size: 10px; font-weight: 600;
+    }
+    /* Toast */
+    .wf-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--brand); color: var(--white);
+      border-radius: 30px; padding: 10px 22px;
+      font-size: 13px; font-weight: 500; z-index: 999;
+      box-shadow: 0 4px 18px rgba(18,56,83,.25);
+      transition: transform .3s ease; white-space: nowrap;
+    }
+    .wf-toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ════════ NAVBAR ════════ -->
+<nav class="wf-nav">
+  <a class="wf-logo" href="wefix-home.html">
+    <!-- Logo JPEG — pon logo.jpeg en la misma carpeta -->
+    <img
+      class="wf-logo-img"
+      src="logo.jpeg"
+      alt="WeFix logo"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+    />
+    <!-- Fallback automático si no encuentra logo.jpeg -->
+    <div class="wf-logo-fallback" id="logoFallback">W</div>
+    WeFix
+  </a>
+
+  <div class="wf-nav-icons">
+    <a href="wefix-favoritos.html" class="wf-nav-icon" title="Favoritos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/>
+      </svg>
+      Favoritos
+    </a>
+    <a href="wefix-notificaciones.html" class="wf-nav-icon" title="Notificaciones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      Notificaciones
+    </a>
+    <a href="wefix-home.html" class="wf-nav-icon" title="Búsqueda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      Búsqueda
+    </a>
+    <a href="wefix-perfil-usuario.html" class="wf-nav-icon" title="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      Perfil
+    </a>
+  </div>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<section class="wf-hero">
+  <!-- Imagen de fondo: "Imagen realista de c.png" subida a tu repo -->
+  <div class="wf-hero-bg"></div>
+
+  <div class="wf-hero-content">
+    <button class="wf-hero-login" id="btnLogin">Iniciar Sesión</button>
+    <button class="wf-hero-btn"   id="btnRegister">Registrarme</button>
+    <div class="wf-hero-tagline">
+      Confianza<br>con cada<br>detalle <span class="brand">WeFix</span>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ════════ SERVICES ════════ -->
+<section class="wf-section">
+  <div class="wf-section-title">Servicios premium para el hogar WeFix</div>
+  <div class="wf-services">
+    <a href="wefix-home.html" class="wf-service">
+      <div class="wf-service-icon">🧑🏼‍🍳</div>
+      <div class="wf-service-label">Chef Privado</div>
+    </a>
+    <a href="wefix-home.html" class="wf-service">
+      <div class="wf-service-icon">🧹</div>
+      <div class="wf-service-label">Servicio de limpieza</div>
+    </a>
+    <a href="wefix-home.html" class="wf-service">
+      <div class="wf-service-icon">🚗</div>
+      <div class="wf-service-label">Chofer Privado</div>
+    </a>
+    <a href="wefix-home.html" class="wf-service">
+      <div class="wf-service-icon">🌱</div>
+      <div class="wf-service-label">Jardinería y mantenimiento</div>
+    </a>
+  </div>
+</section>
+
+<!-- ════════ BLOG BANNER ════════ -->
+<div class="wf-blog-banner">
+  <a class="wf-blog-card" href="wefix-blog.html">
+    <div class="wf-blog-icon-wrap">📖</div>
+    <div class="wf-blog-text">
+      <div class="wf-blog-eyebrow">Blog WeFix</div>
+      <div class="wf-blog-title">Tips para tu hogar</div>
+      <div class="wf-blog-desc">Consejos de nuestros profesionales para cuidar cada rincón de tu casa.</div>
+      <span class="wf-blog-tag">✦ Contenido Premium Onyx</span>
+    </div>
+    <div class="wf-blog-arrow">›</div>
+  </a>
+</div>
+
+<!-- ════════ BOTTOM GRID ════════ -->
+<div class="wf-bottom">
+  <div class="wf-trust">
+    <div class="wf-trust-title">Confianza en<br>cada detalle</div>
+    <ul class="wf-trust-list">
+      <li>Personal certificado</li>
+      <li>Satisfacción garantizada</li>
+      <li>Protección y seguridad</li>
+      <li>Calidad premium</li>
+    </ul>
+  </div>
+  <div class="wf-about">
+    <div class="wf-stars">
+      <span class="wf-stars-label">Trustpilot</span>
+      <span class="wf-star filled">★</span>
+      <span class="wf-star filled">★</span>
+      <span class="wf-star filled">★</span>
+      <span class="wf-star filled">★</span>
+      <span class="wf-star empty">★</span>
+    </div>
+    <div class="wf-about-subtitle">Qué hacemos y quiénes somos</div>
+    <div class="wf-about-text">
+      Somos una empresa 100% Mexicana que te ayuda a conectar de manera fácil y segura con profesionales dedicados a resolver problemas del hogar, ofreciendo un servicio premium en cada detalle.
+    </div>
+    <a href="preguntas_frecuentes.html" class="wf-faq-btn">Preguntas frecuentes</a>
+  </div>
+</div>
+
+<!-- ════════ MODAL LOGIN / REGISTER ════════ -->
+<div class="wf-modal-overlay" id="modalOverlay">
+  <div class="wf-modal">
+    <button class="wf-modal-close" id="modalClose">&times;</button>
+
+    <!-- Selector visual Cliente / Profesional -->
+    <p style="font-size:12px;font-weight:600;color:#6b7280;text-align:center;margin-bottom:12px;letter-spacing:.3px;">¿Cómo quieres ingresar?</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+      <div id="cardClienteModal"
+           onclick="switchType('cliente')"
+           style="border:2px solid #123853;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#f0f5fb;transition:all .15s;">
+        <div style="font-size:26px;margin-bottom:4px;">🏠</div>
+        <div style="font-size:12px;font-weight:600;color:#123853;">Soy Cliente</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">Busco servicios</div>
+      </div>
+      <div id="cardProfModal"
+           onclick="switchType('empleado')"
+           style="border:2px solid #dde1e7;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#ffffff;transition:all .15s;position:relative;">
+        <div style="font-size:26px;margin-bottom:4px;">🔧</div>
+        <div style="font-size:12px;font-weight:600;color:#6b7280;">Soy Profesional</div>
+        <div style="font-size:9px;color:#22c55e;font-weight:700;margin-top:3px;letter-spacing:.3px;">¡Ya disponible!</div>
+      </div>
+    </div>
+
+    <!-- Tabs tipo de usuario -->
+    <div class="wf-modal-type-tabs" style="display:none;">
+      <div class="wf-modal-type-tab active" id="tabCliente" onclick="switchType('cliente')">
+        <span class="tab-icon">🏠</span>Cliente
+      </div>
+      <div class="wf-modal-type-tab" id="tabEmpleado" onclick="switchType('empleado')">
+        <span class="tab-icon">🔧</span>Profesional
+      </div>
+    </div>
+
+    <!-- ── CLIENTE: login ── -->
+    <div id="formLogin">
+      <h2>Iniciar Sesión</h2>
+      <label>Correo electrónico</label>
+      <input type="email" placeholder="tucorreo@ejemplo.com"/>
+      <label>Contraseña</label>
+      <input type="password" placeholder="••••••••"/>
+      <button class="wf-modal-submit" onclick="goToHome()">Entrar</button>
+      <div class="wf-modal-switch">
+        ¿No tienes cuenta? <a id="switchToRegister">Regístrate</a>
+      </div>
+    </div>
+
+    <!-- ── CLIENTE: register ── -->
+    <div id="formRegister" style="display:none;">
+      <h2>Crear cuenta</h2>
+      <label>Nombre completo</label>
+      <input type="text" placeholder="Tu nombre"/>
+      <label>Correo electrónico</label>
+      <input type="email" placeholder="tucorreo@ejemplo.com"/>
+      <label>Contraseña</label>
+      <input type="password" placeholder="••••••••"/>
+      <button class="wf-modal-submit" onclick="goToHome()">Registrarme</button>
+      <div class="wf-modal-switch">
+        ¿Ya tienes cuenta? <a id="switchToLogin">Inicia sesión</a>
+      </div>
+    </div>
+
+    <!-- ── EMPLEADO: login ── -->
+    <div id="formEmpleado" style="display:none;">
+      <div id="empLogin">
+        <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Portal Profesional</h2>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Accede a tu panel de trabajo, agenda y estadísticas.</p>
+        <label>Correo electrónico</label>
+        <input type="email" id="clientEmail" placeholder="tuprofesional@correo.com"/>
+        <label>Contraseña</label>
+        <input type="password" id="clientPassword" placeholder="••••••••"/>
+        <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="loginEmpleado()">Entrar al portal</button>
+        <div class="wf-modal-switch">
+          ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
+        </div>
+      </div>
+
+      <div id="empRegister" style="display:none;">
+        <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Únete como Profesional</h2>
+        <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Empieza a recibir clientes y gestiona tus servicios con WeFix.</p>
+        <label>Nombre completo</label>
+        <input type="text" id="clientNombre" placeholder="Tu nombre completo"/>
+        <label>Especialidad</label>
+        <select id="empEspecialidad" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;margin-bottom:14px;outline:none;background:#fff;">
+          <option value="">Selecciona tu especialidad</option>
+          <option>Chofer</option>
+          <option>Servicio de limpieza</option>
+          <option>Jardinería y mantenimiento</option>
+          <option>Chef Privado</option>
+          <option>Car Wash</option>
+          <option>Paseo de mascotas</option>
+        </select>
+        <label>Correo electrónico</label>
+        <input type="email" id="clientEmailReg" placeholder="tuprofesional@correo.com"/>
+        <label>Contraseña</label>
+        <input type="password" id="clientPasswordReg" placeholder="Mínimo 8 caracteres"/>
+        <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="registerEmpleado()">Crear cuenta y entrar</button>
+        <div class="wf-modal-switch">
+          ¿Ya tienes cuenta? <a id="switchToEmpLogin" style="cursor:pointer;">Inicia sesión</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="wf-toast" id="toast"></div>
+
+<script>
+  const overlay      = document.getElementById('modalOverlay');
+  const modalClose   = document.getElementById('modalClose');
+  const formLogin    = document.getElementById('formLogin');
+  const formRegister = document.getElementById('formRegister');
+  const formEmpleado = document.getElementById('formEmpleado');
+  const tabCliente   = document.getElementById('tabCliente');
+  const tabEmpleado  = document.getElementById('tabEmpleado');
+
+  let currentType = 'cliente';
+
+  // ── Abrir modal ──
+  function openModal(form, type) {
+    currentType = type || 'cliente';
+    updateTabs();
+    showForm(form);
+    overlay.classList.add('active');
+  }
+
+  // ── Cambiar tipo cliente/empleado ──
+  function switchType(type) {
+    currentType = type;
+    // Visual feedback en las cards del modal
+    const cCard = document.getElementById('cardClienteModal');
+    const pCard = document.getElementById('cardProfModal');
+    if (type === 'cliente') {
+      cCard.style.borderColor = '#123853'; cCard.style.background = '#f0f5fb';
+      pCard.style.borderColor = '#dde1e7'; pCard.style.background = '#ffffff';
+      showForm('login');
+    } else {
+      pCard.style.borderColor = '#f97316'; pCard.style.background = '#fff7ed';
+      cCard.style.borderColor = '#dde1e7'; cCard.style.background = '#ffffff';
+      showForm('empleado');
+    }
+  }
+
+  function updateTabs() {
+    tabCliente.classList.toggle('active',  currentType === 'cliente');
+    tabEmpleado.classList.toggle('active', currentType === 'empleado');
+  }
+
+  function showForm(form) {
+    formLogin.style.display    = form === 'login'    ? 'block' : 'none';
+    formRegister.style.display = form === 'register' ? 'block' : 'none';
+    formEmpleado.style.display = form === 'empleado' ? 'block' : 'none';
+    // Siempre mostrar login al abrir el panel empleado
+    if (form === 'empleado') {
+      var el = document.getElementById('empLogin');
+      var er = document.getElementById('empRegister');
+      if (el) el.style.display = 'block';
+      if (er) er.style.display = 'none';
+    }
+  }
+
+  function closeModal() { overlay.classList.remove('active'); }
+
+  // ── Botones hero ──
+  document.getElementById('btnLogin').addEventListener('click',    () => openModal('login',    'cliente'));
+  document.getElementById('btnRegister').addEventListener('click', () => openModal('register', 'cliente'));
+
+  // ── Cerrar ──
+  modalClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // ── Switches ──
+  document.getElementById('switchToRegister').addEventListener('click', () => showForm('register'));
+  document.getElementById('switchToLogin').addEventListener('click',    () => showForm('login'));
+
+  // ── Ir al home tras login ──
+  function goToHome() {
+    closeModal();
+    window.location.href = 'wefix-home.html';
+  }
+
+  // ── Coming soon card empleado ──
+  function showComingSoon() {
+    openModal('empleado', 'empleado');
+  }
+
+  // ── Ir al panel de empleado ──
+  function goToEmpleado() {
+    closeModal();
+    window.location.href = 'wefix-empleado-home.html';
+  }
+
+  // ── Switches empleado ──
+  document.getElementById('switchToEmpRegister').addEventListener('click', function() {
+    document.getElementById('empLogin').style.display   = 'none';
+    document.getElementById('empRegister').style.display = 'block';
+  });
+  document.getElementById('switchToEmpLogin').addEventListener('click', function() {
+    document.getElementById('empRegister').style.display = 'none';
+    document.getElementById('empLogin').style.display    = 'block';
+  });
+
+  // ── Notificarme (legacy) ──
+  function notifyMe() {
+    closeModal();
+    showToast('Ya puedes registrarte como profesional 🎉');
+  }
+
+  // ── Toast ──
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Logo fallback ──
+  const logoImg = document.querySelector('.wf-logo-img');
+  if (logoImg) {
+    logoImg.addEventListener('error', () => {
+      logoImg.style.display = 'none';
+      document.getElementById('logoFallback').style.display = 'flex';
+    });
+  }
+</script>
+
+  <!-- Firebase SDKs (compat version — funciona sin CORB) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ── Config ──
+    const firebaseConfig = {
+      apiKey:            "AIzaSyAH8WHeBzO_1MJRhm1_Q8MR5-IduPMfmGo",
+      authDomain:        "wefix-app-47e08.firebaseapp.com",
+      projectId:         "wefix-app-47e08",
+      storageBucket:     "wefix-app-47e08.firebasestorage.app",
+      messagingSenderId: "785238307326",
+      appId:             "1:785238307326:web:098f386f82c333127dd0af"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+
+    // ── Si ya hay sesion activa, redirige directo ──
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        db.collection('usuarios').doc(user.uid).get().then(function(snap) {
+          if (snap.exists) {
+            var rol = snap.data().rol;
+            if (rol === 'profesional') {
+              window.location.href = 'wefix-empleado-home.html';
+            } else {
+              window.location.href = 'wefix-home.html';
+            }
+          }
+        });
+      }
+    });
+
+    // ════════════════════════════
+    // CLIENTE — Login
+    // ════════════════════════════
+    function loginCliente() {
+      var email = document.getElementById('clientEmail') ? document.getElementById('clientEmail').value.trim() : '';
+      var pass  = document.getElementById('clientPassword') ? document.getElementById('clientPassword').value.trim() : '';
+      if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
+      showFbToast('Iniciando sesion...', '');
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).get();
+        })
+        .then(function(snap) {
+          if (snap.exists && snap.data().rol === 'profesional') {
+            auth.signOut();
+            showFbToast('Esta cuenta es de profesional. Usa el portal correcto.', 'error');
+            return;
+          }
+          showFbToast('Bienvenido! Redirigiendo...', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1000);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
+    }
+
+    // ════════════════════════════
+    // CLIENTE — Registro
+    // ════════════════════════════
+    function registerCliente() {
+      var nombre = document.getElementById('clientNombre') ? document.getElementById('clientNombre').value.trim() : '';
+      var email  = document.getElementById('clientEmailReg') ? document.getElementById('clientEmailReg').value.trim() : '';
+      var pass   = document.getElementById('clientPasswordReg') ? document.getElementById('clientPasswordReg').value.trim() : '';
+      if (!nombre || !email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
+      if (pass.length < 8) { showFbToast('La contrasena debe tener al menos 8 caracteres', 'error'); return; }
+      showFbToast('Creando tu cuenta...', '');
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).set({
+            nombre:     nombre,
+            email:      email,
+            rol:        'cliente',
+            createdAt:  firebase.firestore.FieldValue.serverTimestamp(),
+            telefono:   '',
+            fotoPerfil: '',
+            direccion:  {}
+          });
+        })
+        .then(function() {
+          showFbToast('Cuenta creada! Bienvenido a WeFix', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1200);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
+    }
+
+    // ════════════════════════════
+    // PROFESIONAL — Login
+    // ════════════════════════════
+    function loginEmpleado() {
+      var email = document.getElementById('empEmail') ? document.getElementById('empEmail').value.trim() : '';
+      var pass  = document.getElementById('empPassword') ? document.getElementById('empPassword').value.trim() : '';
+      if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
+      showFbToast('Iniciando sesion...', '');
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).get();
+        })
+        .then(function(snap) {
+          if (snap.exists && snap.data().rol !== 'profesional') {
+            auth.signOut();
+            showFbToast('Esta cuenta es de cliente. Usa el portal de clientes.', 'error');
+            return;
+          }
+          showFbToast('Bienvenido al portal profesional!', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1000);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
+    }
+
+    // ════════════════════════════
+    // PROFESIONAL — Registro
+    // ════════════════════════════
+    function registerEmpleado() {
+      var nombre       = document.getElementById('empNombre') ? document.getElementById('empNombre').value.trim() : '';
+      var especialidad = document.getElementById('empEspecialidad') ? document.getElementById('empEspecialidad').value : '';
+      var email        = document.getElementById('empEmailReg') ? document.getElementById('empEmailReg').value.trim() : '';
+      var pass         = document.getElementById('empPasswordReg') ? document.getElementById('empPasswordReg').value.trim() : '';
+      if (!nombre || !especialidad || !email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
+      if (pass.length < 8) { showFbToast('La contrasena debe tener al menos 8 caracteres', 'error'); return; }
+      showFbToast('Creando tu perfil profesional...', '');
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).set({
+            nombre:       nombre,
+            email:        email,
+            rol:          'profesional',
+            especialidad: especialidad,
+            createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
+            telefono:     '',
+            fotoPerfil:   '',
+            zona:         '',
+            bio:          '',
+            precio:       0,
+            calificacion: 0,
+            totalResenas: 0,
+            verificado:   false,
+            modoFlash:    false,
+            modoPremium:  false
+          });
+        })
+        .then(function() {
+          showFbToast('Bienvenido a WeFix Profesional!', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1200);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
+    }
+
+    // ════════════════════════════
+    // HELPERS
+    // ════════════════════════════
+    function firebaseError(code) {
+      var errors = {
+        'auth/invalid-email':          'El correo no tiene un formato valido.',
+        'auth/user-not-found':         'No existe una cuenta con ese correo.',
+        'auth/wrong-password':         'Contrasena incorrecta.',
+        'auth/email-already-in-use':   'Ya existe una cuenta con ese correo.',
+        'auth/weak-password':          'La contrasena es muy debil.',
+        'auth/too-many-requests':      'Demasiados intentos. Espera un momento.',
+        'auth/network-request-failed': 'Error de conexion. Revisa tu internet.',
+        'auth/invalid-credential':     'Correo o contrasena incorrectos.',
+      };
+      return errors[code] || 'Error: ' + code;
+    }
+
+    var fbToastTimer;
+    function showFbToast(msg, type) {
+      var t = document.getElementById('fbToast');
+      if (!t) return;
+      t.textContent = msg;
+      t.style.background = type === 'error' ? '#dc2626' : type === 'ok' ? '#16a34a' : '#123853';
+      t.style.transform  = 'translateX(-50%) translateY(0)';
+      clearTimeout(fbToastTimer);
+      fbToastTimer = setTimeout(function() { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3500);
+    }
+  </script>
+
+  <!-- Toast Firebase -->
+  <div id="fbToast" style="
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(80px);
+    background:#123853;color:#fff;border-radius:30px;
+    padding:10px 22px;font-size:13px;font-weight:500;
+    z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);
+    transition:transform .3s ease;white-space:nowrap;
+    font-family:'Poppins',sans-serif;max-width:90%;text-align:center;
+  "></div>
+
+</body>
+</html>
