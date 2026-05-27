@@ -2,6 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
+
+  <!-- Firebase SDKs (compat version — funciona sin CORB) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups"/>
   <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -20,9 +25,9 @@
       --text:   #1a1a1a;
       --muted:  #6b7280;
     }
- 
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--white);
@@ -30,7 +35,7 @@
       margin: 0 auto;
       min-height: 100vh;
     }
- 
+
     /* ══════════════════════════
        NAVBAR
     ══════════════════════════ */
@@ -40,7 +45,7 @@
       border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 50;
     }
- 
+
     /* Logo con imagen JPEG */
     .wf-logo {
       display: flex; align-items: center; gap: 8px;
@@ -63,7 +68,7 @@
       font-size: 16px; font-weight: 800;
       color: var(--white);
     }
- 
+
     .wf-nav-icons { display: flex; gap: 14px; }
     .wf-nav-icon {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -74,7 +79,7 @@
     }
     .wf-nav-icon svg { width: 20px; height: 20px; }
     .wf-nav-icon:hover { color: var(--brand); }
- 
+
     /* ══════════════════════════
        HERO con imagen de fondo
     ══════════════════════════ */
@@ -85,7 +90,7 @@
       display: flex; align-items: flex-end;
       justify-content: space-between;
     }
- 
+
     /* Imagen de fondo — "Imagen realista de c.png" de tu repo */
     .wf-hero-bg {
       position: absolute; inset: 0;
@@ -94,12 +99,12 @@
         url('Imagen realista de c.png') center/cover no-repeat;
       z-index: 0;
     }
- 
+
     .wf-hero-content {
       position: relative; z-index: 2;
       padding: 20px;
     }
- 
+
     /* Botón "Iniciar Sesión" texto plano */
     .wf-hero-login {
       color: var(--white);
@@ -111,7 +116,7 @@
       font-family: 'Poppins', sans-serif;
     }
     .wf-hero-login:hover { opacity: 1; text-decoration: underline; }
- 
+
     .wf-hero-btn {
       background: var(--brand); color: var(--accent);
       border: none; border-radius: 24px;
@@ -122,7 +127,7 @@
       font-weight: 600;
     }
     .wf-hero-btn:hover { background: #1a4f72; }
- 
+
     .wf-hero-tagline {
       font-size: 15px; font-weight: 600;
       color: var(--white); line-height: 1.3;
@@ -131,7 +136,7 @@
       font-family: 'Raleway', sans-serif;
       font-size: 17px; color: var(--accent); font-weight: 700;
     }
- 
+
     /* ══════════════════════════
        SELECTOR CLIENTE / EMPLEADO
     ══════════════════════════ */
@@ -166,7 +171,7 @@
       font-size: 13px; font-weight: 600; color: var(--brand); margin-bottom: 3px;
     }
     .wf-user-card-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
- 
+
     /* Empleado — próximamente */
     .wf-user-card.coming {
       opacity: .6; cursor: default;
@@ -183,7 +188,7 @@
       font-size: 9px; font-weight: 600;
       border: 1px solid var(--border);
     }
- 
+
     /* ══════════════════════════
        SERVICES
     ══════════════════════════ */
@@ -214,12 +219,12 @@
       background: #e8f0fb; transform: scale(1.07);
     }
     .wf-service-label { font-size: 10px; color: var(--muted); line-height: 1.3; }
- 
+
     /* ══════════════════════════
        BOTTOM GRID
     ══════════════════════════ */
     .wf-bottom { display: grid; grid-template-columns: 1fr 1fr; }
- 
+
     .wf-trust { background: var(--brand); padding: 24px 16px; }
     .wf-trust-title {
       color: var(--accent); font-size: 17px; font-weight: 600;
@@ -235,7 +240,7 @@
     .wf-trust-list li::before {
       content: "•"; font-size: 18px; line-height: 1; flex-shrink: 0;
     }
- 
+
     .wf-about { padding: 24px 16px; background: var(--white); }
     .wf-stars {
       display: flex; align-items: center; gap: 6px;
@@ -255,7 +260,7 @@
       text-decoration: none;
     }
     .wf-faq-btn:hover { background: #1a4f72; }
- 
+
     /* ══════════════════════════
        MODAL — login/register con selector tipo
     ══════════════════════════ */
@@ -265,7 +270,7 @@
       align-items: center; justify-content: center;
     }
     .wf-modal-overlay.active { display: flex; }
- 
+
     .wf-modal {
       background: var(--white); border-radius: 20px;
       padding: 28px 24px; width: 90%; max-width: 360px;
@@ -275,14 +280,14 @@
       from { opacity:0; transform:scale(.95); }
       to   { opacity:1; transform:scale(1); }
     }
- 
+
     .wf-modal-close {
       position: absolute; top: 14px; right: 16px;
       background: none; border: none; font-size: 20px;
       cursor: pointer; color: var(--muted);
     }
     .wf-modal-close:hover { color: var(--accent); }
- 
+
     /* Tipo selector dentro del modal */
     .wf-modal-type-tabs {
       display: flex; gap: 8px; margin-bottom: 20px;
@@ -299,7 +304,7 @@
       border-color: var(--brand); background: var(--brand); color: var(--white);
     }
     .wf-modal-type-tab .tab-icon { font-size: 16px; display: block; margin-bottom: 3px; }
- 
+
     .wf-modal h2 {
       font-size: 17px; font-weight: 600; color: var(--brand); margin-bottom: 16px;
     }
@@ -313,7 +318,7 @@
       margin-bottom: 12px; outline: none; transition: border .2s; background: var(--white);
     }
     .wf-modal input:focus { border-color: var(--brand); background: var(--white); }
- 
+
     .wf-modal-submit {
       width: 100%; background: var(--brand); color: var(--white);
       border: none; border-radius: 24px; padding: 12px;
@@ -321,12 +326,12 @@
       cursor: pointer; transition: background .2s; margin-top: 4px;
     }
     .wf-modal-submit:hover { background: #1a4f72; }
- 
+
     .wf-modal-switch {
       text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted);
     }
     .wf-modal-switch a { color: #D85A30; cursor: pointer; text-decoration: underline; }
- 
+
     /* Empleado — próximamente en modal */
     .wf-modal-coming {
       text-align: center; padding: 20px 0 10px;
@@ -342,7 +347,7 @@
       transition: background .15s, color .15s;
     }
     .wf-modal-notify-btn:hover { background: var(--brand); color: var(--white); }
- 
+
     /* ── BLOG BANNER ── */
     .wf-blog-banner {
       margin: 0; padding: 20px 16px;
@@ -420,7 +425,7 @@
   </style>
 </head>
 <body>
- 
+
 <!-- ════════ NAVBAR ════════ -->
 <nav class="wf-nav">
   <a class="wf-logo" href="wefix-home.html">
@@ -435,7 +440,7 @@
     <div class="wf-logo-fallback" id="logoFallback">W</div>
     WeFix
   </a>
- 
+
   <div class="wf-nav-icons">
     <a href="wefix-favoritos.html" class="wf-nav-icon" title="Favoritos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -463,12 +468,12 @@
     </a>
   </div>
 </nav>
- 
+
 <!-- ════════ HERO ════════ -->
 <section class="wf-hero">
   <!-- Imagen de fondo: "Imagen realista de c.png" subida a tu repo -->
   <div class="wf-hero-bg"></div>
- 
+
   <div class="wf-hero-content">
     <button class="wf-hero-login" id="btnLogin">Iniciar Sesión</button>
     <button class="wf-hero-btn"   id="btnRegister">Registrarme</button>
@@ -477,9 +482,9 @@
     </div>
   </div>
 </section>
- 
- 
- 
+
+
+
 <!-- ════════ SERVICES ════════ -->
 <section class="wf-section">
   <div class="wf-section-title">Servicios premium para el hogar WeFix</div>
@@ -502,7 +507,7 @@
     </a>
   </div>
 </section>
- 
+
 <!-- ════════ BLOG BANNER ════════ -->
 <div class="wf-blog-banner">
   <a class="wf-blog-card" href="wefix-blog.html">
@@ -516,7 +521,7 @@
     <div class="wf-blog-arrow">›</div>
   </a>
 </div>
- 
+
 <!-- ════════ BOTTOM GRID ════════ -->
 <div class="wf-bottom">
   <div class="wf-trust">
@@ -544,12 +549,12 @@
     <a href="preguntas_frecuentes.html" class="wf-faq-btn">Preguntas frecuentes</a>
   </div>
 </div>
- 
+
 <!-- ════════ MODAL LOGIN / REGISTER ════════ -->
 <div class="wf-modal-overlay" id="modalOverlay">
   <div class="wf-modal">
     <button class="wf-modal-close" id="modalClose">&times;</button>
- 
+
     <!-- Selector visual Cliente / Profesional -->
     <p style="font-size:12px;font-weight:600;color:#6b7280;text-align:center;margin-bottom:12px;letter-spacing:.3px;">¿Cómo quieres ingresar?</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
@@ -568,7 +573,7 @@
         <div style="font-size:9px;color:#22c55e;font-weight:700;margin-top:3px;letter-spacing:.3px;">¡Ya disponible!</div>
       </div>
     </div>
- 
+
     <!-- Tabs tipo de usuario -->
     <div class="wf-modal-type-tabs" style="display:none;">
       <div class="wf-modal-type-tab active" id="tabCliente" onclick="switchType('cliente')">
@@ -578,7 +583,7 @@
         <span class="tab-icon">🔧</span>Profesional
       </div>
     </div>
- 
+
     <!-- ── CLIENTE: login ── -->
     <div id="formLogin">
       <h2>Iniciar Sesión</h2>
@@ -591,7 +596,7 @@
         ¿No tienes cuenta? <a id="switchToRegister">Regístrate</a>
       </div>
     </div>
- 
+
     <!-- ── CLIENTE: register ── -->
     <div id="formRegister" style="display:none;">
       <h2>Crear cuenta</h2>
@@ -606,7 +611,7 @@
         ¿Ya tienes cuenta? <a id="switchToLogin">Inicia sesión</a>
       </div>
     </div>
- 
+
     <!-- ── EMPLEADO: login ── -->
     <div id="formEmpleado" style="display:none;">
       <div id="empLogin">
@@ -621,7 +626,7 @@
           ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
         </div>
       </div>
- 
+
       <div id="empRegister" style="display:none;">
         <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Únete como Profesional</h2>
         <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Empieza a recibir clientes y gestiona tus servicios con WeFix.</p>
@@ -647,13 +652,13 @@
         </div>
       </div>
     </div>
- 
+
   </div>
 </div>
- 
+
 <!-- Toast -->
 <div class="wf-toast" id="toast"></div>
- 
+
 <script>
   const overlay      = document.getElementById('modalOverlay');
   const modalClose   = document.getElementById('modalClose');
@@ -662,9 +667,9 @@
   const formEmpleado = document.getElementById('formEmpleado');
   const tabCliente   = document.getElementById('tabCliente');
   const tabEmpleado  = document.getElementById('tabEmpleado');
- 
+
   let currentType = 'cliente';
- 
+
   // ── Abrir modal ──
   function openModal(form, type) {
     currentType = type || 'cliente';
@@ -672,7 +677,7 @@
     showForm(form);
     overlay.classList.add('active');
   }
- 
+
   // ── Cambiar tipo cliente/empleado ──
   function switchType(type) {
     currentType = type;
@@ -689,12 +694,12 @@
       showForm('empleado');
     }
   }
- 
+
   function updateTabs() {
     tabCliente.classList.toggle('active',  currentType === 'cliente');
     tabEmpleado.classList.toggle('active', currentType === 'empleado');
   }
- 
+
   function showForm(form) {
     formLogin.style.display    = form === 'login'    ? 'block' : 'none';
     formRegister.style.display = form === 'register' ? 'block' : 'none';
@@ -707,38 +712,38 @@
       if (er) er.style.display = 'none';
     }
   }
- 
+
   function closeModal() { overlay.classList.remove('active'); }
- 
+
   // ── Botones hero ──
   document.getElementById('btnLogin').addEventListener('click',    () => openModal('login',    'cliente'));
   document.getElementById('btnRegister').addEventListener('click', () => openModal('register', 'cliente'));
- 
+
   // ── Cerrar ──
   modalClose.addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
- 
+
   // ── Switches ──
   document.getElementById('switchToRegister').addEventListener('click', () => showForm('register'));
   document.getElementById('switchToLogin').addEventListener('click',    () => showForm('login'));
- 
+
   // ── Ir al home tras login ──
   function goToHome() {
     closeModal();
     window.location.href = 'wefix-home.html';
   }
- 
+
   // ── Coming soon card empleado ──
   function showComingSoon() {
     openModal('empleado', 'empleado');
   }
- 
+
   // ── Ir al panel de empleado ──
   function goToEmpleado() {
     closeModal();
     window.location.href = 'wefix-empleado-home.html';
   }
- 
+
   // ── Switches empleado ──
   document.getElementById('switchToEmpRegister').addEventListener('click', function() {
     document.getElementById('empLogin').style.display   = 'none';
@@ -748,13 +753,13 @@
     document.getElementById('empRegister').style.display = 'none';
     document.getElementById('empLogin').style.display    = 'block';
   });
- 
+
   // ── Notificarme (legacy) ──
   function notifyMe() {
     closeModal();
     showToast('Ya puedes registrarte como profesional 🎉');
   }
- 
+
   // ── Toast ──
   let toastTimer;
   function showToast(msg) {
@@ -764,7 +769,7 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
- 
+
   // ── Logo fallback ──
   const logoImg = document.querySelector('.wf-logo-img');
   if (logoImg) {
@@ -774,12 +779,8 @@
     });
   }
 </script>
- 
-  <!-- Firebase SDKs (compat version — funciona sin CORB) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
- 
+
+
   <script>
     // ── Config ──
     const firebaseConfig = {
@@ -790,11 +791,11 @@
       messagingSenderId: "785238307326",
       appId:             "1:785238307326:web:098f386f82c333127dd0af"
     };
- 
+
     firebase.initializeApp(firebaseConfig);
     var auth = firebase.auth();
     var db   = firebase.firestore();
- 
+
     // ── Si ya hay sesion activa, redirige directo ──
     auth.onAuthStateChanged(function(user) {
       if (user) {
@@ -810,7 +811,7 @@
         });
       }
     });
- 
+
     // ════════════════════════════
     // CLIENTE — Login
     // ════════════════════════════
@@ -834,7 +835,7 @@
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
- 
+
     // ════════════════════════════
     // CLIENTE — Registro
     // ════════════════════════════
@@ -863,7 +864,7 @@
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
- 
+
     // ════════════════════════════
     // PROFESIONAL — Login
     // ════════════════════════════
@@ -887,7 +888,7 @@
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
- 
+
     // ════════════════════════════
     // PROFESIONAL — Registro
     // ════════════════════════════
@@ -925,7 +926,7 @@
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
- 
+
     // ════════════════════════════
     // HELPERS
     // ════════════════════════════
@@ -942,7 +943,7 @@
       };
       return errors[code] || 'Error: ' + code;
     }
- 
+
     var fbToastTimer;
     function showFbToast(msg, type) {
       var t = document.getElementById('fbToast');
@@ -954,7 +955,7 @@
       fbToastTimer = setTimeout(function() { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3500);
     }
   </script>
- 
+
   <!-- Toast Firebase -->
   <div id="fbToast" style="
     position:fixed;bottom:24px;left:50%;
@@ -965,6 +966,6 @@
     transition:transform .3s ease;white-space:nowrap;
     font-family:'Poppins',sans-serif;max-width:90%;text-align:center;
   "></div>
- 
+
 </body>
 </html>
