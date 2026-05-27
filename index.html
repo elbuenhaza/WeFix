@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups"/>
+  <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>WeFix — Servicios premium para el hogar</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -773,18 +775,12 @@
   }
 </script>
 
-  <!-- ═══════════════════════════════════════════
-       FIREBASE AUTH — Login y Registro real
-  ═══════════════════════════════════════════ -->
-  <script type="module">
-    import { initializeApp }
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword,
-             signInWithEmailAndPassword, signOut, onAuthStateChanged }
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- Firebase SDKs (compat version — funciona sin CORB) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
+  <script>
     // ── Config ──
     const firebaseConfig = {
       apiKey:            "AIzaSyAH8WHeBzO_1MJRhm1_Q8MR5-IduPMfmGo",
@@ -794,175 +790,169 @@
       messagingSenderId: "785238307326",
       appId:             "1:785238307326:web:098f386f82c333127dd0af"
     };
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
 
-    // ── Si ya hay sesión activa, redirige directo ──
-    onAuthStateChanged(auth, async (user) => {
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+
+    // ── Si ya hay sesion activa, redirige directo ──
+    auth.onAuthStateChanged(function(user) {
       if (user) {
-        const snap = await getDoc(doc(db, 'usuarios', user.uid));
-        if (snap.exists()) {
-          const rol = snap.data().rol;
-          if (rol === 'profesional') {
-            window.location.href = 'wefix-empleado-home.html';
-          } else {
-            window.location.href = 'wefix-home.html';
+        db.collection('usuarios').doc(user.uid).get().then(function(snap) {
+          if (snap.exists) {
+            var rol = snap.data().rol;
+            if (rol === 'profesional') {
+              window.location.href = 'wefix-empleado-home.html';
+            } else {
+              window.location.href = 'wefix-home.html';
+            }
           }
-        }
+        });
       }
     });
 
     // ════════════════════════════
     // CLIENTE — Login
     // ════════════════════════════
-    async function loginCliente() {
-      const email = document.getElementById('clientEmail')?.value?.trim();
-      const pass  = document.getElementById('clientPassword')?.value?.trim();
+    function loginCliente() {
+      var email = document.getElementById('clientEmail') ? document.getElementById('clientEmail').value.trim() : '';
+      var pass  = document.getElementById('clientPassword') ? document.getElementById('clientPassword').value.trim() : '';
       if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
-      try {
-        showFbToast('Iniciando sesión…', '');
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-        // Verificar que sea cliente
-        const snap = await getDoc(doc(db, 'usuarios', cred.user.uid));
-        if (snap.exists() && snap.data().rol === 'profesional') {
-          await signOut(auth);
-          showFbToast('Esta cuenta es de profesional. Usa el portal correcto.', 'error');
-          return;
-        }
-        showFbToast('¡Bienvenido! Redirigiendo…', 'ok');
-        setTimeout(() => window.location.href = 'wefix-home.html', 1000);
-      } catch (e) {
-        showFbToast(firebaseError(e.code), 'error');
-      }
+      showFbToast('Iniciando sesion...', '');
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).get();
+        })
+        .then(function(snap) {
+          if (snap.exists && snap.data().rol === 'profesional') {
+            auth.signOut();
+            showFbToast('Esta cuenta es de profesional. Usa el portal correcto.', 'error');
+            return;
+          }
+          showFbToast('Bienvenido! Redirigiendo...', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1000);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
 
     // ════════════════════════════
     // CLIENTE — Registro
     // ════════════════════════════
-    async function registerCliente() {
-      const nombre = document.getElementById('clientNombre')?.value?.trim();
-      const email  = document.getElementById('clientEmailReg')?.value?.trim();
-      const pass   = document.getElementById('clientPasswordReg')?.value?.trim();
+    function registerCliente() {
+      var nombre = document.getElementById('clientNombre') ? document.getElementById('clientNombre').value.trim() : '';
+      var email  = document.getElementById('clientEmailReg') ? document.getElementById('clientEmailReg').value.trim() : '';
+      var pass   = document.getElementById('clientPasswordReg') ? document.getElementById('clientPasswordReg').value.trim() : '';
       if (!nombre || !email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
-      if (pass.length < 8) { showFbToast('La contraseña debe tener al menos 8 caracteres', 'error'); return; }
-      try {
-        showFbToast('Creando tu cuenta…', '');
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        // Guardar en Firestore
-        await setDoc(doc(db, 'usuarios', cred.user.uid), {
-          nombre,
-          email,
-          rol:       'cliente',
-          createdAt: serverTimestamp(),
-          // Campos que se llenan después en el perfil
-          telefono:  '',
-          fotoPerfil:'',
-          direccion: {}
-        });
-        showFbToast('¡Cuenta creada! Bienvenido a WeFix 🎉', 'ok');
-        setTimeout(() => window.location.href = 'wefix-home.html', 1200);
-      } catch (e) {
-        showFbToast(firebaseError(e.code), 'error');
-      }
+      if (pass.length < 8) { showFbToast('La contrasena debe tener al menos 8 caracteres', 'error'); return; }
+      showFbToast('Creando tu cuenta...', '');
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).set({
+            nombre:     nombre,
+            email:      email,
+            rol:        'cliente',
+            createdAt:  firebase.firestore.FieldValue.serverTimestamp(),
+            telefono:   '',
+            fotoPerfil: '',
+            direccion:  {}
+          });
+        })
+        .then(function() {
+          showFbToast('Cuenta creada! Bienvenido a WeFix', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1200);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
 
     // ════════════════════════════
     // PROFESIONAL — Login
     // ════════════════════════════
-    async function loginEmpleado() {
-      const email = document.getElementById('empEmail')?.value?.trim();
-      const pass  = document.getElementById('empPassword')?.value?.trim();
+    function loginEmpleado() {
+      var email = document.getElementById('empEmail') ? document.getElementById('empEmail').value.trim() : '';
+      var pass  = document.getElementById('empPassword') ? document.getElementById('empPassword').value.trim() : '';
       if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
-      try {
-        showFbToast('Iniciando sesión…', '');
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-        const snap = await getDoc(doc(db, 'usuarios', cred.user.uid));
-        if (snap.exists() && snap.data().rol !== 'profesional') {
-          await signOut(auth);
-          showFbToast('Esta cuenta es de cliente. Usa el portal de clientes.', 'error');
-          return;
-        }
-        showFbToast('¡Bienvenido al portal profesional! 🔧', 'ok');
-        setTimeout(() => window.location.href = 'wefix-empleado-home.html', 1000);
-      } catch (e) {
-        showFbToast(firebaseError(e.code), 'error');
-      }
+      showFbToast('Iniciando sesion...', '');
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).get();
+        })
+        .then(function(snap) {
+          if (snap.exists && snap.data().rol !== 'profesional') {
+            auth.signOut();
+            showFbToast('Esta cuenta es de cliente. Usa el portal de clientes.', 'error');
+            return;
+          }
+          showFbToast('Bienvenido al portal profesional!', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1000);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
 
     // ════════════════════════════
     // PROFESIONAL — Registro
     // ════════════════════════════
-    async function registerEmpleado() {
-      const nombre       = document.getElementById('empNombre')?.value?.trim();
-      const especialidad = document.getElementById('empEspecialidad')?.value;
-      const email        = document.getElementById('empEmailReg')?.value?.trim();
-      const pass         = document.getElementById('empPasswordReg')?.value?.trim();
-      if (!nombre || !especialidad || !email || !pass) {
-        showFbToast('Completa todos los campos', 'error'); return;
-      }
-      if (pass.length < 8) { showFbToast('La contraseña debe tener al menos 8 caracteres', 'error'); return; }
-      try {
-        showFbToast('Creando tu perfil profesional…', '');
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, 'usuarios', cred.user.uid), {
-          nombre,
-          email,
-          rol:          'profesional',
-          especialidad,
-          createdAt:    serverTimestamp(),
-          // Campos del perfil profesional
-          telefono:     '',
-          fotoPerfil:   '',
-          zona:         '',
-          bio:          '',
-          precio:       0,
-          calificacion: 0,
-          totalReseñas: 0,
-          verificado:   false,
-          modoFlash:    false,
-          modoPremium:  false
-        });
-        showFbToast('¡Bienvenido a WeFix Profesional! 🎉', 'ok');
-        setTimeout(() => window.location.href = 'wefix-empleado-home.html', 1200);
-      } catch (e) {
-        showFbToast(firebaseError(e.code), 'error');
-      }
+    function registerEmpleado() {
+      var nombre       = document.getElementById('empNombre') ? document.getElementById('empNombre').value.trim() : '';
+      var especialidad = document.getElementById('empEspecialidad') ? document.getElementById('empEspecialidad').value : '';
+      var email        = document.getElementById('empEmailReg') ? document.getElementById('empEmailReg').value.trim() : '';
+      var pass         = document.getElementById('empPasswordReg') ? document.getElementById('empPasswordReg').value.trim() : '';
+      if (!nombre || !especialidad || !email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
+      if (pass.length < 8) { showFbToast('La contrasena debe tener al menos 8 caracteres', 'error'); return; }
+      showFbToast('Creando tu perfil profesional...', '');
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(function(cred) {
+          return db.collection('usuarios').doc(cred.user.uid).set({
+            nombre:       nombre,
+            email:        email,
+            rol:          'profesional',
+            especialidad: especialidad,
+            createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
+            telefono:     '',
+            fotoPerfil:   '',
+            zona:         '',
+            bio:          '',
+            precio:       0,
+            calificacion: 0,
+            totalResenas: 0,
+            verificado:   false,
+            modoFlash:    false,
+            modoPremium:  false
+          });
+        })
+        .then(function() {
+          showFbToast('Bienvenido a WeFix Profesional!', 'ok');
+          setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1200);
+        })
+        .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
 
     // ════════════════════════════
     // HELPERS
     // ════════════════════════════
     function firebaseError(code) {
-      const errors = {
-        'auth/invalid-email':          'El correo no tiene un formato válido.',
+      var errors = {
+        'auth/invalid-email':          'El correo no tiene un formato valido.',
         'auth/user-not-found':         'No existe una cuenta con ese correo.',
-        'auth/wrong-password':         'Contraseña incorrecta.',
+        'auth/wrong-password':         'Contrasena incorrecta.',
         'auth/email-already-in-use':   'Ya existe una cuenta con ese correo.',
-        'auth/weak-password':          'La contraseña es muy débil.',
+        'auth/weak-password':          'La contrasena es muy debil.',
         'auth/too-many-requests':      'Demasiados intentos. Espera un momento.',
-        'auth/network-request-failed': 'Error de conexión. Revisa tu internet.',
-        'auth/invalid-credential':     'Correo o contraseña incorrectos.',
+        'auth/network-request-failed': 'Error de conexion. Revisa tu internet.',
+        'auth/invalid-credential':     'Correo o contrasena incorrectos.',
       };
       return errors[code] || 'Error: ' + code;
     }
 
-    let fbToastTimer;
+    var fbToastTimer;
     function showFbToast(msg, type) {
-      const t = document.getElementById('fbToast');
+      var t = document.getElementById('fbToast');
       if (!t) return;
       t.textContent = msg;
       t.style.background = type === 'error' ? '#dc2626' : type === 'ok' ? '#16a34a' : '#123853';
       t.style.transform  = 'translateX(-50%) translateY(0)';
       clearTimeout(fbToastTimer);
-      fbToastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3500);
+      fbToastTimer = setTimeout(function() { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3500);
     }
-
-    // ── Exponer funciones al HTML ──
-    window.loginCliente    = loginCliente;
-    window.registerCliente = registerCliente;
-    window.loginEmpleado   = loginEmpleado;
-    window.registerEmpleado= registerEmpleado;
   </script>
 
   <!-- Toast Firebase -->
