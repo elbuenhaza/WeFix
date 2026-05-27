@@ -588,10 +588,10 @@
     <div id="formLogin">
       <h2>Iniciar Sesión</h2>
       <label>Correo electrónico</label>
-      <input type="email" placeholder="tucorreo@ejemplo.com"/>
+      <input type="email" id="clientEmail" placeholder="tucorreo@ejemplo.com"/>
       <label>Contraseña</label>
-      <input type="password" placeholder="••••••••"/>
-      <button class="wf-modal-submit" onclick="goToHome()">Entrar</button>
+      <input type="password" id="clientPassword" placeholder="••••••••"/>
+      <button class="wf-modal-submit" onclick="loginCliente()">Entrar</button>
       <div class="wf-modal-switch">
         ¿No tienes cuenta? <a id="switchToRegister">Regístrate</a>
       </div>
@@ -601,12 +601,12 @@
     <div id="formRegister" style="display:none;">
       <h2>Crear cuenta</h2>
       <label>Nombre completo</label>
-      <input type="text" placeholder="Tu nombre"/>
+      <input type="text" id="clientNombre" placeholder="Tu nombre completo"/>
       <label>Correo electrónico</label>
-      <input type="email" placeholder="tucorreo@ejemplo.com"/>
+      <input type="email" id="clientEmailReg" placeholder="tucorreo@ejemplo.com"/>
       <label>Contraseña</label>
-      <input type="password" placeholder="••••••••"/>
-      <button class="wf-modal-submit" onclick="goToHome()">Registrarme</button>
+      <input type="password" id="clientPasswordReg" placeholder="Mínimo 8 caracteres"/>
+      <button class="wf-modal-submit" onclick="registerCliente()">Crear mi cuenta</button>
       <div class="wf-modal-switch">
         ¿Ya tienes cuenta? <a id="switchToLogin">Inicia sesión</a>
       </div>
@@ -618,9 +618,9 @@
         <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Portal Profesional</h2>
         <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Accede a tu panel de trabajo, agenda y estadísticas.</p>
         <label>Correo electrónico</label>
-        <input type="email" id="clientEmail" placeholder="tuprofesional@correo.com"/>
+        <input type="email" id="empEmail" placeholder="tuprofesional@correo.com"/>
         <label>Contraseña</label>
-        <input type="password" id="clientPassword" placeholder="••••••••"/>
+        <input type="password" id="empPassword" placeholder="••••••••"/>
         <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="loginEmpleado()">Entrar al portal</button>
         <div class="wf-modal-switch">
           ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
@@ -631,7 +631,7 @@
         <h2 style="font-size:17px;font-weight:700;color:#123853;margin-bottom:6px;">Únete como Profesional</h2>
         <p style="font-size:11px;color:#6b7280;margin-bottom:16px;line-height:1.5;">Empieza a recibir clientes y gestiona tus servicios con WeFix.</p>
         <label>Nombre completo</label>
-        <input type="text" id="clientNombre" placeholder="Tu nombre completo"/>
+        <input type="text" id="empNombre" placeholder="Tu nombre completo"/>
         <label>Especialidad</label>
         <select id="empEspecialidad" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;margin-bottom:14px;outline:none;background:#fff;">
           <option value="">Selecciona tu especialidad</option>
@@ -643,9 +643,9 @@
           <option>Paseo de mascotas</option>
         </select>
         <label>Correo electrónico</label>
-        <input type="email" id="clientEmailReg" placeholder="tuprofesional@correo.com"/>
+        <input type="email" id="empEmailReg" placeholder="tuprofesional@correo.com"/>
         <label>Contraseña</label>
-        <input type="password" id="clientPasswordReg" placeholder="Mínimo 8 caracteres"/>
+        <input type="password" id="empPasswordReg" placeholder="Mínimo 8 caracteres"/>
         <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="registerEmpleado()">Crear cuenta y entrar</button>
         <div class="wf-modal-switch">
           ¿Ya tienes cuenta? <a id="switchToEmpLogin" style="cursor:pointer;">Inicia sesión</a>
