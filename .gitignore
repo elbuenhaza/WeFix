@@ -1,0 +1,8 @@
+.env
+*.key
+*.pem
+firebase-admin-sdk.json
+secrets.js
+config.private.js
+*.secret
+*.credentials
