@@ -412,6 +412,23 @@
       color: var(--accent); border-radius: 20px;
       padding: 2px 10px; font-size: 10px; font-weight: 600;
     }
+    /* Checkboxes de consentimiento */
+    .wf-consent-wrap {
+      display: flex; align-items: flex-start; gap: 8px;
+      margin-bottom: 10px;
+    }
+    .wf-consent-wrap input[type="checkbox"] {
+      width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0;
+      accent-color: var(--brand); cursor: pointer;
+    }
+    .wf-consent-wrap label {
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+      cursor: pointer; font-weight: 400; margin: 0;
+    }
+    .wf-consent-wrap label a {
+      color: var(--brand); text-decoration: underline; cursor: pointer;
+    }
+
     /* Toast */
     .wf-toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -606,6 +623,18 @@
       <input type="email" id="clientEmailReg" placeholder="tucorreo@ejemplo.com"/>
       <label>Contraseña</label>
       <input type="password" id="clientPasswordReg" placeholder="Mínimo 8 caracteres"/>
+      <div class="wf-consent-wrap">
+        <input type="checkbox" id="clientTerminos"/>
+        <label for="clientTerminos">
+          Acepto los <a href="terminos.html" target="_blank">Términos y Condiciones</a> de WeFix MX
+        </label>
+      </div>
+      <div class="wf-consent-wrap">
+        <input type="checkbox" id="clientPrivacidad"/>
+        <label for="clientPrivacidad">
+          He leído y acepto el <a href="privacidad.html" target="_blank">Aviso de Privacidad</a> y el tratamiento de mis datos personales
+        </label>
+      </div>
       <button class="wf-modal-submit" onclick="registerCliente()">Crear mi cuenta</button>
       <div class="wf-modal-switch">
         ¿Ya tienes cuenta? <a id="switchToLogin">Inicia sesión</a>
@@ -646,6 +675,18 @@
         <input type="email" id="empEmailReg" placeholder="tuprofesional@correo.com"/>
         <label>Contraseña</label>
         <input type="password" id="empPasswordReg" placeholder="Mínimo 8 caracteres"/>
+        <div class="wf-consent-wrap">
+          <input type="checkbox" id="empTerminos"/>
+          <label for="empTerminos">
+            Acepto los <a href="terminos.html" target="_blank">Términos y Condiciones</a> de WeFix MX
+          </label>
+        </div>
+        <div class="wf-consent-wrap">
+          <input type="checkbox" id="empPrivacidad"/>
+          <label for="empPrivacidad">
+            He leído y acepto el <a href="privacidad.html" target="_blank">Aviso de Privacidad</a> y el tratamiento de mis datos personales
+          </label>
+        </div>
         <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="registerEmpleado()">Crear cuenta y entrar</button>
         <div class="wf-modal-switch">
           ¿Ya tienes cuenta? <a id="switchToEmpLogin" style="cursor:pointer;">Inicia sesión</a>
@@ -897,8 +938,12 @@
       var especialidad = document.getElementById('empEspecialidad') ? document.getElementById('empEspecialidad').value : '';
       var email        = document.getElementById('empEmailReg') ? document.getElementById('empEmailReg').value.trim() : '';
       var pass         = document.getElementById('empPasswordReg') ? document.getElementById('empPasswordReg').value.trim() : '';
+      var terminos     = document.getElementById('empTerminos') ? document.getElementById('empTerminos').checked : false;
+      var privacidad   = document.getElementById('empPrivacidad') ? document.getElementById('empPrivacidad').checked : false;
       if (!nombre || !especialidad || !email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
       if (pass.length < 8) { showFbToast('La contrasena debe tener al menos 8 caracteres', 'error'); return; }
+      if (!terminos) { showFbToast('Debes aceptar los Términos y Condiciones', 'error'); return; }
+      if (!privacidad) { showFbToast('Debes aceptar el Aviso de Privacidad', 'error'); return; }
       showFbToast('Creando tu perfil profesional...', '');
       auth.createUserWithEmailAndPassword(email, pass)
         .then(function(cred) {
