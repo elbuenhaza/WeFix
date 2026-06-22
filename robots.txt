@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /wefix-empleado-home.html
+Disallow: /wefix-empleado-perfil.html
+Disallow: /wefix-empleado-agenda.html
+Disallow: /wefix-empleado-mensajes.html
+Disallow: /wefix-perfil-usuario.html
+Allow: /
+Allow: /index.html
+Allow: /wefix-home.html
+Allow: /wefix-blog.html
+Sitemap: https://wefixmx.mx/sitemap.xml
