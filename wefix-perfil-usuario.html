@@ -6,6 +6,13 @@
   <title>WeFix — Mi Perfil</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase + capa de sesión WeFix (exige login: los invitados ven la pantalla de acceso) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
+
   <style>
     :root {
       --bg:     #f4f4f6;
@@ -653,7 +660,7 @@
 </div>
 
 <!-- LOGOUT -->
-<button class="wf-logout" onclick="showToast('Sesión cerrada. ¡Hasta pronto! 👋', 'success')">
+<button class="wf-logout" onclick="WeFix.logout()">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
   </svg>
@@ -664,17 +671,151 @@
 <div class="wf-toast" id="toast"></div>
 
 <script>
-  // ── AVATAR ──
+  // ════════════════════════════════════════════════
+  //  ESTADO DE SESIÓN (lo llena wefix-auth.js)
+  // ════════════════════════════════════════════════
+  let currentUid     = null;
+  let currentProfile = {};
+
+  // Helpers para leer/escribir el valor mostrado y el input de un campo
+  function setField(id, value) {
+    const field = document.getElementById(id);
+    if (!field) return;
+    const valueEl = field.querySelector('.wf-field-value');
+    const input   = field.querySelector('input, select, textarea');
+    const v = (value === undefined || value === null || value === '') ? '' : value;
+    if (valueEl) valueEl.textContent = v || '—';
+    if (input) {
+      if (input.tagName === 'SELECT') {
+        // selecciona la opción que coincida
+        Array.from(input.options).forEach(o => { o.selected = (o.value || o.textContent) === v; });
+      } else if (input.type === 'date') {
+        input.value = v || '';
+      } else {
+        input.value = v || '';
+      }
+    }
+  }
+  function getInputVal(id) {
+    const field = document.getElementById(id);
+    if (!field) return '';
+    const input = field.querySelector('input, select, textarea');
+    return input ? input.value.trim() : '';
+  }
+  function initialsOf(nombre) {
+    if (!nombre) return '👤';
+    return nombre.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase();
+  }
+  function fmtFecha(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T12:00:00');
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // ════════════════════════════════════════════════
+  //  PINTAR EL PERFIL con datos reales del usuario
+  // ════════════════════════════════════════════════
+  function pintarPerfil(profile) {
+    const nombre = profile.nombre || '';
+    const email  = profile.email  || '';
+    const dir    = profile.direccion || {};
+
+    // Hero
+    document.getElementById('heroName').textContent  = nombre || 'Sin nombre';
+    document.getElementById('heroEmail').textContent = email;
+
+    // Avatar
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarIni = document.getElementById('avatarInitials');
+    if (profile.fotoPerfil) {
+      avatarImg.src = profile.fotoPerfil;
+      avatarImg.style.display = 'block';
+      avatarIni.style.display = 'none';
+    } else {
+      avatarImg.style.display = 'none';
+      avatarIni.style.display = 'block';
+      avatarIni.textContent = initialsOf(nombre);
+    }
+
+    // Membresía
+    const pill = document.getElementById('membershipPill');
+    if (pill) {
+      if (profile.membresia === 'onyx') {
+        pill.classList.add('onyx');
+        pill.textContent = '💎 Miembro Onyx';
+      } else {
+        pill.classList.remove('onyx');
+        pill.textContent = '⭐ Plan Basic — Mejorar a Onyx';
+      }
+    }
+
+    // Estadísticas
+    const stats = profile.stats || {};
+    if (document.getElementById('statServicios')) document.getElementById('statServicios').textContent = stats.servicios || 0;
+    if (document.getElementById('statFavoritos')) document.getElementById('statFavoritos').textContent = stats.favoritos || 0;
+    if (document.getElementById('statCashback'))  document.getElementById('statCashback').textContent  = '$' + (profile.cashback || 0);
+
+    // Datos personales
+    setField('f-nombre',     nombre);
+    setField('f-telefono',   profile.telefono || '');
+    setField('f-email',      email);
+    // fecha: el valueEl muestra formateado, el input usa ISO
+    (function(){
+      const f = document.getElementById('f-nacimiento');
+      if (f) {
+        const val = f.querySelector('.wf-field-value');
+        const inp = f.querySelector('input');
+        if (val) val.textContent = profile.nacimiento ? fmtFecha(profile.nacimiento) : '—';
+        if (inp) inp.value = profile.nacimiento || '';
+      }
+    })();
+    setField('f-genero',     profile.genero || 'Prefiero no decir');
+
+    // Dirección
+    setField('f-calle',       dir.calle || '');
+    setField('f-colonia',     dir.colonia || '');
+    setField('f-ciudad',      dir.ciudad || '');
+    setField('f-cp',          dir.cp || '');
+    setField('f-referencias', dir.referencias || '');
+  }
+
+  // Cuando wefix-auth.js confirme la sesión, cargamos los datos
+  WeFix.ready(function (user, profile) {
+    if (!user) return; // invitado: wefix-auth ya mostró la pantalla de login
+    currentUid     = user.uid;
+    currentProfile = profile || {};
+    pintarPerfil(currentProfile);
+  });
+
+  // ── AVATAR (redimensiona a 256px y guarda en Firestore, sin necesidad de Storage) ──
   document.getElementById('avatarInput').addEventListener('change', function() {
     const file = this.files[0];
-    if (!file) return;
+    if (!file || !currentUid) return;
     const reader = new FileReader();
     reader.onload = e => {
-      const img = document.getElementById('avatarImg');
-      img.src = e.target.result;
-      img.style.display = 'block';
-      document.getElementById('avatarInitials').style.display = 'none';
-      showToast('Foto de perfil actualizada ✓', 'success');
+      const tmp = new Image();
+      tmp.onload = () => {
+        const max = 256;
+        let { width, height } = tmp;
+        if (width > height && width > max) { height = height * max / width; width = max; }
+        else if (height > max) { width = width * max / height; height = max; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(tmp, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+        const img = document.getElementById('avatarImg');
+        img.src = dataUrl;
+        img.style.display = 'block';
+        document.getElementById('avatarInitials').style.display = 'none';
+
+        WeFix.db.collection('usuarios').doc(currentUid)
+          .update({ fotoPerfil: dataUrl })
+          .then(() => showToast('Foto de perfil actualizada ✓', 'success'))
+          .catch(() => showToast('No se pudo guardar la foto', 'error'));
+      };
+      tmp.src = e.target.result;
     };
     reader.readAsDataURL(file);
   });
@@ -707,40 +848,79 @@
   }
 
   function saveSection(section) {
+    if (!currentUid) { showToast('Debes iniciar sesión', 'error'); return; }
+
     const fields  = sectionFields[section];
     const editBtn = document.querySelector(`#card${capitalize(section)} .wf-edit-btn`);
     const saveBtn = document.getElementById(`save${capitalize(section)}`);
 
-    fields.forEach(id => {
-      const field = document.getElementById(id);
-      const input = field.querySelector('input, select, textarea');
-      const valueEl = field.querySelector('.wf-field-value');
-      if (input && valueEl) {
-        let val = input.value.trim();
-        if (input.type === 'date' && val) {
-          const d = new Date(val + 'T12:00:00');
-          val = d.toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
-        }
-        if (val) valueEl.textContent = val;
-      }
-      field.classList.remove('editing');
-    });
+    // ── SEGURIDAD: cambio de contraseña (flujo aparte) ──
+    if (section === 'seguridad') {
+      const actual  = getInputVal('f-pass-actual');
+      const nueva   = getInputVal('f-pass-nueva');
+      const confirm = getInputVal('f-pass-confirm');
+      if (!actual || !nueva || !confirm) { showToast('Completa los tres campos', 'error'); return; }
+      if (nueva.length < 8)      { showToast('La nueva contraseña debe tener 8+ caracteres', 'error'); return; }
+      if (nueva !== confirm)     { showToast('Las contraseñas no coinciden', 'error'); return; }
 
-    editBtn.classList.remove('active');
-    editBtn.textContent = 'Editar';
-    saveBtn.style.display = 'none';
-
-    // Update hero name/email if personal section
-    if (section === 'personal') {
-      const nombre = document.querySelector('#f-nombre .wf-field-value').textContent;
-      const email  = document.querySelector('#f-email .wf-field-value').textContent;
-      document.getElementById('heroName').textContent  = nombre;
-      document.getElementById('heroEmail').textContent = email;
-      const initials = nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      document.getElementById('avatarInitials').textContent = initials;
+      const user = WeFix.auth.currentUser;
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, actual);
+      user.reauthenticateWithCredential(cred)
+        .then(() => user.updatePassword(nueva))
+        .then(() => {
+          fields.forEach(id => { const f=document.getElementById(id); const i=f.querySelector('input'); if(i) i.value=''; f.classList.remove('editing'); });
+          editBtn.classList.remove('active'); editBtn.textContent = 'Editar';
+          saveBtn.style.display = 'none';
+          showToast('Contraseña actualizada ✓', 'success');
+        })
+        .catch(err => {
+          const msg = err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'
+            ? 'La contraseña actual es incorrecta' : 'No se pudo cambiar la contraseña';
+          showToast(msg, 'error');
+        });
+      return;
     }
 
-    showToast('Cambios guardados correctamente ✓', 'success');
+    // ── PERSONAL / DIRECCIÓN: arma el objeto y guarda en Firestore ──
+    let data = {};
+    if (section === 'personal') {
+      data = {
+        nombre:     getInputVal('f-nombre'),
+        telefono:   getInputVal('f-telefono'),
+        nacimiento: getInputVal('f-nacimiento'), // ISO yyyy-mm-dd
+        genero:     getInputVal('f-genero')
+      };
+      // el correo NO se cambia aquí (está ligado a la cuenta; requiere reautenticación)
+    } else if (section === 'direccion') {
+      data = {
+        direccion: {
+          calle:       getInputVal('f-calle'),
+          colonia:     getInputVal('f-colonia'),
+          ciudad:      getInputVal('f-ciudad'),
+          cp:          getInputVal('f-cp'),
+          referencias: getInputVal('f-referencias')
+        }
+      };
+    }
+
+    saveBtn.textContent = 'Guardando…';
+    WeFix.db.collection('usuarios').doc(currentUid).set(data, { merge: true })
+      .then(() => {
+        // fusiona en el perfil local y re-pinta
+        if (section === 'direccion') currentProfile.direccion = data.direccion;
+        else Object.assign(currentProfile, data);
+        pintarPerfil(currentProfile);
+
+        fields.forEach(id => document.getElementById(id).classList.remove('editing'));
+        editBtn.classList.remove('active'); editBtn.textContent = 'Editar';
+        saveBtn.style.display = 'none'; saveBtn.textContent = 'Guardar';
+        showToast('Cambios guardados correctamente ✓', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        saveBtn.textContent = 'Guardar';
+        showToast('No se pudieron guardar los cambios', 'error');
+      });
   }
 
   function capitalize(str) {
@@ -760,10 +940,25 @@
 
   // ── DELETE ACCOUNT ──
   function confirmDelete() {
-    if (confirm('¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es permanente e irreversible.')) {
-      showToast('Cuenta eliminada. Redirigiendo…', 'error');
-      setTimeout(() => window.location.href = 'wefix.html', 2500);
-    }
+    if (!currentUid) { showToast('Debes iniciar sesión', 'error'); return; }
+    if (!confirm('¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es permanente e irreversible.')) return;
+
+    const user = WeFix.auth.currentUser;
+    // 1) borra el documento del usuario, 2) borra la cuenta de autenticación
+    WeFix.db.collection('usuarios').doc(currentUid).delete()
+      .then(() => user.delete())
+      .then(() => {
+        showToast('Cuenta eliminada. Redirigiendo…', 'error');
+        setTimeout(() => window.location.href = 'index.html', 2000);
+      })
+      .catch(err => {
+        if (err.code === 'auth/requires-recent-login') {
+          showToast('Por seguridad, vuelve a iniciar sesión antes de eliminar tu cuenta', 'error');
+          setTimeout(() => WeFix.logout(), 2500);
+        } else {
+          showToast('No se pudo eliminar la cuenta', 'error');
+        }
+      });
   }
 </script>
 </body>
