@@ -837,26 +837,29 @@
     var auth = firebase.auth();
     var db   = firebase.firestore();
 
-    // ── Si ya hay sesion activa, redirige directo ──
+    // ── Redireccion por rol para sesiones YA activas (visita directa a index) ──
+    // Durante un login/registro activo, las funciones de abajo son la unica
+    // autoridad de redireccion; este listener se abstiene para evitar carreras.
     auth.onAuthStateChanged(function(user) {
+      if (window._wefixAuthBusy) return;
       if (user) {
         db.collection('usuarios').doc(user.uid).get().then(function(snap) {
-          if (snap.exists) {
-            var rol = snap.data().rol;
-            if (rol === 'profesional') {
-              window.location.href = 'wefix-empleado-home.html';
-            } else {
-              window.location.href = 'wefix-home.html';
-            }
-          }
+          if (snap.exists) routeByRole(snap.data().rol);
         });
       }
     });
+
+    function routeByRole(rol) {
+      window.location.href = (rol === 'profesional')
+        ? 'wefix-empleado-home.html'
+        : 'wefix-home.html';
+    }
 
     // ════════════════════════════
     // CLIENTE — Login
     // ════════════════════════════
     function loginCliente() {
+      window._wefixAuthBusy = true;
       var email = document.getElementById('clientEmail') ? document.getElementById('clientEmail').value.trim() : '';
       var pass  = document.getElementById('clientPassword') ? document.getElementById('clientPassword').value.trim() : '';
       if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
@@ -881,6 +884,7 @@
     // CLIENTE — Registro
     // ════════════════════════════
     function registerCliente() {
+      window._wefixAuthBusy = true;
       var nombre = document.getElementById('clientNombre') ? document.getElementById('clientNombre').value.trim() : '';
       var email  = document.getElementById('clientEmailReg') ? document.getElementById('clientEmailReg').value.trim() : '';
       var pass   = document.getElementById('clientPasswordReg') ? document.getElementById('clientPasswordReg').value.trim() : '';
@@ -910,6 +914,7 @@
     // PROFESIONAL — Login
     // ════════════════════════════
     function loginEmpleado() {
+      window._wefixAuthBusy = true;
       var email = document.getElementById('empEmail') ? document.getElementById('empEmail').value.trim() : '';
       var pass  = document.getElementById('empPassword') ? document.getElementById('empPassword').value.trim() : '';
       if (!email || !pass) { showFbToast('Completa todos los campos', 'error'); return; }
@@ -919,7 +924,7 @@
           return db.collection('usuarios').doc(cred.user.uid).get();
         })
         .then(function(snap) {
-          if (snap.exists && snap.data().rol !== 'profesional') {
+          if (snap.exists && snap.data().rol === 'cliente') {
             auth.signOut();
             showFbToast('Esta cuenta es de cliente. Usa el portal de clientes.', 'error');
             return;
@@ -934,6 +939,7 @@
     // PROFESIONAL — Registro
     // ════════════════════════════
     function registerEmpleado() {
+      window._wefixAuthBusy = true;
       var nombre       = document.getElementById('empNombre') ? document.getElementById('empNombre').value.trim() : '';
       var especialidad = document.getElementById('empEspecialidad') ? document.getElementById('empEspecialidad').value : '';
       var email        = document.getElementById('empEmailReg') ? document.getElementById('empEmailReg').value.trim() : '';
@@ -991,6 +997,7 @@
 
     var fbToastTimer;
     function showFbToast(msg, type) {
+      if (type === 'error') window._wefixAuthBusy = false; // libera para reintentar
       var t = document.getElementById('fbToast');
       if (!t) return;
       t.textContent = msg;
