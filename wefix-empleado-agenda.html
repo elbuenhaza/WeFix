@@ -134,7 +134,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     Agenda
   </a>
-  <a class="wf-bnav-item" href="wefix-mensajes.html">
+  <a class="wf-bnav-item" href="wefix-empleado-mensajes.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     Mensajes
   </a>
@@ -245,7 +245,7 @@ function buildJobCard(j) {
     + '<div class="wf-job-status-row">'
     + '<span class="wf-job-status ' + j.status + '">' + statusLabel[j.status] + '</span>'
     + (j.status === 'confirmed' || j.status === 'pending'
-      ? '<button onclick="showToast(\'Abriendo mensajes…\');setTimeout(function(){window.location.href=\'wefix-mensajes.html\'},800)" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:Poppins,sans-serif;color:var(--brand);">💬 Mensaje</button>'
+      ? '<button onclick="showToast(\'Abriendo mensajes…\');setTimeout(function(){window.location.href=\'wefix-empleado-mensajes.html\'},800)" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:Poppins,sans-serif;color:var(--brand);">💬 Mensaje</button>'
       : '')
     + '</div>'
     + '</div>'
