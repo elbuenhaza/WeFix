@@ -498,6 +498,10 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
       Profesional
     </div>
+    <button class="wf-nav-badge-btn" onclick="window.location.href='wefix-empleado-notificaciones.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Avisos
+    </button>
     <button class="wf-nav-badge-btn" onclick="window.location.href='wefix-empleado-mensajes.html'">
       <div class="wf-dot-badge">2</div>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -1259,6 +1263,43 @@ function fmtAdCard(input) {
 // ══ INIT ══
 renderCalendar();
 renderChart();
+
+// ══ SESIÓN: carga la identidad real del profesional (patrón del perfil) ══
+(function () {
+  function initialsOf(nombre) {
+    if (!nombre) return '👤';
+    return nombre.split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+  }
+  function setText(sel, txt) {
+    var el = document.querySelector(sel);
+    if (el) el.textContent = txt;
+  }
+  WeFix.ready(function (user, profile) {
+    if (!user || !profile) return; // invitado: wefix-auth.js ya muestra la pantalla de login
+    var nombre = profile.nombre || 'Sin nombre';
+    var esp    = profile.especialidad || 'Profesional';
+    var zona   = profile.zona ? profile.zona.split(',')[0].trim() : 'CDMX';
+    var cal    = (profile.calificacion !== undefined && profile.calificacion !== null) ? profile.calificacion : 0;
+    var res    = profile.totalResenas || 0;
+
+    setText('.wf-emp-name', nombre);
+    setText('.wf-emp-prof', esp + ' · ' + zona);
+    setText('.wf-emp-rating', cal + ' · ' + res + ' reseña' + (res === 1 ? '' : 's'));
+
+    // Avatar: foto si existe, si no las iniciales
+    var av = document.querySelector('.wf-emp-avatar');
+    if (av) {
+      if (profile.fotoPerfil) {
+        av.textContent = '';
+        av.style.backgroundImage = 'url(' + profile.fotoPerfil + ')';
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+      } else {
+        av.textContent = initialsOf(nombre);
+      }
+    }
+  });
+})();
 </script>
 </body>
 </html>
