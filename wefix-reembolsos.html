@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Reembolsos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase + capa de sesion WeFix (portal cliente; exige login) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:32px;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-family:'Raleway',sans-serif;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-nav-icons{display:flex;gap:14px;}
+    .wf-nav-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;background:none;border:none;font-family:'Poppins',sans-serif;text-decoration:none;}
+    .wf-nav-icon svg{width:20px;height:20px;}
+    .wf-nav-icon:hover,.wf-nav-icon.active{color:var(--brand);}
+
+    /* HEADER */
+    .wf-head{background:var(--white);padding:18px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .wf-head-icon{background:var(--brand);border-radius:14px;width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .wf-head-icon svg{width:28px;height:28px;color:var(--white);}
+    .wf-page-title{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--brand);text-transform:uppercase;margin-bottom:5px;}
+    .wf-page-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+    .wf-page-desc strong{color:var(--brand);font-weight:600;}
+
+    .wf-wrap{padding:16px;}
+    .wf-section-title{font-size:15px;font-weight:700;color:var(--text);margin:6px 2px 12px;font-family:'Raleway',sans-serif;}
+
+    /* AVISO */
+    .wf-note{background:#fff8f0;border:1px solid #fde3c4;border-radius:12px;padding:12px 14px;display:flex;gap:10px;margin-bottom:16px;}
+    .wf-note svg{width:20px;height:20px;color:var(--amber);flex-shrink:0;margin-top:1px;}
+    .wf-note p{font-size:11.5px;color:#7a5a2e;line-height:1.5;font-family:'Poppins',sans-serif;}
+
+    /* CARD / FORM */
+    .wf-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px 16px;margin-bottom:18px;}
+    .wf-field{margin-bottom:14px;}
+    .wf-label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:'Poppins',sans-serif;}
+    .wf-input,.wf-textarea,.wf-select{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);font-family:'Poppins',sans-serif;background:var(--white);outline:none;transition:border-color .15s;}
+    .wf-input:focus,.wf-textarea:focus,.wf-select:focus{border-color:var(--brand);}
+    .wf-textarea{resize:vertical;min-height:88px;}
+    .wf-hint{font-size:10.5px;color:var(--muted);margin-top:4px;font-family:'Poppins',sans-serif;}
+
+    /* RADIO destino */
+    .wf-radios{display:flex;gap:10px;}
+    .wf-radio{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;transition:all .15s;font-weight:500;}
+    .wf-radio.sel{border-color:var(--brand);background:#f0f5f9;color:var(--brand);font-weight:600;}
+
+    /* Evidencia */
+    .wf-upload{border:1.5px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;}
+    .wf-upload:hover{border-color:var(--brand);}
+    .wf-upload svg{width:26px;height:26px;color:var(--muted);margin-bottom:6px;}
+    .wf-upload p{font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-preview{margin-top:10px;display:none;position:relative;}
+    .wf-preview img{width:100%;border-radius:10px;max-height:200px;object-fit:cover;}
+    .wf-preview-rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;}
+
+    .wf-submit{width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;}
+    .wf-submit:hover{background:#1a4f72;}
+    .wf-submit:disabled{opacity:.6;cursor:default;}
+
+    /* LISTA solicitudes */
+    .wf-req{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;animation:slideIn .25s ease both;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .wf-req-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+    .wf-req-serv{font-size:14px;font-weight:700;color:var(--text);font-family:'Raleway',sans-serif;}
+    .wf-req-date{font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;margin-top:2px;}
+    .wf-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;font-family:'Poppins',sans-serif;flex-shrink:0;}
+    .wf-badge.pendiente{background:#fef3e2;color:#b45309;}
+    .wf-badge.aprobado{background:#e7f8ee;color:#15803d;}
+    .wf-badge.parcial{background:#e8f0fe;color:#1d4ed8;}
+    .wf-badge.rechazado{background:#fdecec;color:#b91c1c;}
+    .wf-req-desc{font-size:12px;color:var(--muted);line-height:1.5;font-family:'Poppins',sans-serif;margin-bottom:8px;}
+    .wf-req-img{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border);}
+    .wf-req-res{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text);font-family:'Poppins',sans-serif;line-height:1.5;}
+    .wf-req-res strong{color:var(--brand);}
+
+    .wf-empty{text-align:center;padding:30px 20px;color:var(--muted);}
+    .wf-empty svg{width:46px;height:46px;color:var(--border);margin-bottom:10px;}
+    .wf-empty p{font-size:12px;font-family:'Poppins',sans-serif;line-height:1.5;}
+    .wf-loading{text-align:center;padding:30px;display:none;}
+    .wf-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:sp .8s linear infinite;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    .wf-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:12px 22px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:transform .3s ease;max-width:90%;text-align:center;font-family:'Poppins',sans-serif;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+    .wf-toast.error{background:var(--red);}
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="wf-nav">
+    <a class="wf-logo" href="wefix-home.html"><div class="wf-logo-icon">W</div>WeFix</a>
+    <div class="wf-nav-icons">
+      <a class="wf-nav-icon" href="wefix-favoritos.html" title="Favoritos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/></svg>Favoritos
+      </a>
+      <a class="wf-nav-icon" href="wefix-notificaciones.html" title="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Notificaciones
+      </a>
+      <a class="wf-nav-icon" href="wefix-home.html" title="Busqueda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Búsqueda
+      </a>
+      <a class="wf-nav-icon" href="wefix-perfil-usuario.html" title="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil
+      </a>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <div class="wf-head">
+    <div class="wf-head-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9z"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <div>
+      <div class="wf-page-title">Reembolsos</div>
+      <div class="wf-page-desc">Reporta una inconformidad con un servicio y solicita tu <strong>reembolso</strong>. Nuestro equipo lo revisará.</div>
+    </div>
+  </div>
+
+  <div class="wf-wrap">
+
+    <!-- AVISO de políticas -->
+    <div class="wf-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>Cuentas con <strong style="color:#b45309">24 horas</strong> tras finalizar el servicio para reportar. Adjunta evidencia fotográfica y una descripción clara. Resolvemos en un máximo de <strong style="color:#b45309">30 días hábiles</strong>.</p>
+    </div>
+
+    <!-- FORM -->
+    <div class="wf-section-title">Solicitar un reembolso</div>
+    <div class="wf-card">
+      <div class="wf-field">
+        <label class="wf-label">Servicio contratado</label>
+        <input class="wf-input" id="f-servicio" placeholder="Ej. Limpieza del hogar con José Torres"/>
+      </div>
+      <div class="wf-field">
+        <label class="wf-label">Fecha del servicio</label>
+        <input class="wf-input" id="f-fecha" type="date"/>
+      </div>
+      <div class="wf-field">
+        <label class="wf-label">¿Qué pasó? Describe tu inconformidad</label>
+        <textarea class="wf-textarea" id="f-desc" placeholder="Explica con detalle el motivo de tu solicitud…"></textarea>
+        <div class="wf-hint">Sé específico: ayuda a resolver tu caso más rápido.</div>
+      </div>
+      <div class="wf-field">
+        <label class="wf-label">Evidencia fotográfica</label>
+        <div class="wf-upload" id="uploadBox" onclick="document.getElementById('f-foto').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Toca para subir una foto</p>
+        </div>
+        <input type="file" id="f-foto" accept="image/*" style="display:none"/>
+        <div class="wf-preview" id="preview"><img id="previewImg" src="" alt=""/><button class="wf-preview-rm" onclick="removePhoto()">×</button></div>
+      </div>
+      <div class="wf-field">
+        <label class="wf-label">¿A dónde quieres el reembolso?</label>
+        <div class="wf-radios">
+          <div class="wf-radio sel" data-dest="original" onclick="selDest(this)">Método de pago original</div>
+          <div class="wf-radio" data-dest="saldo" onclick="selDest(this)">Saldo en WeFix</div>
+        </div>
+      </div>
+      <button class="wf-submit" id="submitBtn">Enviar solicitud</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="wf-section-title">Mis solicitudes</div>
+    <div class="wf-loading" id="loadingState"><div class="wf-spin"></div></div>
+    <div id="reqList"></div>
+    <div class="wf-empty" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <p>Aún no has solicitado ningún reembolso.</p>
+    </div>
+
+  </div>
+
+  <div class="wf-toast" id="toast"></div>
+
+<script>
+  var currentUid=null, destino='original', photoData=null;
+
+  function toast(msg,type){
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.className='wf-toast show'+(type==='error'?' error':'');
+    clearTimeout(window.__tt); window.__tt=setTimeout(function(){t.className='wf-toast'+(type==='error'?' error':'');},3200);
+  }
+  function selDest(el){
+    document.querySelectorAll('.wf-radio').forEach(function(r){r.classList.remove('sel');});
+    el.classList.add('sel'); destino=el.dataset.dest;
+  }
+  function removePhoto(){
+    photoData=null;
+    document.getElementById('preview').style.display='none';
+    document.getElementById('f-foto').value='';
+  }
+
+  // Foto: redimensiona a 640px y guarda base64
+  document.getElementById('f-foto').addEventListener('change',function(){
+    var file=this.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var tmp=new Image();
+      tmp.onload=function(){
+        var max=640,w=tmp.width,h=tmp.height;
+        if(w>h&&w>max){h=h*max/w;w=max;} else if(h>max){w=w*max/h;h=max;}
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(tmp,0,0,w,h);
+        photoData=c.toDataURL('image/jpeg',0.8);
+        document.getElementById('previewImg').src=photoData;
+        document.getElementById('preview').style.display='block';
+      };
+      tmp.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    var d=new Date(iso+'T12:00:00'); if(isNaN(d)) return iso;
+    return d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  }
+  function timeAgo(ts){
+    if(!ts||!ts.toDate) return '';
+    var d=ts.toDate(),s=Math.floor((Date.now()-d.getTime())/1000);
+    if(s<60)return'hace un momento'; var m=Math.floor(s/60); if(m<60)return'hace '+m+' min';
+    var h=Math.floor(m/60); if(h<24)return'hace '+h+'h'; var dd=Math.floor(h/24); return'hace '+dd+(dd===1?' día':' días');
+  }
+  var LABELS={pendiente:'En revisión',aprobado:'Aprobado',parcial:'Parcial',rechazado:'Rechazado'};
+
+  function reqHTML(r){
+    var estado=r.estado||'pendiente';
+    var res='';
+    if(estado==='aprobado') res='<div class="wf-req-res">✅ <strong>Reembolso total aprobado.</strong> '+(r.resolucion||'Se procesará al '+(r.destino==='saldo'?'saldo de tu cuenta':'método de pago original')+'.')+'</div>';
+    else if(estado==='parcial') res='<div class="wf-req-res">🔵 <strong>Reembolso parcial'+(r.monto?(' de $'+r.monto+' MXN'):'')+'.</strong> '+(r.resolucion||'')+'</div>';
+    else if(estado==='rechazado') res='<div class="wf-req-res">❌ <strong>Solicitud no procedente.</strong> '+(r.resolucion||'El servicio se prestó conforme a lo acordado o no se adjuntó evidencia suficiente.')+'</div>';
+    return '<div class="wf-req">'
+      + '<div class="wf-req-top"><div><div class="wf-req-serv">'+(r.servicio||'Servicio')+'</div>'
+      +   '<div class="wf-req-date">Servicio del '+fmtDate(r.fecha)+' · solicitado '+timeAgo(r.createdAt)+'</div></div>'
+      +   '<span class="wf-badge '+estado+'">'+(LABELS[estado]||estado)+'</span></div>'
+      + '<div class="wf-req-desc">'+(r.descripcion||'')+'</div>'
+      + (r.evidencia?'<img class="wf-req-img" src="'+r.evidencia+'" alt="evidencia"/>':'')
+      + res
+      + '</div>';
+  }
+
+  function render(list){
+    var cont=document.getElementById('reqList'),empty=document.getElementById('emptyState');
+    if(!list.length){cont.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    cont.innerHTML=list.map(reqHTML).join('');
+  }
+
+  // Enviar solicitud
+  document.getElementById('submitBtn').addEventListener('click',function(){
+    if(!currentUid){toast('Inicia sesión primero','error');return;}
+    var servicio=document.getElementById('f-servicio').value.trim();
+    var fecha=document.getElementById('f-fecha').value;
+    var desc=document.getElementById('f-desc').value.trim();
+    if(!servicio){toast('Indica qué servicio contrataste','error');return;}
+    if(!fecha){toast('Selecciona la fecha del servicio','error');return;}
+    if(desc.length<15){toast('Describe tu inconformidad con más detalle','error');return;}
+    if(!photoData){toast('Adjunta una foto como evidencia','error');return;}
+
+    var btn=this; btn.disabled=true; btn.textContent='Enviando…';
+    WeFix.db.collection('reembolsos').add({
+      uid:currentUid, servicio:servicio, fecha:fecha, descripcion:desc,
+      evidencia:photoData, destino:destino, estado:'pendiente',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      btn.disabled=false; btn.textContent='Enviar solicitud';
+      document.getElementById('f-servicio').value='';
+      document.getElementById('f-fecha').value='';
+      document.getElementById('f-desc').value='';
+      removePhoto();
+      toast('Solicitud enviada ✓ Te avisaremos la resolución');
+    }).catch(function(e){
+      console.error(e); btn.disabled=false; btn.textContent='Enviar solicitud';
+      toast('No se pudo enviar (revisa las reglas de Firestore)','error');
+    });
+  });
+
+  // Carga en tiempo real
+  WeFix.ready(function(user,profile){
+    if(!user) return;
+    currentUid=user.uid;
+    document.getElementById('loadingState').style.display='block';
+    WeFix.db.collection('reembolsos').where('uid','==',currentUid)
+      .onSnapshot(function(snap){
+        document.getElementById('loadingState').style.display='none';
+        var list=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o;});
+        list.sort(function(a,b){
+          var ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():Date.now();
+          var tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():Date.now();
+          return tb-ta;
+        });
+        render(list);
+      },function(err){
+        document.getElementById('loadingState').style.display='none';
+        console.error(err); toast('Error de permisos: revisa las reglas de Firestore','error');
+      });
+  });
+</script>
+</body>
+</html>
