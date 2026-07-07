@@ -193,7 +193,7 @@
   <div class="wf-toast" id="toast"></div>
 
 <script>
-  var currentUid=null, destino='original', photoData=null;
+  var currentUid=null, currentProfile={}, destino='original', photoData=null;
 
   function toast(msg,type){
     var t=document.getElementById('toast');
@@ -279,7 +279,10 @@
 
     var btn=this; btn.disabled=true; btn.textContent='Enviando…';
     WeFix.db.collection('reembolsos').add({
-      uid:currentUid, servicio:servicio, fecha:fecha, descripcion:desc,
+      uid:currentUid,
+      clienteNombre:(currentProfile.nombre||''),
+      clienteEmail:(currentProfile.email||''),
+      servicio:servicio, fecha:fecha, descripcion:desc,
       evidencia:photoData, destino:destino, estado:'pendiente',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
@@ -299,6 +302,7 @@
   WeFix.ready(function(user,profile){
     if(!user) return;
     currentUid=user.uid;
+    currentProfile=profile||{};
     document.getElementById('loadingState').style.display='block';
     WeFix.db.collection('reembolsos').where('uid','==',currentUid)
       .onSnapshot(function(snap){
