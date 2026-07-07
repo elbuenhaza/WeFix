@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Panel de Reembolsos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase + sesion (exige login; el rol se valida dentro de la página) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="admin"></script>
+
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#eef1f4;--brand:#123853;--brand2:#1a4f72;--accent:#f87171;--white:#fff;--border:#dce1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);min-height:100vh;}
+
+    /* Barra admin */
+    .adm-top{background:var(--brand);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .adm-brand{display:flex;align-items:center;gap:10px;font-family:'Raleway';font-weight:800;font-size:19px;}
+    .adm-logo{width:34px;height:34px;border:2px solid #fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+    .adm-tag{font-size:10px;background:rgba(255,255,255,.15);padding:3px 9px;border-radius:20px;font-family:'Poppins';font-weight:500;margin-left:4px;}
+    .adm-right{display:flex;align-items:center;gap:14px;font-family:'Poppins';font-size:12px;}
+    .adm-role{background:var(--accent);padding:3px 10px;border-radius:20px;font-weight:600;font-size:10px;text-transform:uppercase;}
+    .adm-logout{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:11px;font-family:'Poppins';}
+    .adm-logout:hover{background:rgba(255,255,255,.1);}
+
+    .adm-wrap{max-width:820px;margin:0 auto;padding:22px 18px 60px;}
+
+    /* Stats */
+    .adm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .adm-stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
+    .adm-stat-num{font-size:28px;font-weight:800;color:var(--brand);font-family:'Raleway';}
+    .adm-stat-num.pend{color:var(--amber);}
+    .adm-stat-lbl{font-size:11px;color:var(--muted);font-family:'Poppins';margin-top:2px;}
+
+    /* Tabs */
+    .adm-tabs{display:flex;gap:8px;margin-bottom:18px;}
+    .adm-tab{flex:1;padding:10px;background:var(--white);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Poppins';transition:all .15s;}
+    .adm-tab.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+    /* Tarjeta de solicitud */
+    .adm-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;animation:in .25s ease both;}
+    @keyframes in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .adm-card-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+    .adm-client{font-size:15px;font-weight:700;color:var(--text);font-family:'Raleway';}
+    .adm-email{font-size:11px;color:var(--muted);font-family:'Poppins';}
+    .adm-badge{font-size:10px;font-weight:700;padding:5px 11px;border-radius:20px;white-space:nowrap;font-family:'Poppins';height:fit-content;}
+    .adm-badge.pendiente{background:#fef3e2;color:#b45309;}
+    .adm-badge.aprobado{background:#e7f8ee;color:#15803d;}
+    .adm-badge.parcial{background:#e8f0fe;color:#1d4ed8;}
+    .adm-badge.rechazado{background:#fdecec;color:#b91c1c;}
+
+    .adm-row{display:flex;gap:14px;}
+    .adm-info{flex:1;min-width:0;}
+    .adm-line{font-size:12.5px;color:var(--text);font-family:'Poppins';margin-bottom:5px;line-height:1.5;}
+    .adm-line b{color:var(--brand);font-weight:600;}
+    .adm-desc{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--text);line-height:1.55;font-family:'Poppins';margin:8px 0;}
+    .adm-eviden{width:90px;height:90px;border-radius:10px;object-fit:cover;border:1px solid var(--border);cursor:pointer;flex-shrink:0;}
+
+    .adm-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+    .adm-btn{border:none;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Poppins';transition:opacity .15s;}
+    .adm-btn:hover{opacity:.88;}
+    .adm-approve{background:var(--green);color:#fff;}
+    .adm-partial{background:var(--blue);color:#fff;}
+    .adm-reject{background:var(--red);color:#fff;}
+    .adm-del{background:none;color:var(--muted);border:1px solid var(--border);}
+    .adm-resolved{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text);font-family:'Poppins';line-height:1.5;}
+    .adm-resolved b{color:var(--brand);}
+
+    .adm-empty{text-align:center;padding:50px 20px;color:var(--muted);}
+    .adm-empty svg{width:52px;height:52px;color:var(--border);margin-bottom:12px;}
+    .adm-empty p{font-size:13px;font-family:'Poppins';}
+    .adm-loading{text-align:center;padding:50px;display:none;}
+    .adm-spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:sp .8s linear infinite;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    /* Acceso denegado */
+    .adm-denied{display:none;min-height:80vh;align-items:center;justify-content:center;padding:24px;}
+    .adm-denied-card{background:var(--white);border-radius:20px;padding:40px 30px;text-align:center;max-width:380px;box-shadow:0 10px 30px rgba(18,56,83,.12);}
+    .adm-denied-card svg{width:56px;height:56px;color:var(--red);margin-bottom:16px;}
+    .adm-denied-card h2{font-size:20px;color:var(--text);margin-bottom:8px;font-family:'Raleway';}
+    .adm-denied-card p{font-size:13px;color:var(--muted);line-height:1.5;font-family:'Poppins';margin-bottom:20px;}
+    .adm-denied-card a{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Poppins';}
+
+    /* Modal resolver */
+    .adm-modal{display:none;position:fixed;inset:0;background:rgba(18,56,83,.55);z-index:200;align-items:center;justify-content:center;padding:20px;}
+    .adm-modal.show{display:flex;}
+    .adm-modal-card{background:var(--white);border-radius:18px;padding:24px;max-width:420px;width:100%;}
+    .adm-modal-card h3{font-size:18px;color:var(--text);margin-bottom:6px;font-family:'Raleway';}
+    .adm-modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px;font-family:'Poppins';}
+    .adm-modal-card label{display:block;font-size:12px;font-weight:600;color:var(--text);margin:12px 0 6px;font-family:'Poppins';}
+    .adm-modal-card input,.adm-modal-card textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:'Poppins';outline:none;}
+    .adm-modal-card textarea{resize:vertical;min-height:70px;}
+    .adm-modal-btns{display:flex;gap:10px;margin-top:20px;}
+    .adm-modal-btns button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins';border:none;}
+    .adm-cancel{background:var(--bg);color:var(--text);}
+    .adm-confirm{background:var(--brand);color:#fff;}
+
+    /* Lightbox */
+    .adm-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;}
+    .adm-lightbox.show{display:flex;}
+    .adm-lightbox img{max-width:100%;max-height:90vh;border-radius:12px;}
+
+    .adm-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:12px 22px;font-size:13px;font-weight:500;z-index:400;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:transform .3s;font-family:'Poppins';}
+    .adm-toast.show{transform:translateX(-50%) translateY(0);}
+    .adm-toast.error{background:var(--red);}
+  </style>
+</head>
+<body>
+
+  <!-- BARRA ADMIN (oculta hasta validar rol) -->
+  <div class="adm-top" id="admTop" style="display:none">
+    <div class="adm-brand"><div class="adm-logo">W</div>WeFix<span class="adm-tag">Panel interno</span></div>
+    <div class="adm-right">
+      <span id="admUser"></span>
+      <span class="adm-role" id="admRole"></span>
+      <button class="adm-logout" onclick="WeFix.logout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- ACCESO DENEGADO -->
+  <div class="adm-denied" id="deniedScreen">
+    <div class="adm-denied-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <h2>Acceso restringido</h2>
+      <p>Esta sección es solo para el equipo de WeFix (admin y soporte). Tu cuenta no tiene permisos para verla.</p>
+      <a href="wefix-home.html">Volver al inicio</a>
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="adm-wrap" id="admContent" style="display:none">
+
+    <div class="adm-stats">
+      <div class="adm-stat"><div class="adm-stat-num pend" id="stPend">0</div><div class="adm-stat-lbl">En revisión</div></div>
+      <div class="adm-stat"><div class="adm-stat-num" id="stResueltas">0</div><div class="adm-stat-lbl">Resueltas</div></div>
+      <div class="adm-stat"><div class="adm-stat-num" id="stTotal">0</div><div class="adm-stat-lbl">Total</div></div>
+    </div>
+
+    <div class="adm-tabs">
+      <button class="adm-tab active" data-f="pendiente">Pendientes</button>
+      <button class="adm-tab" data-f="resueltas">Resueltas</button>
+      <button class="adm-tab" data-f="todas">Todas</button>
+    </div>
+
+    <div class="adm-loading" id="loadingState"><div class="adm-spin"></div></div>
+    <div id="list"></div>
+    <div class="adm-empty" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <p id="emptyMsg">No hay solicitudes en esta vista.</p>
+    </div>
+  </div>
+
+  <!-- MODAL RESOLVER -->
+  <div class="adm-modal" id="resolveModal">
+    <div class="adm-modal-card">
+      <h3 id="modalTitle">Resolver solicitud</h3>
+      <div class="adm-modal-sub" id="modalSub"></div>
+      <div id="montoField" style="display:none">
+        <label>Monto a reembolsar (MXN)</label>
+        <input type="number" id="montoInput" placeholder="Ej. 300" min="0"/>
+      </div>
+      <label>Mensaje para el cliente (opcional)</label>
+      <textarea id="notaInput" placeholder="Explica brevemente la resolución…"></textarea>
+      <div class="adm-modal-btns">
+        <button class="adm-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="adm-confirm" id="confirmBtn" onclick="confirmResolve()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" src="" alt=""/></div>
+  <div class="adm-toast" id="toast"></div>
+
+<script>
+  var isAdminUser=false, myEmail='', all=[], filter='pendiente';
+  var pendingDoc=null, pendingAction=null, pendingClientUid=null, pendingServicio='';
+
+  function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='adm-toast show'+(type==='error'?' error':'');clearTimeout(window.__t);window.__t=setTimeout(function(){t.className='adm-toast'+(type==='error'?' error':'');},3000);}
+  function fmtDate(iso){if(!iso)return'';var d=new Date(iso+'T12:00:00');return isNaN(d)?iso:d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});}
+  function timeAgo(ts){if(!ts||!ts.toDate)return'';var d=ts.toDate(),s=Math.floor((Date.now()-d.getTime())/1000);if(s<60)return'hace un momento';var m=Math.floor(s/60);if(m<60)return'hace '+m+' min';var h=Math.floor(m/60);if(h<24)return'hace '+h+'h';var dd=Math.floor(h/24);return'hace '+dd+(dd===1?' día':' días');}
+  var LBL={pendiente:'En revisión',aprobado:'Aprobado',parcial:'Parcial',rechazado:'Rechazado'};
+  function openLightbox(src){document.getElementById('lightboxImg').src=src;document.getElementById('lightbox').classList.add('show');}
+
+  function cardHTML(r){
+    var pend=(r.estado||'pendiente')==='pendiente';
+    var acts='';
+    if(pend){
+      acts='<div class="adm-actions">'
+        +'<button class="adm-btn adm-approve" onclick="openResolve(\''+r.id+'\',\'aprobado\')">✓ Aprobar total</button>'
+        +'<button class="adm-btn adm-partial" onclick="openResolve(\''+r.id+'\',\'parcial\')">Parcial</button>'
+        +'<button class="adm-btn adm-reject" onclick="openResolve(\''+r.id+'\',\'rechazado\')">✕ Rechazar</button>'
+        +(isAdminUser?'<button class="adm-btn adm-del" onclick="delReq(\''+r.id+'\')">Borrar</button>':'')
+        +'</div>';
+    } else {
+      var txt=r.estado==='aprobado'?'Reembolso total aprobado':r.estado==='parcial'?('Reembolso parcial'+(r.monto?(' de $'+r.monto+' MXN'):'')):'Solicitud rechazada';
+      acts='<div class="adm-resolved">✔ <b>'+txt+'</b>'+(r.resolucion?(' — '+r.resolucion):'')+(r.resolvedBy?('<br><span style="color:#6b7280">Resuelto por '+r.resolvedBy+'</span>'):'')
+        +(isAdminUser?'<div class="adm-actions"><button class="adm-btn adm-del" onclick="delReq(\''+r.id+'\')">Borrar</button></div>':'')+'</div>';
+    }
+    return '<div class="adm-card">'
+      +'<div class="adm-card-head"><div><div class="adm-client">'+(r.clienteNombre||'Cliente')+'</div><div class="adm-email">'+(r.clienteEmail||'')+'</div></div>'
+      +'<span class="adm-badge '+(r.estado||'pendiente')+'">'+(LBL[r.estado]||'En revisión')+'</span></div>'
+      +'<div class="adm-row"><div class="adm-info">'
+      +'<div class="adm-line"><b>Servicio:</b> '+(r.servicio||'—')+'</div>'
+      +'<div class="adm-line"><b>Fecha del servicio:</b> '+fmtDate(r.fecha)+'</div>'
+      +'<div class="adm-line"><b>Reembolso a:</b> '+(r.destino==='saldo'?'Saldo en WeFix':'Método de pago original')+' · solicitado '+timeAgo(r.createdAt)+'</div>'
+      +'<div class="adm-desc">'+(r.descripcion||'')+'</div></div>'
+      +(r.evidencia?'<img class="adm-eviden" src="'+r.evidencia+'" onclick="openLightbox(\''+r.id+'\')" alt="evidencia"/>':'')
+      +'</div>'+acts+'</div>';
+  }
+
+  function render(){
+    var cont=document.getElementById('list'),empty=document.getElementById('emptyState');
+    var data = filter==='todas'?all : filter==='pendiente'?all.filter(function(r){return (r.estado||'pendiente')==='pendiente';}) : all.filter(function(r){return (r.estado||'pendiente')!=='pendiente';});
+    if(!data.length){cont.innerHTML='';empty.style.display='block';document.getElementById('emptyMsg').textContent=filter==='pendiente'?'No hay solicitudes pendientes. ¡Todo al día! 🎉':'No hay solicitudes en esta vista.';return;}
+    empty.style.display='none';
+    cont.innerHTML=data.map(cardHTML).join('');
+    // re-vincula lightbox a la evidencia real (guardamos el dataURL en el elemento)
+    data.forEach(function(r){
+      if(r.evidencia){
+        var imgs=cont.querySelectorAll('img.adm-eviden');
+        imgs.forEach(function(im){ if(im.getAttribute('onclick').indexOf(r.id)>-1){ im.onclick=function(){openLightbox(r.evidencia);}; } });
+      }
+    });
+  }
+
+  function updateStats(){
+    var pend=all.filter(function(r){return (r.estado||'pendiente')==='pendiente';}).length;
+    document.getElementById('stPend').textContent=pend;
+    document.getElementById('stResueltas').textContent=all.length-pend;
+    document.getElementById('stTotal').textContent=all.length;
+  }
+
+  // Tabs
+  document.querySelectorAll('.adm-tab').forEach(function(t){t.addEventListener('click',function(){document.querySelectorAll('.adm-tab').forEach(function(x){x.classList.remove('active');});t.classList.add('active');filter=t.dataset.f;render();});});
+
+  // ── Resolver ──
+  function openResolve(id,action){
+    pendingDoc=id; pendingAction=action;
+    var r=all.find(function(x){return x.id===id;})||{};
+    pendingClientUid=r.uid; pendingServicio=r.servicio||'';
+    var titles={aprobado:'Aprobar reembolso total',parcial:'Reembolso parcial',rechazado:'Rechazar solicitud'};
+    document.getElementById('modalTitle').textContent=titles[action];
+    document.getElementById('modalSub').textContent=(r.clienteNombre||'Cliente')+' · '+(r.servicio||'');
+    document.getElementById('montoField').style.display=action==='parcial'?'block':'none';
+    document.getElementById('montoInput').value='';
+    document.getElementById('notaInput').value='';
+    document.getElementById('resolveModal').classList.add('show');
+  }
+  function closeModal(){document.getElementById('resolveModal').classList.remove('show');}
+
+  function confirmResolve(){
+    if(!pendingDoc)return;
+    var nota=document.getElementById('notaInput').value.trim();
+    var update={estado:pendingAction,resolucion:nota,resolvedBy:myEmail,resolvedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(pendingAction==='parcial'){
+      var m=parseInt(document.getElementById('montoInput').value,10);
+      if(!m||m<=0){toast('Indica el monto a reembolsar','error');return;}
+      update.monto=m;
+    }
+    document.getElementById('confirmBtn').textContent='Guardando…';
+    WeFix.db.collection('reembolsos').doc(pendingDoc).update(update).then(function(){
+      // Notifica al cliente en tiempo real
+      if(pendingClientUid){
+        var msg=pendingAction==='aprobado'?('Tu reembolso por "'+pendingServicio+'" fue aprobado. '+(nota||'')):
+                pendingAction==='parcial'?('Se aprobó un reembolso parcial'+(update.monto?(' de $'+update.monto+' MXN'):'')+' por "'+pendingServicio+'". '+(nota||'')):
+                ('Tu solicitud de reembolso por "'+pendingServicio+'" no procedió. '+(nota||''));
+        WeFix.db.collection('notificaciones').add({uid:pendingClientUid,tipo:'servicio',sender:'WeFix Reembolsos',msg:msg,leida:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+      }
+      document.getElementById('confirmBtn').textContent='Confirmar';
+      closeModal(); toast('Solicitud resuelta ✓ El cliente fue notificado');
+    }).catch(function(e){console.error(e);document.getElementById('confirmBtn').textContent='Confirmar';toast('No se pudo guardar','error');});
+  }
+
+  function delReq(id){
+    if(!confirm('¿Borrar esta solicitud permanentemente?'))return;
+    WeFix.db.collection('reembolsos').doc(id).delete().then(function(){toast('Solicitud borrada');}).catch(function(){toast('No se pudo borrar','error');});
+  }
+
+  // ── Arranque: valida rol y carga ──
+  WeFix.ready(function(user,profile){
+    if(!user)return;
+    var rol=(profile&&profile.rol)||'';
+    if(rol!=='admin'&&rol!=='soporte'){
+      document.getElementById('deniedScreen').style.display='flex';
+      return;
+    }
+    isAdminUser=(rol==='admin'); myEmail=(profile.email||user.email||'');
+    document.getElementById('admTop').style.display='flex';
+    document.getElementById('admContent').style.display='block';
+    document.getElementById('admUser').textContent=profile.nombre||myEmail;
+    document.getElementById('admRole').textContent=rol;
+    document.getElementById('loadingState').style.display='block';
+
+    WeFix.db.collection('reembolsos').onSnapshot(function(snap){
+      document.getElementById('loadingState').style.display='none';
+      all=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o;});
+      all.sort(function(a,b){var ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():Date.now();var tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():Date.now();return tb-ta;});
+      updateStats(); render();
+    },function(err){
+      document.getElementById('loadingState').style.display='none';
+      console.error(err); toast('Error de permisos al leer solicitudes','error');
+    });
+  });
+</script>
+</body>
+</html>
