@@ -377,73 +377,7 @@
 <script>
 // DATA — desde el punto de vista del profesional
 // "me" = el trabajador (Ana), "them" = el cliente
-var conversations = [
-  {
-    id:1, name:"María González", initials:"MG", color:"#123853",
-    online:true, unread:2, time:"hace 5 min", filter:"activos",
-    jobType:"normal", jobIcon:"🌿",
-    jobService:"Jardinería y mantenimiento",
-    jobDate:"Mié 28 mayo", jobTime:"10:00 AM", jobDuration:"3 hrs",
-    jobPrice:600, jobStatus:"confirmed",
-    preview:"Hola, confirmo para mañana a las 10am",
-    messages:[
-      {id:1,from:"them",text:"Hola Ana, ¿sigue en pie para mañana a las 10am?",time:"09:00",read:true},
-      {id:2,from:"me",text:"¡Claro que sí! Ya tengo todo listo. Llevo mis herramientas de poda y producto anti-plaga.",time:"09:05",read:true},
-      {id:3,from:"them",text:"Perfecto. La puerta azul en el número 34.",time:"09:10",read:true},
-      {id:4,from:"them",text:"Hola, confirmo para mañana a las 10am",time:"hace 5 min",read:false},
-      {id:5,from:"them",text:"¿Podrías traer también algo para el pasto?",time:"hace 4 min",read:false},
-    ]
-  },
-  {
-    id:2, name:"Carlos Herrera", initials:"CH", color:"#1a4f72",
-    online:true, unread:0, time:"hace 20 min", filter:"activos",
-    jobType:"flash", jobIcon:"⚡",
-    jobService:"Flash · Jardinería urgente",
-    jobDate:"Hoy", jobTime:"2:00 PM", jobDuration:"2 hrs",
-    jobPrice:540, jobStatus:"confirmed",
-    preview:"Ok perfecto, estaremos en casa",
-    messages:[
-      {id:1,from:"system",type:"job_confirmed",
-        jobText:"Nuevo trabajo Flash asignado",
-        detail:"Carlos Herrera · Hoy 2:00 PM · $540",time:"11:30"},
-      {id:2,from:"me",text:"Hola Carlos, confirmo que estaré a las 2pm. ¿Alguna indicación especial?",time:"11:32",read:true},
-      {id:3,from:"them",text:"Ok perfecto, estaremos en casa",time:"11:45",read:true},
-    ]
-  },
-  {
-    id:3, name:"Laura Torres", initials:"LT", color:"#0d2b3e",
-    online:false, unread:0, time:"ayer", filter:"completados",
-    jobType:"normal", jobIcon:"🌿",
-    jobService:"Jardinería y mantenimiento",
-    jobDate:"Lun 19 mayo", jobTime:"9:00 AM", jobDuration:"3 hrs",
-    jobPrice:600, jobStatus:"completed",
-    preview:"Muchas gracias Ana, te dejé 5 estrellas ⭐",
-    messages:[
-      {id:1,from:"me",text:"Hola Laura, acabo de terminar. El jardín quedó hermoso, espero que le guste.",time:"12:00",read:true},
-      {id:2,from:"them",text:"¡Quedó increíble! Muchas gracias.",time:"12:30",read:true},
-      {id:3,from:"me",type:"discount_offer",discount:"15",expiry:"30 días",
-        customMsg:"Como te agradezco tu confianza, te dejo un 15% de descuento para tu próxima cita.",time:"12:35",read:true},
-      {id:4,from:"them",text:"Muchas gracias Ana, te dejé 5 estrellas ⭐",time:"13:00",read:true},
-    ]
-  },
-  {
-    id:4, name:"Rodrigo Pérez", initials:"RP", color:"#1e6091",
-    online:false, unread:1, time:"hace 2 h", filter:"activos",
-    jobType:"premium", jobIcon:"💎",
-    jobService:"Premium · Diseño paisajístico",
-    jobDate:"Vie 30 mayo", jobTime:"9:00 AM", jobDuration:"5 hrs",
-    jobPrice:1100, jobStatus:"pending",
-    preview:"¿Puedes confirmar los materiales que necesitas?",
-    messages:[
-      {id:1,from:"system",type:"job_assigned",
-        jobText:"Trabajo Premium asignado",
-        detail:"Rodrigo Pérez · Vie 30 mayo · $1,100",time:"Ayer 10:00"},
-      {id:2,from:"them",text:"Hola Ana, vi tu portafolio y me encantó el trabajo del jardín zen.",time:"Ayer 10:30",read:true},
-      {id:3,from:"me",text:"¡Muchas gracias! Con gusto le diseño algo similar para su propiedad.",time:"Ayer 10:45",read:true},
-      {id:4,from:"them",text:"¿Puedes confirmar los materiales que necesitas?",time:"hace 2 h",read:false},
-    ]
-  },
-];
+var conversations = [];
 
 var emojis = ["😊","😂","❤️","👍","🙏","✅","🔥","😎","🤔","😅","👏","🎉","💪","🙌","😍","🤝","⭐","💯","🌿","✨","🌟","😄","👋","💬","📅","🚗","🧹","🍳","🐾","🏠","🌸"];
 
@@ -451,6 +385,47 @@ var currentConvo = null;
 var currentFilter = "todos";
 var searchQ = "";
 var pendingFile = null;
+
+// ════ MOTOR DE MENSAJERÍA REAL (Firestore) ════
+var MY_UID=null, MY_NOMBRE='', inboxUnsub=null, msgUnsub=null;
+var COLORS=['#123853','#1a4f72','#0d2b3e','#1e6091','#2a6f97','#14532d','#7c2d12'];
+function initialsOf(n){if(!n)return'\uD83D\uDC64';return n.split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function colorFor(id){var x=0;for(var i=0;i<id.length;i++)x+=id.charCodeAt(i);return COLORS[x%COLORS.length];}
+function fmtTime(ts){if(!ts||!ts.toDate)return'';return ts.toDate().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+function convTimeAgo(ts){if(!ts||!ts.toDate)return'';var d=ts.toDate(),sec=Math.floor((Date.now()-d.getTime())/1000);if(sec<60)return'ahora';var m=Math.floor(sec/60);if(m<60)return'hace '+m+' min';var h=Math.floor(m/60);if(h<24)return'hace '+h+'h';var dd=Math.floor(h/24);return'hace '+dd+(dd===1?' d\u00eda':' d\u00edas');}
+
+function mapConvo(doc){
+  var d=doc.data(); var otherName=d.clienteNombre||'Cliente';
+  return {id:doc.id,_ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
+    name:otherName,initials:initialsOf(otherName),color:colorFor(doc.id),online:false,
+    unread:d.unreadProfesional||0,time:convTimeAgo(d.ultimoMensajeAt),filter:'activos',
+    jobType:d.jobDate?'normal':'chat',jobIcon:d.jobIcon||'\uD83D\uDCAC',jobService:d.asunto||'Conversaci\u00f3n',
+    jobDate:d.jobDate||'',jobTime:d.jobTime||'',jobDuration:d.jobDuration||'',jobPrice:d.jobPrice||0,
+    jobStatus:d.jobStatus||'',preview:d.ultimoMensaje||'Nueva conversaci\u00f3n',messages:[]};
+}
+function loadInbox(){
+  if(inboxUnsub)inboxUnsub();
+  inboxUnsub=WeFix.db.collection('conversaciones').where('participantes','array-contains',MY_UID)
+    .onSnapshot(function(snap){
+      conversations=snap.docs.map(mapConvo).sort(function(a,b){return b._ts-a._ts;});
+      if(currentConvo){var fnd=conversations.find(function(c){return c.id===currentConvo.id;});if(fnd){fnd.messages=currentConvo.messages;currentConvo=fnd;}}
+      renderInbox();
+    },function(err){console.error(err);showToast('Error al cargar conversaciones');});
+}
+function writeMessage(convId,extra,preview){
+  var msg={emisorUid:MY_UID,texto:'',tipo:'texto',leido:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  for(var k in extra)msg[k]=extra[k];
+  WeFix.db.collection('conversaciones').doc(convId).collection('mensajes').add(msg).catch(function(e){console.error(e);showToast('No se pudo enviar');});
+  WeFix.db.collection('conversaciones').doc(convId).update({ultimoMensaje:preview||'Mensaje',ultimoMensajeAt:firebase.firestore.FieldValue.serverTimestamp(),unreadCliente:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+}
+function crearChatPrueba(){
+  if(!MY_UID){showToast('Inicia sesi\u00f3n');return;}
+  var fake='demo_cliente_'+Math.random().toString(36).slice(2,8);
+  WeFix.db.collection('conversaciones').add({participantes:[MY_UID,fake],clienteUid:fake,clienteNombre:'Cliente de prueba',profesionalUid:MY_UID,profesionalNombre:MY_NOMBRE,asunto:'Consulta de jardiner\u00eda (prueba)',ultimoMensaje:'Hola, \u00bftienes disponibilidad esta semana?',ultimoMensajeAt:firebase.firestore.FieldValue.serverTimestamp(),unreadCliente:0,unreadProfesional:1,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){showToast('Conversaci\u00f3n de prueba creada \u2713');})
+    .catch(function(e){console.error(e);showToast('Error (revisa las reglas de Firestore)');});
+}
+WeFix.ready(function(user,profile){if(!user)return;MY_UID=user.uid;MY_NOMBRE=(profile&&profile.nombre)||'';loadInbox();});
 
 // EMOJI
 document.getElementById('emojiPicker').innerHTML = emojis.map(function(e) {
@@ -478,19 +453,20 @@ function renderInbox() {
   empty.style.display = 'none';
 
   var statusLabel = {confirmed:'Confirmado',pending:'Pendiente',completed:'Completado'};
-  var tagClass = {normal:'',flash:'flash',premium:'premium'};
-  var tagLabel = {normal:'Trabajo activo',flash:'⚡ Flash',premium:'💎 Premium'};
+  var tagClass = {normal:'',flash:'flash',premium:'premium',chat:''};
+  var tagLabel = {normal:'Trabajo activo',flash:'⚡ Flash',premium:'💎 Premium',chat:'💬 Conversación'};
 
   list.innerHTML = filtered.map(function(c) {
-    return '<div class="wf-convo-item' + (c.unread?' unread':'') + '" onclick="openChat(' + c.id + ')">'
+    var statusBar = c.jobDate
+      ? ('<div class="wf-convo-status-bar"><span class="wf-convo-status-pill ' + (c.jobStatus||'') + '">' + (statusLabel[c.jobStatus]||'') + '</span><span class="wf-convo-date">' + c.jobDate + ' ' + c.jobTime + '</span></div>')
+      : '';
+    return '<div class="wf-convo-item' + (c.unread?' unread':'') + '" onclick="openChat(\'' + c.id + '\')">'
       + '<div class="wf-convo-avatar" style="background:' + c.color + '">' + c.initials
       + '<div class="' + (c.online?'wf-online-dot':'wf-offline-dot') + '"></div></div>'
       + '<div class="wf-convo-body">'
-      + '<div class="wf-convo-job-tag ' + tagClass[c.jobType] + '">' + tagLabel[c.jobType] + '</div>'
+      + '<div class="wf-convo-job-tag ' + (tagClass[c.jobType]||'') + '">' + (tagLabel[c.jobType]||'💬 Conversación') + '</div>'
       + '<div class="wf-convo-top"><span class="wf-convo-name">' + c.name + '</span><span class="wf-convo-time">' + c.time + '</span></div>'
-      + '<div class="wf-convo-status-bar">'
-      + '<span class="wf-convo-status-pill ' + c.jobStatus + '">' + statusLabel[c.jobStatus] + '</span>'
-      + '<span class="wf-convo-date">' + c.jobDate + ' ' + c.jobTime + '</span></div>'
+      + statusBar
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">'
       + '<span class="wf-convo-preview' + (c.unread?' unread-text':'') + '">' + c.preview + '</span>'
       + (c.unread ? '<span class="wf-convo-badge">' + c.unread + '</span>' : '')
@@ -514,8 +490,7 @@ document.getElementById('searchConvos').addEventListener('input', function(e) {
 function openChat(id) {
   currentConvo = conversations.find(function(c){return c.id===id;});
   if (!currentConvo) return;
-  currentConvo.unread = 0;
-  currentConvo.messages.forEach(function(m){m.read=true;});
+  if (currentConvo.unread) { WeFix.db.collection('conversaciones').doc(id).update({unreadProfesional:0}).catch(function(){}); currentConvo.unread = 0; }
 
   // Header
   var av = document.getElementById('chatAvatar');
@@ -524,36 +499,46 @@ function openChat(id) {
   document.getElementById('chatStatusDot').style.background = currentConvo.online ? '#22c55e' : '#6b7280';
   document.getElementById('chatName').textContent = currentConvo.name;
   var st = document.getElementById('chatStatus');
-  st.textContent = currentConvo.online ? '● En línea' : '● Desconectado';
+  st.textContent = currentConvo.online ? '\u25cf En l\u00ednea' : '\u25cf Cliente';
   st.className = 'wf-chat-status ' + (currentConvo.online?'online':'offline');
 
-  // Sheet
+  // Sheet (info del trabajo si existe)
   document.getElementById('sheetAvatar').textContent = currentConvo.initials;
   document.getElementById('sheetAvatar').style.background = currentConvo.color;
   document.getElementById('sheetName').textContent = currentConvo.name;
   document.getElementById('sheetProf').textContent = currentConvo.jobService;
-  document.getElementById('sheetJobInfo').innerHTML =
-    '<div class="wf-sheet-job-row"><span>Fecha</span><span class="val">' + currentConvo.jobDate + '</span></div>'
-    + '<div class="wf-sheet-job-row"><span>Hora</span><span class="val">' + currentConvo.jobTime + '</span></div>'
-    + '<div class="wf-sheet-job-row"><span>Duración</span><span class="val">' + currentConvo.jobDuration + '</span></div>'
-    + '<div class="wf-sheet-job-row"><span>Precio</span><span class="val" style="color:var(--brand);font-weight:700;">$' + currentConvo.jobPrice + '</span></div>';
+  document.getElementById('sheetJobInfo').innerHTML = currentConvo.jobDate
+    ? ('<div class="wf-sheet-job-row"><span>Fecha</span><span class="val">' + currentConvo.jobDate + '</span></div>'
+      + '<div class="wf-sheet-job-row"><span>Hora</span><span class="val">' + currentConvo.jobTime + '</span></div>'
+      + '<div class="wf-sheet-job-row"><span>Duraci\u00f3n</span><span class="val">' + currentConvo.jobDuration + '</span></div>'
+      + '<div class="wf-sheet-job-row"><span>Precio</span><span class="val" style="color:var(--brand);font-weight:700;">$' + currentConvo.jobPrice + '</span></div>')
+    : '<div class="wf-sheet-job-row"><span>Sin trabajo asociado todav\u00eda</span></div>';
 
   document.getElementById('viewInbox').style.display = 'none';
   document.getElementById('viewChat').style.display = 'block';
-  renderMessages();
-  scrollBottom();
+  var tf=document.getElementById('testFab'); if(tf) tf.style.display='none';
 
-  if (currentConvo.online) {
-    setTimeout(function(){
-      document.getElementById('typingIndicator').classList.add('show');
-      setTimeout(function(){document.getElementById('typingIndicator').classList.remove('show');},2200);
-    },1800);
-  }
+  // Escucha los mensajes en TIEMPO REAL
+  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+  document.getElementById('messagesArea').innerHTML = '';
+  msgUnsub = WeFix.db.collection('conversaciones').doc(id).collection('mensajes').orderBy('createdAt','asc')
+    .onSnapshot(function(snap){
+      if (!currentConvo || currentConvo.id !== id) return;
+      currentConvo.messages = snap.docs.map(function(m){
+        var x = m.data();
+        return {id:m.id, from:(x.emisorUid===MY_UID)?'me':'them', text:x.texto||'', time:fmtTime(x.createdAt), read:!!x.leido,
+          type:x.tipo, discount:x.discount, expiry:x.expiry, customMsg:x.customMsg, newDate:x.newDate, newTime:x.newTime, reason:x.reason, jobText:x.jobText, detail:x.detail};
+      });
+      snap.docs.forEach(function(m){ var x=m.data(); if(x.emisorUid!==MY_UID && !x.leido){ m.ref.update({leido:true}).catch(function(){}); } });
+      renderMessages(); scrollBottom();
+    }, function(err){ console.error(err); showToast('Error al abrir el chat'); });
 }
 
 function backToInbox() {
+  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
   document.getElementById('viewChat').style.display = 'none';
   document.getElementById('viewInbox').style.display = 'block';
+  var tf=document.getElementById('testFab'); if(tf) tf.style.display='block';
   currentConvo = null;
   document.getElementById('emojiPicker').classList.remove('open');
   renderInbox();
@@ -565,7 +550,8 @@ function renderMessages() {
   var area = document.getElementById('messagesArea');
   var html = '<div class="wf-date-sep">Hoy</div>';
 
-  // Job banner at top
+  // Job banner solo si hay trabajo asociado
+  if (currentConvo.jobDate) {
   html += '<div class="wf-job-banner">'
     + '<div class="wf-job-banner-icon">' + currentConvo.jobIcon + '</div>'
     + '<div class="wf-job-banner-body">'
@@ -573,6 +559,7 @@ function renderMessages() {
     + '<div class="wf-job-banner-client">' + currentConvo.name + '</div>'
     + '<div class="wf-job-banner-detail">📅 ' + currentConvo.jobDate + ' · 🕐 ' + currentConvo.jobTime + ' · ⏱ ' + currentConvo.jobDuration + '</div>'
     + '</div><div class="wf-job-banner-price">$' + currentConvo.jobPrice + '</div></div>';
+  }
 
   currentConvo.messages.forEach(function(m) {
     var isMine = m.from === 'me';
@@ -632,26 +619,8 @@ function sendMessage() {
   var input = document.getElementById('msgInput');
   var text = input.value.trim();
   if (!text || !currentConvo) return;
-  currentConvo.messages.push({id:Date.now(),from:'me',text:text,time:getTime(),read:false});
-  currentConvo.preview = text;
   input.value = ''; input.style.height = 'auto';
-  renderMessages(); scrollBottom();
-  setTimeout(function(){
-    var last = currentConvo.messages[currentConvo.messages.length-1];
-    if (last) { last.read = true; renderMessages(); }
-  }, 1500);
-  if (currentConvo.online) {
-    setTimeout(function(){
-      document.getElementById('typingIndicator').classList.add('show');
-      setTimeout(function(){
-        document.getElementById('typingIndicator').classList.remove('show');
-        var replies = ["Perfecto, gracias!","Entendido, hasta entonces.","Muchas gracias por confirmar.","Ok! Nos vemos.","Excelente, te espero."];
-        var rep = replies[Math.floor(Math.random()*replies.length)];
-        currentConvo.messages.push({id:Date.now()+1,from:'them',text:rep,time:getTime(),read:true});
-        currentConvo.preview = rep; renderMessages(); scrollBottom();
-      },2000);
-    },800);
-  }
+  writeMessage(currentConvo.id, {texto:text}, text);
 }
 
 document.getElementById('sendBtn').addEventListener('click', sendMessage);
@@ -667,14 +636,12 @@ document.getElementById('msgInput').addEventListener('input', function(){
 function sendQuick(type) {
   if (!currentConvo) return;
   var texts = {
-    llegar: "Ya voy en camino, llegaré en unos minutos ⏰",
-    confirmar: "Confirmo nuestra cita para el " + currentConvo.jobDate + " a las " + currentConvo.jobTime + " ✅"
+    llegar: "Ya voy en camino, llegar\u00e9 en unos minutos \u23f0",
+    confirmar: currentConvo.jobDate ? ("Confirmo nuestra cita para el " + currentConvo.jobDate + " a las " + currentConvo.jobTime + " \u2705") : "Confirmo, ah\u00ed estar\u00e9 \u2705"
   };
   if (texts[type]) {
-    currentConvo.messages.push({id:Date.now(),from:'me',text:texts[type],time:getTime(),read:false});
-    currentConvo.preview = texts[type];
-    renderMessages(); scrollBottom();
-    showToast('Mensaje enviado ✓');
+    writeMessage(currentConvo.id, {texto:texts[type]}, texts[type]);
+    showToast('Mensaje enviado \u2713');
   }
 }
 
@@ -707,29 +674,24 @@ function sendDiscount(){
   var pct = document.getElementById('discountPct').value;
   var exp = document.getElementById('discountExpiry').value;
   var msg = document.getElementById('discountMsg').value.trim()
-    || ('Te ofrezco un descuento especial en tu próxima contratación. ¡Gracias por tu confianza! 🌟');
+    || ('Te ofrezco un descuento especial en tu pr\u00f3xima contrataci\u00f3n. \u00a1Gracias por tu confianza! \uD83C\uDF1F');
   var label = pct === 'primer' ? 'Precio especial primer servicio' : pct + '% de descuento';
-  currentConvo.messages.push({id:Date.now(),from:'me',type:'discount_offer',
-    discount:label, expiry:exp+' días', customMsg:msg, time:getTime(),read:false});
-  currentConvo.preview = 'Oferta: ' + label;
+  writeMessage(currentConvo.id, {tipo:'discount_offer', discount:label, expiry:exp+' d\u00edas', customMsg:msg}, 'Oferta: ' + label);
   closeOverlay('discountOverlay');
-  renderMessages(); scrollBottom();
-  showToast('Oferta enviada al cliente 🏷️');
+  showToast('Oferta enviada al cliente \uD83C\uDFF7\uFE0F');
 }
 
 // ════ RESCHEDULE ════
 function openRescheduleSheet(){ openOverlay('rescheduleOverlay'); }
 function sendReschedule(){
+  if(!currentConvo) return;
   var date = document.getElementById('newDate').value;
   var time = document.getElementById('newTime').value;
   var reason = document.getElementById('rescheduleReason').value.trim();
   if(!date||!time||!reason){showToast('Completa todos los campos');return;}
-  currentConvo.messages.push({id:Date.now(),from:'me',type:'reschedule_request',
-    newDate:date, newTime:time, reason:reason, time:getTime(),read:false});
-  currentConvo.preview = 'Propuesta de cambio de horario';
+  writeMessage(currentConvo.id, {tipo:'reschedule_request', newDate:date, newTime:time, reason:reason}, 'Propuesta de cambio de horario');
   closeOverlay('rescheduleOverlay');
-  renderMessages(); scrollBottom();
-  showToast('Solicitud enviada al cliente ✓');
+  showToast('Solicitud enviada al cliente \u2713');
 }
 
 // ════ PROFILE SHEET ════
@@ -757,5 +719,6 @@ function showToast(msg){
 // INIT
 renderInbox();
 </script>
+<button id="testFab" onclick="crearChatPrueba()" style="position:fixed;bottom:80px;right:16px;z-index:60;background:linear-gradient(135deg,#f97316,#f87171);color:#fff;border:none;border-radius:30px;padding:11px 16px;font-size:12px;font-weight:600;font-family:Poppins,sans-serif;box-shadow:0 6px 20px rgba(248,113,113,.4);cursor:pointer;">&#129514; Chat de prueba</button>
 </body>
 </html>
