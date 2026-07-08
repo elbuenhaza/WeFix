@@ -6,6 +6,13 @@
   <title>WeFix — Perfil</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase + sesión WeFix (explora sin cuenta; el login se pide al contratar) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="optional" data-role="cliente"></script>
+
   <style>
     :root {
       --bg:    #f4f4f6;
@@ -620,14 +627,11 @@ const reviews = {
            {name:"Cliente satisfecho", stars:5, text:"Profesional y puntual, excelente experiencia.", img:null}]
 };
 
-// 6 slides: feo1, bonito1, feo2, bonito2, feo3, bonito3
+// Resultados de trabajos terminados (solo el resultado final)
 const portfolio = [
-  { img:"feo1.avif",   type:"before", caption:"El jardin tenia plaga, plantas secas y hierba sin cortar." },
-  { img:"bonito1.jpg", type:"after",  caption:"Riego, plantas nuevas y producto anti-plaga. Luce vibrante." },
-  { img:"feo2.jpg",    type:"before", caption:"Terraza con tierra acumulada, musgo y macetones vacios." },
-  { img:"bonito2.jpg", type:"after",  caption:"Lavado a presion, mobiliario pintado y plantas de temporada." },
-  { img:"feo3.webp",   type:"before", caption:"Entrada con maleza desbordada y piso manchado de tierra." },
-  { img:"bonito3.jpg", type:"after",  caption:"Deshierbe, piso limpio y especies de bajo mantenimiento." },
+  { img:"bonito1.jpg", caption:"Jardín renovado: riego, plantas nuevas y tratamiento anti-plaga." },
+  { img:"bonito2.jpg", caption:"Terraza restaurada: lavado a presión y plantas de temporada." },
+  { img:"bonito3.jpg", caption:"Entrada despejada: deshierbe y especies de bajo mantenimiento." },
 ];
 
 // ── Helpers ──
@@ -640,38 +644,41 @@ function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2)
 
 // ── Load profile ──
 const params = new URLSearchParams(window.location.search);
+const REAL_UID = params.get('uid') || null;
 const id     = parseInt(params.get('id')) || 1;
-const pro    = professionals.find(p=>p.id===id) || professionals[0];
-const revs   = reviews[pro.id] || reviews.default;
+let pro    = professionals.find(p=>p.id===id) || professionals[0];
+let revs   = reviews[pro.id] || reviews.default;
 
+function renderProfile(){
 document.getElementById('sheetTitle').textContent = `Contratar a ${pro.name}`;
 
 // Portfolio HTML: 1 imagen cuadrada por slide
 const portfolioHTML = (function() {
-  const slides = portfolio.map(function(p, i) {
-    const badgeClass = p.type;
-    const badgeText  = p.type === 'before' ? '● Antes' : '● Después';
-    const bgFallback = p.type === 'before' ? '#fee2e2' : '#dcfce7';
-    const counter    = (i+1) + ' / ' + portfolio.length;
+  // Resultados reales del profesional (si los tiene); si es demo, usa los de ejemplo.
+  var resultados = (pro.trabajos && pro.trabajos.length) ? pro.trabajos : (pro.uid ? [] : portfolio);
+  if (!resultados.length) {
+    return '<div style="text-align:center;padding:34px 16px;color:var(--muted);font-size:13px;border:1.5px dashed var(--border);border-radius:14px;">📸 Este profesional aún no ha publicado trabajos realizados.</div>';
+  }
+  const slides = resultados.map(function(p, i) {
+    const counter = (i+1) + ' / ' + resultados.length;
     return '<div class="wf-portfolio-slide">'
       + '<div class="wf-portfolio-img-wrap">'
-      + '<img class="wf-portfolio-img-single" src="' + p.img + '" alt="' + badgeText + '"'
-      + ' onerror="this.style.background=\'' + bgFallback + '\'"/>'
-      + '<div class="wf-portfolio-badge ' + badgeClass + '">' + badgeText + '</div>'
+      + '<img class="wf-portfolio-img-single" src="' + p.img + '" alt="Resultado"'
+      + ' onerror="this.style.background=\'#dcfce7\'"/>'
+      + '<div class="wf-portfolio-badge after">✓ Resultado</div>'
       + '<div class="wf-portfolio-counter-badge">' + counter + '</div>'
       + '</div>'
-      + '<div class="wf-portfolio-caption">' + p.caption + '</div>'
+      + '<div class="wf-portfolio-caption">' + (p.caption||'') + '</div>'
       + '</div>';
   }).join('');
 
-  const dots = portfolio.map(function(_, i) {
+  const dots = resultados.map(function(_, i) {
     return '<div class="wf-portfolio-dot ' + (i===0?'active':'') + '" onclick="portfolioGo(' + i + ')"></div>';
   }).join('');
 
   return '<div class="wf-portfolio-carousel" id="portfolioCarousel">'
     + '<div class="wf-portfolio-track" id="portfolioTrack">' + slides + '</div>'
-    + '<div class="wf-portfolio-arrow left" onclick="portfolioNav(-1)">&#8249;</div>'
-    + '<div class="wf-portfolio-arrow right" onclick="portfolioNav(1)">&#8250;</div>'
+    + (resultados.length>1 ? '<div class="wf-portfolio-arrow left" onclick="portfolioNav(-1)">&#8249;</div><div class="wf-portfolio-arrow right" onclick="portfolioNav(1)">&#8250;</div>' : '')
     + '</div>'
     + '<div class="wf-portfolio-dots" id="portfolioDots">' + dots + '</div>';
 })();
@@ -731,7 +738,7 @@ document.getElementById('profileContent').innerHTML = `
   </div>
 
   <div class="wf-section">
-    <h3>Trabajos anteriores · Antes &amp; Después</h3>
+    <h3>Trabajos realizados</h3>
     ${portfolioHTML}
   </div>
 
@@ -742,6 +749,25 @@ document.getElementById('profileContent').innerHTML = `
 
   <div class="wf-spacer"></div>
 `;
+} // fin renderProfile
+
+renderProfile();
+// Si viene ?uid=, carga el profesional REAL desde Firestore y re-renderiza
+if (REAL_UID) {
+  (function tryLoad(){
+    if (!window.WeFix || !WeFix.db) { setTimeout(tryLoad, 150); return; }
+    WeFix.db.collection('usuarios').doc(REAL_UID).get().then(function(snap){
+      if (!snap.exists) return;
+      var d = snap.data();
+      if (d.rol !== 'profesional') return;
+      pro = { id:REAL_UID, uid:REAL_UID, name:d.nombre||'Profesional', prof:(d.especialidad||'servicio'),
+              label:d.especialidad||'Servicio', stars:Math.round(d.calificacion||0), price:d.precio||0,
+              verified:!!d.verificado, desc:d.bio||'Profesional verificado de WeFix.', trabajos:(d.trabajos||[]) };
+      revs = reviews.default;
+      renderProfile();
+    }).catch(function(e){ console.error(e); });
+  })();
+}
 
 // ══════════════════════════════════
 // BOOKING SHEET LOGIC
@@ -921,7 +947,42 @@ function confirmPayment() {
   if (selectedPay === 'card' && (!num || num.length < 19)) {
     showToast('Por favor ingresa un número de tarjeta válido'); return;
   }
-  goStep(4);
+  crearContratacion(function(){ goStep(4); });
+}
+
+// Crea la contratación REAL + la conversación con el profesional
+function crearContratacion(done) {
+  if (!pro.uid) { done && done(); return; }              // profesional demo: no crea nada real
+  var user = window.WeFix && WeFix.user;
+  if (!user) { showToast('Inicia sesión para contratar'); setTimeout(function(){ window.location.href='index.html'; },1500); return; }
+  var prof  = (window.WeFix && WeFix.profile) || {};
+  var hours = parseInt(document.getElementById('serviceDuration').value) || 2;
+  var base  = pro.price * hours;
+  var comision = Math.round(base * 0.20);
+  var total = base + Math.round(base * 0.05);
+  var dateStr = selectedDate ? selectedDate.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'}) : '';
+  var db = WeFix.db, TS = firebase.firestore.FieldValue.serverTimestamp;
+  db.collection('contrataciones').add({
+    clienteUid:user.uid, clienteNombre:prof.nombre||'', clienteEmail:prof.email||user.email||'',
+    profesionalUid:pro.uid, profesionalNombre:pro.name,
+    servicio:pro.label, fecha:dateStr, hora:selectedTime, duracion:hours+' hrs',
+    precio:base, comision:comision, total:total, estado:'confirmado', createdAt:TS()
+  }).then(function(cRef){
+    return db.collection('conversaciones').add({
+      participantes:[user.uid, pro.uid], clienteUid:user.uid, clienteNombre:prof.nombre||'',
+      profesionalUid:pro.uid, profesionalNombre:pro.name, asunto:pro.label,
+      jobIcon:'🛠️', jobDate:dateStr, jobTime:selectedTime, jobDuration:hours+' hrs',
+      jobPrice:base, jobStatus:'confirmed', contratacionId:cRef.id,
+      ultimoMensaje:'Servicio contratado ✓', ultimoMensajeAt:TS(),
+      unreadCliente:0, unreadProfesional:1, createdAt:TS()
+    });
+  }).then(function(convRef){
+    db.collection('conversaciones').doc(convRef.id).collection('mensajes').add({
+      emisorUid:user.uid, texto:'Hola, acabo de contratar tu servicio de '+pro.label+'. ¡Quedo atento!',
+      tipo:'texto', leido:false, createdAt:TS()
+    }).catch(function(){});
+    done && done();
+  }).catch(function(e){ console.error(e); showToast('No se pudo completar la contratación'); });
 }
 
 function buildConfirmScreen() {
