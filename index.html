@@ -641,6 +641,7 @@
       <label>Contraseña</label>
       <input type="password" id="clientPassword" placeholder="••••••••"/>
       <button class="wf-modal-submit" onclick="loginCliente()">Entrar</button>
+      <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('cliente')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">\u00bfOlvidaste tu contrase\u00f1a?</span></div>
       <div class="wf-modal-switch">
         ¿No tienes cuenta? <a id="switchToRegister">Regístrate</a>
       </div>
@@ -683,6 +684,7 @@
         <label>Contraseña</label>
         <input type="password" id="empPassword" placeholder="••••••••"/>
         <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="loginEmpleado()">Entrar al portal</button>
+        <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('emp')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">\u00bfOlvidaste tu contrase\u00f1a?</span></div>
         <div class="wf-modal-switch">
           ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
         </div>
@@ -890,6 +892,16 @@
     // ════════════════════════════
     // CLIENTE — Login
     // ════════════════════════════
+    // ── Recuperar contraseña (nativo de Firebase, gratis) ──
+    function forgotPassword(which) {
+      var el = which === 'emp' ? document.getElementById('empEmail') : document.getElementById('clientEmail');
+      var email = el ? el.value.trim() : '';
+      if (!email) { showFbToast('Escribe tu correo arriba y vuelve a dar clic aqu\u00ed', 'error'); return; }
+      auth.sendPasswordResetEmail(email)
+        .then(function(){ showFbToast('Te enviamos un correo para restablecer tu contrase\u00f1a \u2713', 'ok'); })
+        .catch(function(e){ showFbToast(firebaseError(e.code), 'error'); });
+    }
+
     function loginCliente() {
       window._wefixAuthBusy = true;
       var email = document.getElementById('clientEmail') ? document.getElementById('clientEmail').value.trim() : '';
@@ -925,10 +937,12 @@
       showFbToast('Creando tu cuenta...', '');
       auth.createUserWithEmailAndPassword(email, pass)
         .then(function(cred) {
+          cred.user.sendEmailVerification().catch(function(){});
           return db.collection('usuarios').doc(cred.user.uid).set({
             nombre:     nombre,
             email:      email,
             rol:        'cliente',
+            emailVerificado: false,
             createdAt:  firebase.firestore.FieldValue.serverTimestamp(),
             telefono:   '',
             fotoPerfil: '',
@@ -936,7 +950,7 @@
           });
         })
         .then(function() {
-          showFbToast('Cuenta creada! Bienvenido a WeFix', 'ok');
+          showFbToast('Cuenta creada! Te enviamos un correo para verificarla \u2709\ufe0f', 'ok');
           setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1200);
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
@@ -985,10 +999,12 @@
       showFbToast('Creando tu perfil profesional...', '');
       auth.createUserWithEmailAndPassword(email, pass)
         .then(function(cred) {
+          cred.user.sendEmailVerification().catch(function(){});
           return db.collection('usuarios').doc(cred.user.uid).set({
             nombre:       nombre,
             email:        email,
             rol:          'profesional',
+            emailVerificado: false,
             especialidad: especialidad,
             createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
             telefono:     '',
@@ -1004,7 +1020,7 @@
           });
         })
         .then(function() {
-          showFbToast('Bienvenido a WeFix Profesional!', 'ok');
+          showFbToast('Cuenta creada! Te enviamos un correo para verificarla \u2709\ufe0f', 'ok');
           setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1200);
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
