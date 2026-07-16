@@ -370,6 +370,16 @@
     }
 
     /* ── FLASH amarillo ── */
+    .wf-carousel-wrap.planta-wrap { background: linear-gradient(135deg, #eef4f8 0%, #e3edf4 100%); }
+    .wf-carousel-wrap.planta-wrap .wf-section-head h2 { color: #123853; }
+    .wf-carousel-wrap.planta-wrap .wf-arrow:hover { background: #123853; border-color: #123853; }
+    .wf-planta-pill { font-size: 9px; font-weight: 700; background: #123853; color: #fff; padding: 3px 8px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
+    .wf-planta-sub { font-size: 10.5px; color: #5b6b7a; padding: 0 2px 10px; line-height: 1.5; font-family: 'Poppins', sans-serif; }
+    .wf-pcard.planta-card { border-color: #c7d7e3; }
+    .wf-planta-tag { position: absolute; top: 8px; right: 8px; background: #123853; color: #fff; font-size: 8.5px; font-weight: 700; padding: 3px 7px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
+    .wf-planta-price { font-size: 14px; font-weight: 800; color: #123853; font-family: 'Raleway', sans-serif; margin-top: 2px; }
+    .wf-planta-note { font-size: 9px; color: #5b6b7a; margin-top: 3px; line-height: 1.4; font-family: 'Poppins', sans-serif; }
+    .wf-planta-save { display:inline-block; margin-top:4px; font-size: 9px; font-weight:700; color: #15803d; background:#e7f8ee; padding:2px 6px; border-radius:20px; font-family: 'Poppins', sans-serif; }
     .wf-carousel-wrap.flash-wrap { background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); }
     .wf-carousel-wrap.flash-wrap .wf-section-head h2 { color: #92400e; }
     .wf-carousel-wrap.flash-wrap .wf-section-head .icon { filter: drop-shadow(0 0 3px #f59e0b); }
@@ -597,7 +607,7 @@
   <div class="wf-onyx-section-head" style="margin-top:16px;">
     <div class="wf-onyx-section-head-left">
       <span style="font-size:17px;">✦</span>
-      <span class="wf-onyx-title">Premium</span>
+      <span class="wf-onyx-title">Premium Onyx</span>
       <span class="wf-onyx-pill">💎 Con Onyx precio especial</span>
     </div>
   </div>
@@ -607,6 +617,30 @@
     </button>
     <div class="wf-carousel" id="carouselOnyx"></div>
     <button class="wf-arrow" id="arrowOnyxR">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- PROFESIONALES DE PLANTA — contratación por 4 semanas -->
+<div class="wf-carousel-wrap planta-wrap" id="sectionPlanta" style="margin-top:4px;">
+  <div class="wf-section-head">
+    <div class="wf-section-head-left">
+      <span class="icon">🗓️</span>
+      <h2>Profesionales de planta</h2>
+      <span class="wf-planta-pill">4 semanas</span>
+    </div>
+  </div>
+  <p class="wf-planta-sub">
+    Contrata a un profesional de forma fija durante 4 semanas, de lunes a viernes.
+    Descansa sábados y domingos. Ideal para limpieza, chofer y chef.
+  </p>
+  <div class="wf-carousel-outer">
+    <button class="wf-arrow" id="arrowPlantaL">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="wf-carousel" id="carouselPlanta"></div>
+    <button class="wf-arrow" id="arrowPlantaR">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -718,6 +752,43 @@ function cardHTML(p) {
   </a>`;
 }
 
+// ══════════════════════════════════════════════════════════
+//  PROFESIONALES DE PLANTA — contratación por 4 semanas
+//  Reglas de negocio (ajústalas aquí si cambian):
+// ══════════════════════════════════════════════════════════
+const PLANTA = {
+  categorias: ['limpieza', 'chofer', 'chef'], // solo atención casi diaria
+  semanas: 4,
+  diasPorSemana: 5,        // lunes a viernes (descansa sábado y domingo)
+  horasPorDia: 4,          // jornada estándar de planta
+  descuento: 0.15          // 15% por contratar el periodo completo
+};
+const PLANTA_DIAS  = PLANTA.semanas * PLANTA.diasPorSemana;      // 20 días
+const PLANTA_HORAS = PLANTA_DIAS * PLANTA.horasPorDia;           // 80 horas
+
+function plantaPrecios(p) {
+  const lista = p.price * PLANTA_HORAS;                  // sin descuento
+  const total = Math.round(lista * (1 - PLANTA.descuento));
+  return { lista: lista, total: total, ahorro: lista - total };
+}
+
+function plantaCardHTML(p) {
+  const pr = plantaPrecios(p);
+  return `<a class="wf-pcard planta-card" href="wefix-perfil.html?id=${p.id}&modo=planta" title="${p.name}" style="position:relative;">
+    <div class="wf-planta-tag">🗓️ Planta</div>
+    <div class="wf-pcard-avatar" style="background:${avatarColor(p.id)}">
+      ${initials(p.name)}
+      ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
+    </div>
+    <div class="wf-pcard-name">${p.name}</div>
+    <div class="wf-pcard-prof">${p.label}</div>
+    <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
+    <div class="wf-planta-price">$${pr.total.toLocaleString('es-MX')}</div>
+    <div class="wf-planta-note">por ${PLANTA.semanas} semanas · L–V · ${PLANTA.horasPorDia} hrs/día</div>
+    <div class="wf-planta-save">Ahorras $${pr.ahorro.toLocaleString('es-MX')}</div>
+  </a>`;
+}
+
 function applyAll() {
   const q = filters.search.toLowerCase();
   let result = professionals.filter(p => {
@@ -740,6 +811,14 @@ function applyAll() {
   let onyxResult = onyxProfessionals.filter(p => filters.cat === 'todos' || p.prof === filters.cat);
   if (q) onyxResult = onyxResult.filter(p => p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q));
   document.getElementById('carouselOnyx').innerHTML = onyxResult.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados Onyx</p>';
+
+  // Planta: solo categorías de atención casi diaria, respetando los filtros activos
+  const plantaResult = result
+    .filter(p => PLANTA.categorias.includes(p.prof))
+    .sort((a,b) => b.stars - a.stars);
+  document.getElementById('carouselPlanta').innerHTML = plantaResult.map(plantaCardHTML).join('')
+    || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin profesionales de planta con esos filtros</p>';
+  document.getElementById('sectionPlanta').style.display = plantaResult.length ? '' : 'none';
 
   const noRes = document.getElementById('noResults');
   noRes.style.display = result.length === 0 ? 'block' : 'none';
@@ -815,6 +894,7 @@ function setupArrows(leftId, rightId, carouselId) {
 setupArrows('arrowTopL',   'arrowTopR',   'carouselTop');
 setupArrows('arrowFlashL', 'arrowFlashR', 'carouselFlash');
 setupArrows('arrowOnyxL',  'arrowOnyxR',  'carouselOnyx');
+setupArrows('arrowPlantaL','arrowPlantaR','carouselPlanta');
 
 // ── INIT ──
 applyAll();
