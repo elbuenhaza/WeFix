@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Mi agenda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase + capa de sesion WeFix (portal cliente; exige login) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
+
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:34px;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-nav-icons{display:flex;gap:14px;}
+    .wf-nav-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;background:none;border:none;font-family:'Poppins',sans-serif;text-decoration:none;}
+    .wf-nav-icon svg{width:20px;height:20px;}
+    .wf-nav-icon:hover{color:var(--brand);}
+
+    /* HEADER */
+    .wf-head{background:var(--white);padding:18px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .wf-head-icon{background:var(--brand);border-radius:14px;width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .wf-head-icon svg{width:26px;height:26px;color:var(--white);}
+    .wf-page-title{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--brand);text-transform:uppercase;margin-bottom:4px;}
+    .wf-page-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+    .wf-wrap{padding:16px;}
+    .wf-section-title{font-size:15px;font-weight:700;color:var(--text);margin:18px 2px 10px;display:flex;align-items:center;gap:7px;}
+    .wf-count-pill{font-size:10px;font-weight:700;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;font-family:'Poppins',sans-serif;}
+
+    /* CALENDARIO */
+    .wf-cal{border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--white);}
+    .wf-cal-header{background:var(--brand);display:flex;align-items:center;justify-content:space-between;padding:12px 14px;}
+    .wf-cal-month{font-size:14px;font-weight:700;color:var(--white);text-transform:capitalize;}
+    .wf-cal-nav{background:rgba(255,255,255,.18);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px;line-height:1;}
+    .wf-cal-nav:hover{background:rgba(255,255,255,.3);}
+    .wf-cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);background:#e8eef3;}
+    .wf-cal-day-name{text-align:center;font-size:10px;font-weight:600;color:var(--muted);padding:7px 0;font-family:'Poppins',sans-serif;}
+    .wf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);background:var(--white);padding-bottom:6px;}
+    .wf-cal-cell{position:relative;height:40px;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--text);cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-cal-cell:hover:not(.empty){background:#e8f0fb;}
+    .wf-cal-cell.empty{cursor:default;}
+    .wf-cal-cell.today{font-weight:700;color:var(--accent);}
+    .wf-cal-cell.selected{background:var(--brand);color:var(--white);border-radius:50%;font-weight:700;}
+    .wf-cal-cell.past{color:#c7ccd1;}
+    /* Días con servicio: en ROJO */
+    .wf-cal-cell.has-jobs{color:var(--red);font-weight:800;}
+    .wf-cal-cell.has-jobs::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--red);}
+    .wf-cal-cell.selected.has-jobs{color:#fff;}
+    .wf-cal-cell.selected.has-jobs::after{background:#fff;}
+    .wf-cal-legend{display:flex;align-items:center;gap:6px;justify-content:center;padding:8px 0 12px;font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-legend-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;}
+
+    /* Detalle del día */
+    .wf-day-box{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-top:12px;}
+    .wf-day-title{font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:8px;font-family:'Poppins',sans-serif;text-transform:capitalize;}
+    .wf-day-empty{font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;}
+
+    /* Tarjeta de servicio */
+    .wf-job{background:var(--white);border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);animation:in .25s ease both;}
+    @keyframes in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .wf-job.cancelado{opacity:.6;}
+    .wf-job-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);}
+    .wf-job-av{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;font-family:'Raleway',sans-serif;}
+    .wf-job-info{flex:1;min-width:0;}
+    .wf-job-name{font-size:13.5px;font-weight:700;color:var(--text);}
+    .wf-job-serv{font-size:11px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-job-right{text-align:right;flex-shrink:0;}
+    .wf-job-price{font-size:14px;font-weight:800;color:var(--brand);font-family:'Raleway',sans-serif;}
+    .wf-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:'Poppins',sans-serif;display:inline-block;margin-top:3px;}
+    .wf-badge.confirmado{background:#e7f8ee;color:#15803d;}
+    .wf-badge.completado{background:#e8f0fe;color:#1d4ed8;}
+    .wf-badge.cancelado{background:#fdecec;color:#b91c1c;}
+    .wf-job-body{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .wf-job-when{font-size:11.5px;color:var(--text);font-family:'Poppins',sans-serif;line-height:1.5;}
+    .wf-job-when b{color:var(--brand);}
+    .wf-job-acts{display:flex;gap:7px;flex-shrink:0;}
+    .wf-act{border:1.5px solid var(--border);background:var(--white);border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;white-space:nowrap;}
+    .wf-act:hover{border-color:var(--brand);background:#f0f5f9;}
+    .wf-act.msg{font-size:15px;line-height:1;padding:6px 10px;}
+    .wf-act.cancel{color:var(--red);border-color:#f8caca;font-weight:600;}
+    .wf-act.cancel:hover{background:var(--red);color:#fff;border-color:var(--red);}
+
+    .wf-empty{text-align:center;padding:34px 20px;color:var(--muted);}
+    .wf-empty svg{width:46px;height:46px;color:var(--border);margin-bottom:10px;}
+    .wf-empty p{font-size:12px;font-family:'Poppins',sans-serif;line-height:1.5;}
+    .wf-loading{text-align:center;padding:34px;display:none;}
+    .wf-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:sp .8s linear infinite;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    .wf-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:12px 22px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:transform .3s;max-width:90%;text-align:center;font-family:'Poppins',sans-serif;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+    .wf-toast.error{background:var(--red);}
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="wf-nav">
+    <a class="wf-logo" href="wefix-home.html"><div class="wf-logo-icon">W</div>WeFix</a>
+    <div class="wf-nav-icons">
+      <a class="wf-nav-icon" href="wefix-favoritos.html" title="Favoritos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/></svg>Favoritos
+      </a>
+      <a class="wf-nav-icon" href="wefix-notificaciones.html" title="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Notificaciones
+      </a>
+      <a class="wf-nav-icon" href="wefix-home.html" title="Busqueda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Búsqueda
+      </a>
+      <a class="wf-nav-icon" href="wefix-perfil-usuario.html" title="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil
+      </a>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <div class="wf-head">
+    <div class="wf-head-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div>
+      <div class="wf-page-title">Mi agenda</div>
+      <div class="wf-page-desc">Consulta tus servicios programados y gestiona tus contrataciones.</div>
+    </div>
+  </div>
+
+  <div class="wf-wrap">
+
+    <!-- CALENDARIO -->
+    <div class="wf-cal">
+      <div class="wf-cal-header">
+        <button class="wf-cal-nav" id="calPrev">‹</button>
+        <div class="wf-cal-month" id="calMonth"></div>
+        <button class="wf-cal-nav" id="calNext">›</button>
+      </div>
+      <div class="wf-cal-days-header">
+        <div class="wf-cal-day-name">Lu</div><div class="wf-cal-day-name">Ma</div>
+        <div class="wf-cal-day-name">Mi</div><div class="wf-cal-day-name">Ju</div>
+        <div class="wf-cal-day-name">Vi</div><div class="wf-cal-day-name">Sá</div>
+        <div class="wf-cal-day-name">Do</div>
+      </div>
+      <div class="wf-cal-grid" id="calGrid"></div>
+      <div class="wf-cal-legend"><span class="wf-legend-dot"></span> Días con servicio programado</div>
+    </div>
+
+    <!-- DETALLE DEL DÍA -->
+    <div class="wf-day-box" id="dayBox">
+      <div class="wf-day-title" id="dayTitle">Selecciona un día</div>
+      <div id="dayContent"><div class="wf-day-empty">Toca un día del calendario para ver tus servicios.</div></div>
+    </div>
+
+    <!-- LISTA COMPLETA -->
+    <div class="wf-section-title">Servicios contratados <span class="wf-count-pill" id="countPill">0</span></div>
+    <div class="wf-loading" id="loadingState"><div class="wf-spin"></div></div>
+    <div id="jobList"></div>
+    <div class="wf-empty" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <p>Todavía no tienes servicios contratados.<br/>Explora profesionales y contrata el primero.</p>
+    </div>
+
+  </div>
+
+  <div class="wf-toast" id="toast"></div>
+
+<script>
+  // ════════════════════════════════════════════════
+  //  AGENDA DEL CLIENTE — datos reales de "contrataciones"
+  // ════════════════════════════════════════════════
+  var MY_UID = null;
+  var jobs = [];                 // todas las contrataciones del cliente
+  var viewDate = new Date();     // mes que se está viendo
+  var selectedISO = null;        // día seleccionado (YYYY-MM-DD)
+
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var COLORS = ['#123853','#1a4f72','#0d2b3e','#1e6091','#2a6f97','#14532d','#7c2d12'];
+
+  function toast(msg,type){
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.className='wf-toast show'+(type==='error'?' error':'');
+    clearTimeout(window.__t); window.__t=setTimeout(function(){t.className='wf-toast'+(type==='error'?' error':'');},3200);
+  }
+  function initialsOf(n){ if(!n) return '👤'; return n.split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
+  function colorFor(id){ var x=0; for(var i=0;i<id.length;i++) x+=id.charCodeAt(i); return COLORS[x%COLORS.length]; }
+  function isoOf(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function fmtISO(iso){
+    if(!iso) return 'Fecha por confirmar';
+    var p = iso.split('-');
+    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]), 12);
+    return d.toLocaleDateString('es-MX',{weekday:'long', day:'numeric', month:'long'});
+  }
+  // Servicios activos (no cancelados) de un día
+  function jobsOn(iso){
+    return jobs.filter(function(j){ return j.fechaISO === iso && j.estado !== 'cancelado'; });
+  }
+
+  // ── CALENDARIO ──
+  function renderCalendar(){
+    var y = viewDate.getFullYear(), m = viewDate.getMonth();
+    document.getElementById('calMonth').textContent = MESES[m] + ' ' + y;
+
+    var first = new Date(y, m, 1);
+    var startDow = (first.getDay() + 6) % 7;          // lunes = 0
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var todayISO = isoOf(new Date());
+
+    var html = '';
+    for (var i=0; i<startDow; i++) html += '<div class="wf-cal-cell empty"></div>';
+    for (var d=1; d<=daysInMonth; d++){
+      var iso = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var cls = 'wf-cal-cell';
+      if (jobsOn(iso).length) cls += ' has-jobs';
+      if (iso === todayISO)   cls += ' today';
+      if (iso === selectedISO) cls += ' selected';
+      if (iso < todayISO)     cls += ' past';
+      html += '<div class="'+cls+'" onclick="selectDay(\''+iso+'\')">'+d+'</div>';
+    }
+    document.getElementById('calGrid').innerHTML = html;
+  }
+
+  function selectDay(iso){
+    selectedISO = iso;
+    renderCalendar();
+    renderDay();
+  }
+
+  function renderDay(){
+    var title = document.getElementById('dayTitle');
+    var cont  = document.getElementById('dayContent');
+    if (!selectedISO){
+      title.textContent = 'Selecciona un día';
+      cont.innerHTML = '<div class="wf-day-empty">Toca un día del calendario para ver tus servicios.</div>';
+      return;
+    }
+    title.textContent = fmtISO(selectedISO);
+    var list = jobsOn(selectedISO);
+    if (!list.length){
+      cont.innerHTML = '<div class="wf-day-empty">No tienes servicios programados este día.</div>';
+      return;
+    }
+    cont.innerHTML = list.map(jobHTML).join('');
+  }
+
+  document.getElementById('calPrev').addEventListener('click', function(){
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderCalendar();
+  });
+  document.getElementById('calNext').addEventListener('click', function(){
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderCalendar();
+  });
+
+  // ── TARJETA DE SERVICIO ──
+  var LBL = {confirmado:'Confirmado', completado:'Completado', cancelado:'Cancelado'};
+  function jobHTML(j){
+    var estado = j.estado || 'confirmado';
+    var puedeCancelar = (estado === 'confirmado');
+    return '<div class="wf-job '+(estado==='cancelado'?'cancelado':'')+'">'
+      + '<div class="wf-job-head">'
+      +   '<div class="wf-job-av" style="background:'+colorFor(j.id)+'">'+initialsOf(j.profesionalNombre)+'</div>'
+      +   '<div class="wf-job-info"><div class="wf-job-name">'+(j.profesionalNombre||'Profesional')+'</div>'
+      +     '<div class="wf-job-serv">'+(j.servicio||'Servicio')+'</div></div>'
+      +   '<div class="wf-job-right"><div class="wf-job-price">$'+((j.total||j.precio||0).toLocaleString('es-MX'))+'</div>'
+      +     '<span class="wf-badge '+estado+'">'+(LBL[estado]||estado)+'</span></div>'
+      + '</div>'
+      + '<div class="wf-job-body">'
+      +   '<div class="wf-job-when">📅 <b>'+fmtISO(j.fechaISO)+'</b><br/>🕐 '+(j.hora||'—')+' · ⏱ '+(j.duracion||'—')+'</div>'
+      +   '<div class="wf-job-acts">'
+      +     '<button class="wf-act msg" title="Enviar mensaje" onclick="irAMensajes(\''+j.id+'\')">💬</button>'
+      +     (puedeCancelar ? '<button class="wf-act cancel" onclick="cancelarServicio(\''+j.id+'\')">Cancelar</button>' : '')
+      +   '</div>'
+      + '</div></div>';
+  }
+
+  function render(){
+    var cont = document.getElementById('jobList');
+    var empty = document.getElementById('emptyState');
+    document.getElementById('countPill').textContent = jobs.length;
+    if (!jobs.length){ cont.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    cont.innerHTML = jobs.map(jobHTML).join('');
+  }
+
+  // ── ACCIONES ──
+  function irAMensajes(id){
+    var j = jobs.find(function(x){ return x.id===id; });
+    // El chat vive en la mensajería del cliente (se abre la conversación del servicio)
+    window.location.href = 'wefix-mensajes.html' + (j && j.conversacionId ? ('?conv='+j.conversacionId) : '');
+  }
+
+  function cancelarServicio(id){
+    var j = jobs.find(function(x){ return x.id===id; });
+    if (!j) return;
+    // Política de cancelación (Términos y Condiciones)
+    var aviso = '¿Cancelar el servicio con ' + (j.profesionalNombre||'el profesional') + '?\n\n'
+      + 'Recuerda: si faltan menos de 24 horas para el servicio, aplica una penalización del 10% '
+      + 'según los Términos y Condiciones.';
+    if (!confirm(aviso)) return;
+
+    WeFix.db.collection('contrataciones').doc(id).update({
+      estado: 'cancelado',
+      canceladoPor: 'cliente',
+      canceladoAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      // Avisa al profesional
+      if (j.profesionalUid){
+        WeFix.db.collection('notificaciones').add({
+          uid: j.profesionalUid, tipo:'servicio', sender:'WeFix',
+          msg: 'El cliente canceló el servicio de ' + (j.servicio||'') + ' del ' + fmtISO(j.fechaISO) + '.',
+          leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }
+      toast('Servicio cancelado');
+    }).catch(function(e){
+      console.error(e); toast('No se pudo cancelar', 'error');
+    });
+  }
+
+  // ── CARGA EN TIEMPO REAL ──
+  WeFix.ready(function(user, profile){
+    if (!user) return;
+    MY_UID = user.uid;
+    document.getElementById('loadingState').style.display = 'block';
+
+    WeFix.db.collection('contrataciones').where('clienteUid','==',MY_UID)
+      .onSnapshot(function(snap){
+        document.getElementById('loadingState').style.display = 'none';
+        jobs = snap.docs.map(function(d){ var o=d.data(); o.id=d.id; return o; });
+        // más próximos primero
+        jobs.sort(function(a,b){ return (a.fechaISO||'9999').localeCompare(b.fechaISO||'9999'); });
+        renderCalendar(); renderDay(); render();
+      }, function(err){
+        document.getElementById('loadingState').style.display = 'none';
+        console.error(err); toast('Error al cargar tu agenda', 'error');
+      });
+  });
+
+  // Primer pintado (antes de que lleguen los datos)
+  renderCalendar();
+</script>
+</body>
+</html>
