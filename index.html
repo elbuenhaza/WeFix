@@ -641,7 +641,7 @@
       <label>Contraseña</label>
       <input type="password" id="clientPassword" placeholder="••••••••"/>
       <button class="wf-modal-submit" onclick="loginCliente()">Entrar</button>
-      <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('cliente')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">¿Olvidaste tu contraseña?</span></div>
+      <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('cliente')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">\u00bfOlvidaste tu contrase\u00f1a?</span></div>
       <div class="wf-modal-switch">
         ¿No tienes cuenta? <a id="switchToRegister">Regístrate</a>
       </div>
@@ -684,7 +684,7 @@
         <label>Contraseña</label>
         <input type="password" id="empPassword" placeholder="••••••••"/>
         <button class="wf-modal-submit" style="background:linear-gradient(135deg,#1a4f72,#123853);" onclick="loginEmpleado()">Entrar al portal</button>
-        <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('emp')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">¿Olvidaste tu contraseña?</span></div>
+        <div style="text-align:center;margin-top:12px;"><span onclick="forgotPassword('emp')" style="font-size:12px;color:#123853;cursor:pointer;text-decoration:underline;">\u00bfOlvidaste tu contrase\u00f1a?</span></div>
         <div class="wf-modal-switch">
           ¿Eres nuevo? <a id="switchToEmpRegister" style="cursor:pointer;">Regístrate como profesional</a>
         </div>
@@ -878,7 +878,10 @@
       if (window._wefixAuthBusy) return;
       if (user) {
         db.collection('usuarios').doc(user.uid).get().then(function(snap) {
-          if (snap.exists) routeByRole(snap.data().rol);
+          var rol = snap.exists ? snap.data().rol : 'cliente';
+          var dest = (rol === 'profesional') ? 'wefix-empleado-home.html' : 'wefix-home.html';
+          if (!user.emailVerified) { showVerifyGate(user.email, dest); return; }
+          if (snap.exists) routeByRole(rol);
         });
       }
     });
@@ -902,6 +905,66 @@
         .catch(function(e){ showFbToast(firebaseError(e.code), 'error'); });
     }
 
+    // ══════════ VERIFICACIÓN DE CORREO (enlace nativo de Firebase) ══════════
+    var _verifyDest = 'wefix-home.html';
+    var _resendCooldown = 0;
+
+    function showVerifyGate(email, dest) {
+      _verifyDest = dest || 'wefix-home.html';
+      document.getElementById('verifyEmail').textContent = email || '';
+      document.getElementById('verifyMsg').textContent = '';
+      document.getElementById('verifyGate').style.display = 'flex';
+    }
+    function verifyMsg(txt, ok) {
+      var el = document.getElementById('verifyMsg');
+      el.textContent = txt;
+      el.style.color = ok ? '#15803d' : '#b91c1c';
+    }
+    function resendVerification() {
+      var user = auth.currentUser;
+      if (!user) { verifyMsg('Tu sesion expiro. Vuelve a iniciar sesion.', false); return; }
+      if (_resendCooldown > 0) { verifyMsg('Espera ' + _resendCooldown + 's para reenviar.', false); return; }
+      var btn = document.getElementById('verifyResendBtn');
+      user.sendEmailVerification().then(function(){
+        verifyMsg('Correo reenviado. Revisa tu bandeja (y spam).', true);
+        _resendCooldown = 60; btn.disabled = true; btn.style.opacity = '.5';
+        var iv = setInterval(function(){
+          _resendCooldown--;
+          btn.textContent = 'Reenviar correo (' + _resendCooldown + 's)';
+          if (_resendCooldown <= 0) {
+            clearInterval(iv); btn.disabled = false; btn.style.opacity = '1';
+            btn.textContent = 'Reenviar correo';
+          }
+        }, 1000);
+      }).catch(function(e){ verifyMsg(firebaseError(e.code), false); });
+    }
+    function checkVerified() {
+      var user = auth.currentUser;
+      if (!user) { verifyMsg('Tu sesion expiro. Vuelve a iniciar sesion.', false); return; }
+      var btn = document.getElementById('verifyCheckBtn');
+      btn.textContent = 'Comprobando...'; btn.disabled = true;
+      user.reload().then(function(){
+        var u = auth.currentUser;
+        btn.textContent = 'Ya verifique mi correo'; btn.disabled = false;
+        if (u && u.emailVerified) {
+          db.collection('usuarios').doc(u.uid).update({ emailVerificado: true }).catch(function(){});
+          verifyMsg('Correo verificado! Entrando...', true);
+          setTimeout(function(){ window.location.href = _verifyDest; }, 900);
+        } else {
+          verifyMsg('Todavia no detectamos la verificacion. Abre el enlace del correo e intenta de nuevo.', false);
+        }
+      }).catch(function(e){
+        btn.textContent = 'Ya verifique mi correo'; btn.disabled = false;
+        verifyMsg(firebaseError(e.code), false);
+      });
+    }
+    function cancelVerify() {
+      auth.signOut().then(function(){
+        document.getElementById('verifyGate').style.display = 'none';
+        window._wefixAuthBusy = false;
+      });
+    }
+
     function loginCliente() {
       window._wefixAuthBusy = true;
       var email = document.getElementById('clientEmail') ? document.getElementById('clientEmail').value.trim() : '';
@@ -916,6 +979,10 @@
           if (snap.exists && snap.data().rol === 'profesional') {
             auth.signOut();
             showFbToast('Esta cuenta es de profesional. Usa el portal correcto.', 'error');
+            return;
+          }
+          if (!auth.currentUser.emailVerified) {
+            showVerifyGate(auth.currentUser.email, 'wefix-home.html');
             return;
           }
           showFbToast('Bienvenido! Redirigiendo...', 'ok');
@@ -950,8 +1017,7 @@
           });
         })
         .then(function() {
-          showFbToast('Cuenta creada! Te enviamos un correo para verificarla \u2709\ufe0f', 'ok');
-          setTimeout(function(){ window.location.href = 'wefix-home.html'; }, 1200);
+          showVerifyGate(auth.currentUser ? auth.currentUser.email : '', 'wefix-home.html');
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
@@ -973,6 +1039,10 @@
           if (snap.exists && snap.data().rol === 'cliente') {
             auth.signOut();
             showFbToast('Esta cuenta es de cliente. Usa el portal de clientes.', 'error');
+            return;
+          }
+          if (!auth.currentUser.emailVerified) {
+            showVerifyGate(auth.currentUser.email, 'wefix-empleado-home.html');
             return;
           }
           showFbToast('Bienvenido al portal profesional!', 'ok');
@@ -1020,8 +1090,7 @@
           });
         })
         .then(function() {
-          showFbToast('Cuenta creada! Te enviamos un correo para verificarla \u2709\ufe0f', 'ok');
-          setTimeout(function(){ window.location.href = 'wefix-empleado-home.html'; }, 1200);
+          showVerifyGate(auth.currentUser ? auth.currentUser.email : '', 'wefix-empleado-home.html');
         })
         .catch(function(e) { showFbToast(firebaseError(e.code), 'error'); });
     }
@@ -1067,5 +1136,25 @@
     font-family:'Poppins',sans-serif;max-width:90%;text-align:center;
   "></div>
 
+
+<!-- ══════════ GATE DE VERIFICACIÓN DE CORREO ══════════ -->
+<div id="verifyGate" style="display:none;position:fixed;inset:0;z-index:9998;background:#f4f4f6;align-items:center;justify-content:center;padding:20px;font-family:'Raleway',sans-serif;">
+  <div style="background:#fff;border-radius:20px;padding:34px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(18,56,83,.15);">
+    <div style="font-size:46px;margin-bottom:12px;">&#9993;&#65039;</div>
+    <div style="font-size:20px;font-weight:700;color:#123853;margin-bottom:8px;">Verifica tu correo</div>
+    <div style="font-size:13px;color:#5b6b7a;line-height:1.55;margin-bottom:6px;font-family:'Poppins',sans-serif;">
+      Te enviamos un enlace de verificación a:
+    </div>
+    <div id="verifyEmail" style="font-size:13.5px;font-weight:700;color:#123853;margin-bottom:16px;font-family:'Poppins',sans-serif;word-break:break-all;"></div>
+    <div style="font-size:12px;color:#5b6b7a;line-height:1.55;margin-bottom:20px;font-family:'Poppins',sans-serif;">
+      Abre el correo y haz clic en el enlace. Luego vuelve aquí y pulsa <b>Ya verifiqué</b>.
+      <br/><span style="color:#8a97a5;">Si no lo ves, revisa tu carpeta de spam.</span>
+    </div>
+    <button id="verifyCheckBtn" onclick="checkVerified()" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:600;border:none;cursor:pointer;margin-bottom:10px;font-family:'Poppins',sans-serif;background:#123853;color:#fff;">Ya verifiqué mi correo</button>
+    <button id="verifyResendBtn" onclick="resendVerification()" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:14px;font-family:'Poppins',sans-serif;background:transparent;color:#123853;border:1.5px solid #123853;">Reenviar correo</button>
+    <span onclick="cancelVerify()" style="font-size:12.5px;color:#8a97a5;text-decoration:underline;cursor:pointer;font-family:'Poppins',sans-serif;">Usar otro correo / salir</span>
+    <div id="verifyMsg" style="font-size:12px;margin-top:14px;min-height:16px;font-family:'Poppins',sans-serif;"></div>
+  </div>
+</div>
 </body>
 </html>
