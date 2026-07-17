@@ -157,6 +157,11 @@
 
   auth.onAuthStateChanged(function (user) {
     if (user) {
+      /* Correo sin verificar: de vuelta al inicio para completar la verificación */
+      if (!user.emailVerified) {
+        window.location.href = 'index.html';
+        return;
+      }
       db.collection('usuarios').doc(user.uid).get().then(function (snap) {
         var profile = snap.exists ? snap.data() : { email: user.email };
 
