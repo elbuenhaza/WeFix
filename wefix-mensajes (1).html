@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Mensajes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase + capa de sesion WeFix (portal cliente; exige login) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
+
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--online:#22c55e;--onyx-a:#fbbf24;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-nav-icons{display:flex;gap:14px;}
+    .wf-nav-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;background:none;border:none;font-family:'Poppins',sans-serif;text-decoration:none;}
+    .wf-nav-icon svg{width:20px;height:20px;}
+    .wf-nav-icon:hover{color:var(--brand);}
+
+    /* HEADER INBOX */
+    .wf-head{background:var(--white);padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .wf-head-icon{background:var(--brand);border-radius:14px;width:50px;height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .wf-head-icon svg{width:26px;height:26px;color:#fff;}
+    .wf-page-title{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--brand);text-transform:uppercase;margin-bottom:4px;}
+    .wf-page-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+    .wf-search{padding:12px 16px 4px;}
+    .wf-search input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;}
+    .wf-search input:focus{border-color:var(--brand);}
+
+    /* INBOX */
+    .wf-inbox{padding:10px 16px 26px;}
+    .wf-convo-item{display:flex;gap:11px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:9px;cursor:pointer;transition:border-color .15s,transform .15s;animation:in .25s ease both;}
+    .wf-convo-item:hover{border-color:var(--brand);transform:translateY(-1px);}
+    .wf-convo-item.unread{border-left:3px solid var(--accent);}
+    @keyframes in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .wf-convo-avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;font-family:'Raleway',sans-serif;position:relative;}
+    .wf-convo-body{flex:1;min-width:0;}
+    .wf-convo-job-tag{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;font-family:'Poppins',sans-serif;}
+    .wf-convo-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+    .wf-convo-name{font-size:14px;font-weight:700;color:var(--text);}
+    .wf-convo-time{font-size:10px;color:var(--muted);flex-shrink:0;font-family:'Poppins',sans-serif;}
+    .wf-convo-status-bar{display:flex;align-items:center;gap:7px;margin-top:3px;}
+    .wf-convo-status-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:#e7f8ee;color:#15803d;font-family:'Poppins',sans-serif;}
+    .wf-convo-date{font-size:10px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-convo-preview{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Poppins',sans-serif;}
+    .wf-convo-preview.unread-text{color:var(--text);font-weight:600;}
+    .wf-convo-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;font-family:'Poppins',sans-serif;}
+
+    /* CHAT */
+    .wf-chat-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-back{background:none;border:none;font-size:22px;color:var(--brand);cursor:pointer;line-height:1;padding:0 4px;}
+    .wf-chat-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;font-family:'Raleway',sans-serif;flex-shrink:0;}
+    .wf-chat-info{flex:1;min-width:0;}
+    .wf-chat-name{font-size:14px;font-weight:700;color:var(--text);}
+    .wf-chat-status{font-size:10px;color:var(--muted);font-family:'Poppins',sans-serif;}
+
+    .wf-job-banner{background:var(--brand);margin:10px 16px;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+    .wf-job-banner-icon{font-size:22px;flex-shrink:0;}
+    .wf-job-banner-body{flex:1;min-width:0;}
+    .wf-job-banner-service{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;font-family:'Poppins',sans-serif;}
+    .wf-job-banner-client{font-size:13px;font-weight:700;color:#fff;}
+    .wf-job-banner-detail{font-size:10px;color:rgba(255,255,255,.65);font-family:'Poppins',sans-serif;}
+    .wf-job-banner-price{font-size:14px;font-weight:800;color:var(--onyx-a);flex-shrink:0;}
+
+    .wf-messages-area{padding:10px 16px;display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 260px);padding-bottom:90px;}
+    .wf-msg{display:flex;gap:8px;max-width:85%;}
+    .wf-msg.mine{align-self:flex-end;flex-direction:row-reverse;}
+    .wf-msg.theirs{align-self:flex-start;}
+    .wf-msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;align-self:flex-end;font-family:'Raleway',sans-serif;}
+    .wf-bubble-wrap{display:flex;flex-direction:column;gap:2px;}
+    .wf-msg.mine .wf-bubble-wrap{align-items:flex-end;}
+    .wf-bubble{padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.45;word-break:break-word;font-family:'Poppins',sans-serif;}
+    .wf-msg.theirs .wf-bubble{background:var(--white);color:var(--text);border-radius:4px 18px 18px 18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .wf-msg.mine .wf-bubble{background:var(--brand);color:#fff;border-radius:18px 4px 18px 18px;}
+    .wf-msg-meta{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-msg.mine .wf-msg-meta{justify-content:flex-end;}
+    .wf-read-icon{font-size:11px;}
+    .wf-read-icon.read{color:var(--brand);}
+    .wf-read-icon.sent{color:var(--muted);}
+
+    /* Tarjetas especiales (lo que envía el profesional) */
+    .wf-msg-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:12px;max-width:270px;align-self:flex-start;}
+    .wf-msg-card.mine{align-self:flex-end;border-color:rgba(18,56,83,.2);}
+    .wf-msg-card-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:'Poppins',sans-serif;}
+    .wf-msg-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+    .wf-msg-card-detail{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.45;font-family:'Poppins',sans-serif;}
+    .wf-msg-card-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-msg-card-btn.green{background:var(--online);}
+    .wf-msg-card-btn.outline{background:none;color:var(--brand);border:1px solid var(--border);margin-top:5px;}
+
+    /* INPUT */
+    .wf-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);padding:8px 12px;display:flex;align-items:flex-end;gap:8px;z-index:60;}
+    .wf-input-bar textarea{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:'Poppins',sans-serif;resize:none;max-height:90px;outline:none;line-height:1.4;}
+    .wf-input-bar textarea:focus{border-color:var(--brand);}
+    .wf-send{background:var(--brand);border:none;width:38px;height:38px;border-radius:50%;color:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .wf-send svg{width:18px;height:18px;}
+    .wf-quick{display:flex;gap:6px;padding:0 16px 6px;flex-wrap:wrap;}
+    .wf-quick-btn{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:6px 11px;font-size:11px;color:var(--brand);cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+    .wf-quick-btn:hover{background:var(--brand);color:#fff;}
+
+    .wf-empty{text-align:center;padding:44px 22px;color:var(--muted);}
+    .wf-empty svg{width:48px;height:48px;color:var(--border);margin-bottom:12px;}
+    .wf-empty p{font-size:12.5px;line-height:1.55;font-family:'Poppins',sans-serif;}
+    .wf-loading{text-align:center;padding:40px;display:none;}
+    .wf-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:sp .8s linear infinite;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    .wf-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:11px 20px;font-size:12.5px;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:transform .3s;font-family:'Poppins',sans-serif;max-width:90%;text-align:center;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+  </style>
+</head>
+<body>
+
+  <!-- ═══════ INBOX ═══════ -->
+  <div id="viewInbox">
+    <nav class="wf-nav">
+      <a class="wf-logo" href="wefix-home.html"><div class="wf-logo-icon">W</div>WeFix</a>
+      <div class="wf-nav-icons">
+        <a class="wf-nav-icon" href="wefix-favoritos.html" title="Favoritos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/></svg>Favoritos
+        </a>
+        <a class="wf-nav-icon" href="wefix-notificaciones.html" title="Notificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Avisos
+        </a>
+        <a class="wf-nav-icon" href="wefix-home.html" title="Busqueda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Búsqueda
+        </a>
+        <a class="wf-nav-icon" href="wefix-perfil-usuario.html" title="Perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil
+        </a>
+      </div>
+    </nav>
+
+    <div class="wf-head">
+      <div class="wf-head-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div>
+        <div class="wf-page-title">Mensajes</div>
+        <div class="wf-page-desc">Habla con los profesionales de tus servicios contratados.</div>
+      </div>
+    </div>
+
+    <div class="wf-search"><input id="searchInput" placeholder="Buscar profesional o servicio…"/></div>
+
+    <div class="wf-loading" id="loadingState"><div class="wf-spin"></div></div>
+    <div class="wf-inbox" id="convoList"></div>
+    <div class="wf-empty" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <p>Aún no tienes conversaciones.<br/>Cuando contrates un servicio, podrás chatear aquí con tu profesional.</p>
+    </div>
+  </div>
+
+  <!-- ═══════ CHAT ═══════ -->
+  <div id="viewChat" style="display:none;">
+    <div class="wf-chat-head">
+      <button class="wf-back" onclick="backToInbox()">‹</button>
+      <div class="wf-chat-avatar" id="chatAvatar"></div>
+      <div class="wf-chat-info">
+        <div class="wf-chat-name" id="chatName"></div>
+        <div class="wf-chat-status" id="chatStatus">● Profesional</div>
+      </div>
+    </div>
+
+    <div id="jobBannerHolder"></div>
+    <div class="wf-messages-area" id="messagesArea"></div>
+
+    <div class="wf-quick" id="quickActions">
+      <button class="wf-quick-btn" onclick="quick('confirmar')">✅ Confirmo el servicio</button>
+      <button class="wf-quick-btn" onclick="quick('donde')">📍 ¿Ya vienes en camino?</button>
+      <button class="wf-quick-btn" onclick="quick('gracias')">🙏 ¡Muchas gracias!</button>
+    </div>
+
+    <div class="wf-input-bar">
+      <textarea id="msgInput" rows="1" placeholder="Escribe un mensaje…"></textarea>
+      <button class="wf-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="wf-toast" id="toast"></div>
+
+<script>
+  // ════════════════════════════════════════════════
+  //  MENSAJERÍA DEL CLIENTE — Firestore en tiempo real
+  // ════════════════════════════════════════════════
+  var MY_UID=null, MY_NOMBRE='';
+  var conversations=[], currentConvo=null, searchQ='';
+  var inboxUnsub=null, msgUnsub=null;
+  var COLORS=['#123853','#1a4f72','#0d2b3e','#1e6091','#2a6f97','#14532d','#7c2d12'];
+  var OPEN_CONV = new URLSearchParams(window.location.search).get('conv'); // desde la agenda
+
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(function(){t.classList.remove('show');},2800);}
+  function initialsOf(n){if(!n)return'👤';return n.split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+  function colorFor(id){var x=0;for(var i=0;i<id.length;i++)x+=id.charCodeAt(i);return COLORS[x%COLORS.length];}
+  function fmtTime(ts){if(!ts||!ts.toDate)return'';return ts.toDate().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});}
+  function timeAgo(ts){if(!ts||!ts.toDate)return'';var d=ts.toDate(),s=Math.floor((Date.now()-d.getTime())/1000);if(s<60)return'ahora';var m=Math.floor(s/60);if(m<60)return'hace '+m+' min';var h=Math.floor(m/60);if(h<24)return'hace '+h+'h';var dd=Math.floor(h/24);return'hace '+dd+(dd===1?' día':' días');}
+  function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+
+  // ── Mapea la conversación desde el punto de vista del CLIENTE ──
+  function mapConvo(doc){
+    var d=doc.data();
+    var otro = d.profesionalNombre || 'Profesional';
+    return {
+      id:doc.id, _ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
+      name:otro, initials:initialsOf(otro), color:colorFor(doc.id),
+      unread:d.unreadCliente||0, time:timeAgo(d.ultimoMensajeAt),
+      jobService:d.asunto||'Servicio', jobIcon:d.jobIcon||'🛠️',
+      jobDate:d.jobDate||'', jobTime:d.jobTime||'', jobDuration:d.jobDuration||'',
+      jobPrice:d.jobPrice||0, jobStatus:d.jobStatus||'',
+      preview:d.ultimoMensaje||'Nueva conversación', messages:[]
+    };
+  }
+
+  function renderInbox(){
+    var list=document.getElementById('convoList'), empty=document.getElementById('emptyState');
+    var f = conversations.filter(function(c){
+      if(!searchQ) return true;
+      var q=searchQ.toLowerCase();
+      return c.name.toLowerCase().indexOf(q)>-1 || (c.jobService||'').toLowerCase().indexOf(q)>-1;
+    });
+    if(!f.length){ list.innerHTML=''; empty.style.display= conversations.length?'none':'block';
+      if(conversations.length) list.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:20px;">Sin resultados</p>';
+      return; }
+    empty.style.display='none';
+    list.innerHTML = f.map(function(c){
+      var bar = c.jobDate ? ('<div class="wf-convo-status-bar"><span class="wf-convo-status-pill">Confirmado</span><span class="wf-convo-date">'+esc(c.jobDate)+' '+esc(c.jobTime)+'</span></div>') : '';
+      return '<div class="wf-convo-item'+(c.unread?' unread':'')+'" onclick="openChat(\''+c.id+'\')">'
+        + '<div class="wf-convo-avatar" style="background:'+c.color+'">'+c.initials+'</div>'
+        + '<div class="wf-convo-body">'
+        + '<div class="wf-convo-job-tag">'+esc(c.jobService)+'</div>'
+        + '<div class="wf-convo-top"><span class="wf-convo-name">'+esc(c.name)+'</span><span class="wf-convo-time">'+c.time+'</span></div>'
+        + bar
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;gap:8px;">'
+        + '<span class="wf-convo-preview'+(c.unread?' unread-text':'')+'">'+esc(c.preview)+'</span>'
+        + (c.unread?'<span class="wf-convo-badge">'+c.unread+'</span>':'')
+        + '</div></div></div>';
+    }).join('');
+  }
+
+  document.getElementById('searchInput').addEventListener('input', function(){
+    searchQ=this.value.trim(); renderInbox();
+  });
+
+  // ── CHAT ──
+  function openChat(id){
+    currentConvo = conversations.find(function(c){return c.id===id;});
+    if(!currentConvo) return;
+    if(currentConvo.unread){ WeFix.db.collection('conversaciones').doc(id).update({unreadCliente:0}).catch(function(){}); currentConvo.unread=0; }
+
+    var av=document.getElementById('chatAvatar');
+    av.textContent=currentConvo.initials; av.style.background=currentConvo.color;
+    document.getElementById('chatName').textContent=currentConvo.name;
+
+    document.getElementById('jobBannerHolder').innerHTML = currentConvo.jobDate
+      ? '<div class="wf-job-banner"><div class="wf-job-banner-icon">'+currentConvo.jobIcon+'</div>'
+        + '<div class="wf-job-banner-body"><div class="wf-job-banner-service">'+esc(currentConvo.jobService)+'</div>'
+        + '<div class="wf-job-banner-client">'+esc(currentConvo.name)+'</div>'
+        + '<div class="wf-job-banner-detail">📅 '+esc(currentConvo.jobDate)+' · 🕐 '+esc(currentConvo.jobTime)+' · ⏱ '+esc(currentConvo.jobDuration)+'</div></div>'
+        + '<div class="wf-job-banner-price">$'+currentConvo.jobPrice+'</div></div>'
+      : '';
+
+    document.getElementById('viewInbox').style.display='none';
+    document.getElementById('viewChat').style.display='block';
+
+    if(msgUnsub){ msgUnsub(); msgUnsub=null; }
+    document.getElementById('messagesArea').innerHTML='';
+    msgUnsub = WeFix.db.collection('conversaciones').doc(id).collection('mensajes').orderBy('createdAt','asc')
+      .onSnapshot(function(snap){
+        if(!currentConvo || currentConvo.id!==id) return;
+        currentConvo.messages = snap.docs.map(function(m){
+          var x=m.data();
+          return {id:m.id, from:(x.emisorUid===MY_UID)?'me':'them', text:x.texto||'', time:fmtTime(x.createdAt),
+                  read:!!x.leido, type:x.tipo, discount:x.discount, expiry:x.expiry, customMsg:x.customMsg,
+                  newDate:x.newDate, newTime:x.newTime, reason:x.reason};
+        });
+        snap.docs.forEach(function(m){ var x=m.data(); if(x.emisorUid!==MY_UID && !x.leido){ m.ref.update({leido:true}).catch(function(){}); } });
+        renderMessages(); scrollBottom();
+      }, function(err){ console.error(err); toast('Error al abrir el chat'); });
+  }
+
+  function backToInbox(){
+    if(msgUnsub){ msgUnsub(); msgUnsub=null; }
+    currentConvo=null;
+    document.getElementById('viewChat').style.display='none';
+    document.getElementById('viewInbox').style.display='block';
+    renderInbox();
+  }
+
+  function renderMessages(){
+    if(!currentConvo) return;
+    var html='';
+    currentConvo.messages.forEach(function(m){
+      var isMine = m.from==='me';
+
+      // Oferta de descuento enviada por el profesional
+      if(m.type==='discount_offer'){
+        html += '<div class="wf-msg-card'+(isMine?' mine':'')+'">'
+          + '<div class="wf-msg-card-label">🏷️ Oferta especial</div>'
+          + '<div class="wf-msg-card-title">'+esc(m.discount)+'</div>'
+          + '<div class="wf-msg-card-detail">'+esc(m.customMsg)+'<br><strong>Válido por '+esc(m.expiry)+'</strong></div>'
+          + (isMine ? '<button class="wf-msg-card-btn outline" style="font-size:10px;color:#6b7280;">Enviada ✓</button>'
+                    : '<button class="wf-msg-card-btn green" onclick="responder(\'oferta\',\''+esc(m.discount)+'\')">Aceptar oferta</button>')
+          + '</div>';
+        return;
+      }
+
+      // Cambio de horario propuesto por el profesional
+      if(m.type==='reschedule_request'){
+        html += '<div class="wf-msg-card'+(isMine?' mine':'')+'">'
+          + '<div class="wf-msg-card-label">🔄 Cambio de horario</div>'
+          + '<div class="wf-msg-card-title">Nueva propuesta: '+esc(m.newDate)+' · '+esc(m.newTime)+'</div>'
+          + '<div class="wf-msg-card-detail">'+esc(m.reason)+'</div>'
+          + (isMine ? '<button class="wf-msg-card-btn outline" style="font-size:10px;color:#6b7280;">Enviado ✓</button>'
+                    : '<button class="wf-msg-card-btn green" onclick="responder(\'acepta_horario\',\''+esc(m.newDate)+' '+esc(m.newTime)+'\')">Aceptar cambio</button>'
+                      + '<button class="wf-msg-card-btn outline" onclick="responder(\'rechaza_horario\',\'\')">No me funciona</button>')
+          + '</div>';
+        return;
+      }
+
+      html += '<div class="wf-msg '+(isMine?'mine':'theirs')+'">'
+        + (!isMine ? '<div class="wf-msg-avatar" style="background:'+currentConvo.color+'">'+currentConvo.initials+'</div>' : '')
+        + '<div class="wf-bubble-wrap"><div class="wf-bubble">'+esc(m.text)+'</div>'
+        + '<div class="wf-msg-meta"><span>'+m.time+'</span>'
+        + (isMine ? '<span class="wf-read-icon '+(m.read?'read':'sent')+'">✓✓</span>' : '')
+        + '</div></div></div>';
+    });
+    document.getElementById('messagesArea').innerHTML = html;
+  }
+
+  function scrollBottom(){ setTimeout(function(){ window.scrollTo(0, document.body.scrollHeight); }, 60); }
+
+  // ── ESCRIBIR / ENVIAR ──
+  function writeMessage(convId, extra, preview){
+    var msg={emisorUid:MY_UID, texto:'', tipo:'texto', leido:false, createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+    for(var k in extra) msg[k]=extra[k];
+    WeFix.db.collection('conversaciones').doc(convId).collection('mensajes').add(msg)
+      .catch(function(e){ console.error(e); toast('No se pudo enviar'); });
+    WeFix.db.collection('conversaciones').doc(convId).update({
+      ultimoMensaje:preview||'Mensaje',
+      ultimoMensajeAt:firebase.firestore.FieldValue.serverTimestamp(),
+      unreadProfesional:firebase.firestore.FieldValue.increment(1)
+    }).catch(function(){});
+  }
+
+  function sendMessage(){
+    var input=document.getElementById('msgInput');
+    var text=input.value.trim();
+    if(!text || !currentConvo) return;
+    input.value=''; input.style.height='auto';
+    writeMessage(currentConvo.id, {texto:text}, text);
+  }
+
+  function quick(tipo){
+    if(!currentConvo) return;
+    var t = {
+      confirmar: currentConvo.jobDate ? ('Confirmo el servicio del '+currentConvo.jobDate+' a las '+currentConvo.jobTime+' ✅') : 'Confirmo el servicio ✅',
+      donde:     '¿Ya vienes en camino? 📍',
+      gracias:   '¡Muchas gracias por tu trabajo! 🙏'
+    }[tipo];
+    if(t){ writeMessage(currentConvo.id, {texto:t}, t); toast('Mensaje enviado ✓'); }
+  }
+
+  function responder(accion, dato){
+    if(!currentConvo) return;
+    var t = {
+      oferta:          'Acepto la oferta: '+dato+' 🏷️ ¡Gracias!',
+      acepta_horario:  'De acuerdo, acepto el cambio de horario para '+dato+' ✅',
+      rechaza_horario: 'Ese horario no me funciona. ¿Podemos ver otra opción?'
+    }[accion];
+    if(t){ writeMessage(currentConvo.id, {texto:t}, t); toast('Respuesta enviada ✓'); }
+  }
+
+  var mi=document.getElementById('msgInput');
+  mi.addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; });
+  mi.addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+  // ── CARGA ──
+  function loadInbox(){
+    if(inboxUnsub) inboxUnsub();
+    document.getElementById('loadingState').style.display='block';
+    inboxUnsub = WeFix.db.collection('conversaciones').where('participantes','array-contains',MY_UID)
+      .onSnapshot(function(snap){
+        document.getElementById('loadingState').style.display='none';
+        conversations = snap.docs.map(mapConvo).sort(function(a,b){return b._ts-a._ts;});
+        if(currentConvo){
+          var f=conversations.find(function(c){return c.id===currentConvo.id;});
+          if(f){ f.messages=currentConvo.messages; currentConvo=f; }
+        }
+        renderInbox();
+        // Si llegó ?conv= desde la agenda, abre esa conversación una sola vez
+        if(OPEN_CONV){
+          var target=OPEN_CONV; OPEN_CONV=null;
+          if(conversations.some(function(c){return c.id===target;})) openChat(target);
+        }
+      }, function(err){
+        document.getElementById('loadingState').style.display='none';
+        console.error(err); toast('Error al cargar conversaciones');
+      });
+  }
+
+  WeFix.ready(function(user, profile){
+    if(!user) return;
+    MY_UID=user.uid; MY_NOMBRE=(profile&&profile.nombre)||'';
+    loadInbox();
+  });
+</script>
+</body>
+</html>
