@@ -951,6 +951,7 @@ function confirmPayment() {
 }
 
 // Crea la contratación REAL + la conversación con el profesional
+var _lastContratacionId = null;
 function crearContratacion(done) {
   if (!pro.uid) { done && done(); return; }              // profesional demo: no crea nada real
   var user = window.WeFix && WeFix.user;
@@ -961,22 +962,31 @@ function crearContratacion(done) {
   var comision = Math.round(base * 0.20);
   var total = base + Math.round(base * 0.05);
   var dateStr = selectedDate ? selectedDate.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'}) : '';
+  var fechaISO = '';
+  if (selectedDate) {
+    var mm = String(selectedDate.getMonth()+1).padStart(2,'0');
+    var dd = String(selectedDate.getDate()).padStart(2,'0');
+    fechaISO = selectedDate.getFullYear() + '-' + mm + '-' + dd;   // para el calendario de la agenda
+  }
   var db = WeFix.db, TS = firebase.firestore.FieldValue.serverTimestamp;
   db.collection('contrataciones').add({
     clienteUid:user.uid, clienteNombre:prof.nombre||'', clienteEmail:prof.email||user.email||'',
     profesionalUid:pro.uid, profesionalNombre:pro.name,
-    servicio:pro.label, fecha:dateStr, hora:selectedTime, duracion:hours+' hrs',
+    servicio:pro.label, fecha:dateStr, fechaISO:fechaISO, hora:selectedTime, duracion:hours+' hrs',
     precio:base, comision:comision, total:total, estado:'confirmado', createdAt:TS()
   }).then(function(cRef){
+    _lastContratacionId = cRef.id;
     return db.collection('conversaciones').add({
       participantes:[user.uid, pro.uid], clienteUid:user.uid, clienteNombre:prof.nombre||'',
       profesionalUid:pro.uid, profesionalNombre:pro.name, asunto:pro.label,
-      jobIcon:'🛠️', jobDate:dateStr, jobTime:selectedTime, jobDuration:hours+' hrs',
+      jobIcon:'🛠️', jobDate:dateStr, jobDateISO:fechaISO, jobTime:selectedTime, jobDuration:hours+' hrs',
       jobPrice:base, jobStatus:'confirmed', contratacionId:cRef.id,
       ultimoMensaje:'Servicio contratado ✓', ultimoMensajeAt:TS(),
       unreadCliente:0, unreadProfesional:1, createdAt:TS()
     });
   }).then(function(convRef){
+    // Enlaza la conversación con la contratación (para el botón 💬 de la agenda)
+    db.collection('contrataciones').doc(_lastContratacionId).update({ conversacionId: convRef.id }).catch(function(){});
     db.collection('conversaciones').doc(convRef.id).collection('mensajes').add({
       emisorUid:user.uid, texto:'Hola, acabo de contratar tu servicio de '+pro.label+'. ¡Quedo atento!',
       tipo:'texto', leido:false, createdAt:TS()
