@@ -219,7 +219,7 @@
     var d=doc.data();
     var otro = d.profesionalNombre || 'Profesional';
     return {
-      id:doc.id, _ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
+      id:doc.id, profesionalUid:d.profesionalUid||'', _ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
       name:otro, initials:initialsOf(otro), color:colorFor(doc.id),
       unread:d.unreadCliente||0, time:timeAgo(d.ultimoMensajeAt),
       jobService:d.asunto||'Servicio', jobIcon:d.jobIcon||'🛠️',
@@ -358,6 +358,16 @@
       ultimoMensajeAt:firebase.firestore.FieldValue.serverTimestamp(),
       unreadProfesional:firebase.firestore.FieldValue.increment(1)
     }).catch(function(){});
+    // Notifica al profesional (su página de Avisos)
+    var cv = conversations.find(function(c){return c.id===convId;});
+    var profUid = cv && cv.profesionalUid;
+    if (profUid){
+      WeFix.db.collection('notificaciones').add({
+        uid: profUid, tipo:'mensaje', sender: MY_NOMBRE || 'Cliente',
+        msg: (MY_NOMBRE||'Un cliente') + ' te envió un mensaje: "' + (preview||'').slice(0,80) + '"',
+        convId: convId, leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+    }
   }
 
   function sendMessage(){
