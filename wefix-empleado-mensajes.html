@@ -396,7 +396,7 @@ function convTimeAgo(ts){if(!ts||!ts.toDate)return'';var d=ts.toDate(),sec=Math.
 
 function mapConvo(doc){
   var d=doc.data(); var otherName=d.clienteNombre||'Cliente';
-  return {id:doc.id,_ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
+  return {id:doc.id,clienteUid:d.clienteUid||'',_ts:(d.ultimoMensajeAt&&d.ultimoMensajeAt.toMillis)?d.ultimoMensajeAt.toMillis():0,
     name:otherName,initials:initialsOf(otherName),color:colorFor(doc.id),online:false,
     unread:d.unreadProfesional||0,time:convTimeAgo(d.ultimoMensajeAt),filter:'activos',
     jobType:d.jobDate?'normal':'chat',jobIcon:d.jobIcon||'\uD83D\uDCAC',jobService:d.asunto||'Conversaci\u00f3n',
@@ -417,6 +417,16 @@ function writeMessage(convId,extra,preview){
   for(var k in extra)msg[k]=extra[k];
   WeFix.db.collection('conversaciones').doc(convId).collection('mensajes').add(msg).catch(function(e){console.error(e);showToast('No se pudo enviar');});
   WeFix.db.collection('conversaciones').doc(convId).update({ultimoMensaje:preview||'Mensaje',ultimoMensajeAt:firebase.firestore.FieldValue.serverTimestamp(),unreadCliente:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+  // Notifica al cliente (pestaña "Mensajes" de sus notificaciones)
+  var cv = conversations.find(function(c){return c.id===convId;});
+  var clienteUid = cv && cv.clienteUid;
+  if (clienteUid && clienteUid.indexOf('demo_')!==0){
+    WeFix.db.collection('notificaciones').add({
+      uid: clienteUid, tipo:'mensaje', sender: MY_NOMBRE || 'Tu profesional',
+      msg: (MY_NOMBRE||'Tu profesional') + ' te envió un mensaje: "' + (preview||'').slice(0,80) + '"',
+      convId: convId, leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+  }
 }
 function crearChatPrueba(){
   if(!MY_UID){showToast('Inicia sesi\u00f3n');return;}
