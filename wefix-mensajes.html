@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
 
   <link rel="icon" href="favicon.ico" sizes="any"/>
@@ -108,6 +109,18 @@
     .wf-input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);padding:8px 12px;display:flex;align-items:flex-end;gap:8px;z-index:60;}
     .wf-input-bar textarea{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:'Poppins',sans-serif;resize:none;max-height:90px;outline:none;line-height:1.4;}
     .wf-input-bar textarea:focus{border-color:var(--brand);}
+    .wf-attach{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;flex-shrink:0;display:flex;align-items:center;border-radius:50%;}
+    .wf-attach:hover{background:var(--bg);color:var(--brand);}
+    .wf-attach svg{width:22px;height:22px;}
+    #fileInput{display:none;}
+    .wf-msg-img{max-width:200px;border-radius:12px;display:block;cursor:pointer;border:1px solid var(--border);}
+    .wf-msg-file{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:9px 12px;text-decoration:none;color:var(--brand);max-width:220px;}
+    .wf-msg-file svg{width:22px;height:22px;flex-shrink:0;}
+    .wf-msg-file-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Poppins',sans-serif;}
+    .wf-upbar{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);width:100%;max-width:500px;padding:0 16px;z-index:61;display:none;}
+    .wf-upbar-inner{background:var(--brand);color:#fff;border-radius:10px;padding:7px 12px;font-size:11.5px;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:8px;}
+    .wf-upbar-track{flex:1;height:4px;background:rgba(255,255,255,.3);border-radius:3px;overflow:hidden;}
+    .wf-upbar-fill{height:100%;background:#fff;width:0%;transition:width .2s;}
     .wf-send{background:var(--brand);border:none;width:38px;height:38px;border-radius:50%;color:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
     .wf-send svg{width:18px;height:18px;}
     .wf-quick{display:flex;gap:6px;padding:0 16px 6px;flex-wrap:wrap;}
@@ -190,7 +203,12 @@
       <button class="wf-quick-btn" onclick="quick('gracias')">🙏 ¡Muchas gracias!</button>
     </div>
 
+    <div class="wf-upbar" id="upBar"><div class="wf-upbar-inner"><span>Subiendo…</span><div class="wf-upbar-track"><div class="wf-upbar-fill" id="upFill"></div></div></div></div>
     <div class="wf-input-bar">
+      <button class="wf-attach" onclick="document.getElementById('fileInput').click()" title="Adjuntar imagen o PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.2 9.19a1 1 0 0 1-1.41-1.41l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="fileInput" accept="image/*,.pdf"/>
       <textarea id="msgInput" rows="1" placeholder="Escribe un mensaje…"></textarea>
       <button class="wf-send" onclick="sendMessage()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -292,7 +310,7 @@
           var x=m.data();
           return {id:m.id, from:(x.emisorUid===MY_UID)?'me':'them', text:x.texto||'', time:fmtTime(x.createdAt),
                   read:!!x.leido, type:x.tipo, discount:x.discount, expiry:x.expiry, customMsg:x.customMsg,
-                  newDate:x.newDate, newTime:x.newTime, reason:x.reason};
+                  newDate:x.newDate, newTime:x.newTime, reason:x.reason, fileURL:x.fileURL, fileName:x.fileName};
         });
         snap.docs.forEach(function(m){ var x=m.data(); if(x.emisorUid!==MY_UID && !x.leido){ m.ref.update({leido:true}).catch(function(){}); } });
         renderMessages(); scrollBottom();
@@ -338,9 +356,21 @@
         return;
       }
 
+      // Contenido: imagen, archivo, o texto
+      var inner;
+      if (m.type==='image' && m.fileURL){
+        inner = '<img class="wf-msg-img" src="'+m.fileURL+'" onclick="window.open(this.src)" alt="imagen"/>'
+              + (m.text ? '<div class="wf-bubble" style="margin-top:4px;">'+esc(m.text)+'</div>' : '');
+      } else if (m.type==='file' && m.fileURL){
+        inner = '<a class="wf-msg-file" href="'+m.fileURL+'" target="_blank" rel="noopener">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+              + '<span class="wf-msg-file-name">'+esc(m.fileName||'Archivo')+'</span></a>';
+      } else {
+        inner = '<div class="wf-bubble">'+esc(m.text)+'</div>';
+      }
       html += '<div class="wf-msg '+(isMine?'mine':'theirs')+'">'
         + (!isMine ? '<div class="wf-msg-avatar" style="background:'+currentConvo.color+'">'+currentConvo.initials+'</div>' : '')
-        + '<div class="wf-bubble-wrap"><div class="wf-bubble">'+esc(m.text)+'</div>'
+        + '<div class="wf-bubble-wrap">'+inner
         + '<div class="wf-msg-meta"><span>'+m.time+'</span>'
         + (isMine ? '<span class="wf-read-icon '+(m.read?'read':'sent')+'">✓✓</span>' : '')
         + '</div></div></div>';
@@ -380,6 +410,28 @@
     input.value=''; input.style.height='auto';
     writeMessage(currentConvo.id, {texto:text}, text);
   }
+
+  // ── ADJUNTAR (imagen o PDF) a Firebase Storage ──
+  document.getElementById('fileInput').addEventListener('change', function(){
+    var file = this.files[0]; this.value=''; if(!file || !currentConvo) return;
+    if (file.size > 8*1024*1024){ toast('El archivo supera 8 MB'); return; }
+    var esImg = file.type.indexOf('image/')===0;
+    var bar=document.getElementById('upBar'), fill=document.getElementById('upFill');
+    bar.style.display='block'; fill.style.width='0%';
+    var path='chats/'+currentConvo.id+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+    var task = firebase.storage().ref(path).put(file);
+    task.on('state_changed',
+      function(snap){ fill.style.width = Math.round((snap.bytesTransferred/snap.totalBytes)*100)+'%'; },
+      function(err){ console.error(err); bar.style.display='none'; toast('No se pudo subir el archivo'); },
+      function(){
+        task.snapshot.ref.getDownloadURL().then(function(url){
+          bar.style.display='none';
+          writeMessage(currentConvo.id,
+            { tipo: esImg?'image':'file', fileURL:url, fileName:file.name },
+            esImg ? '📷 Foto' : ('📎 '+file.name));
+        });
+      });
+  });
 
   function quick(tipo){
     if(!currentConvo) return;
