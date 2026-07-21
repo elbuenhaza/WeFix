@@ -139,6 +139,14 @@
   <!-- CONTENIDO -->
   <div class="adm-wrap" id="admContent" style="display:none">
 
+    <!-- SWITCH DE SECCIONES -->
+    <div class="adm-tabs" style="margin-bottom:16px;">
+      <button class="adm-sec-tab active" data-sec="reembolsos" onclick="cambiarSeccion('reembolsos')" style="flex:1;padding:11px;background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins';">💸 Reembolsos</button>
+      <button class="adm-sec-tab" data-sec="premium" onclick="cambiarSeccion('premium')" style="flex:1;padding:11px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins';position:relative;">💎 Evidencia Premium <span id="premBadge" style="display:none;position:absolute;top:-5px;right:6px;background:var(--amber);color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px;">0</span></button>
+    </div>
+
+    <!-- ═══ SECCIÓN REEMBOLSOS ═══ -->
+    <div id="seccionReembolsos">
     <div class="adm-stats">
       <div class="adm-stat"><div class="adm-stat-num pend" id="stPend">0</div><div class="adm-stat-lbl">En revisión</div></div>
       <div class="adm-stat"><div class="adm-stat-num" id="stResueltas">0</div><div class="adm-stat-lbl">Resueltas</div></div>
@@ -157,6 +165,23 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       <p id="emptyMsg">No hay solicitudes en esta vista.</p>
     </div>
+    </div>
+
+    <!-- ═══ SECCIÓN EVIDENCIA PREMIUM ═══ -->
+    <div id="seccionPremium" style="display:none">
+      <div class="adm-tabs">
+        <button class="adm-ptab active" data-pf="pendiente" onclick="setPremFilter('pendiente',this)">Pendientes</button>
+        <button class="adm-ptab" data-pf="resueltas" onclick="setPremFilter('resueltas',this)">Resueltas</button>
+        <button class="adm-ptab" data-pf="todas" onclick="setPremFilter('todas',this)">Todas</button>
+      </div>
+      <div class="adm-loading" id="premLoading"><div class="adm-spin"></div></div>
+      <div id="premList"></div>
+      <div class="adm-empty" id="premEmpty" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <p>No hay solicitudes Premium en esta vista.</p>
+      </div>
+    </div>
+
   </div>
 
   <!-- MODAL RESOLVER -->
@@ -310,6 +335,94 @@
       console.error(err); toast('Error de permisos al leer solicitudes','error');
     });
   });
+
+// ══════════════════════════════════════════
+//  SECCIÓN EVIDENCIA PREMIUM
+// ══════════════════════════════════════════
+var premAll = [], premFilter = 'pendiente', premUnsub = null;
+
+function cambiarSeccion(sec){
+  var esReemb = sec==='reembolsos';
+  document.getElementById('seccionReembolsos').style.display = esReemb ? 'block' : 'none';
+  document.getElementById('seccionPremium').style.display = esReemb ? 'none' : 'block';
+  document.querySelectorAll('.adm-sec-tab').forEach(function(t){
+    var on = t.dataset.sec===sec;
+    t.classList.toggle('active', on);
+    t.style.background = on ? 'var(--brand)' : '#fff';
+    t.style.color = on ? '#fff' : 'var(--muted)';
+    t.style.borderColor = on ? 'var(--brand)' : 'var(--border)';
+  });
+  if(sec==='premium' && !premUnsub) cargarPremium();
+}
+
+function setPremFilter(f, btn){
+  premFilter = f;
+  document.querySelectorAll('.adm-ptab').forEach(function(x){x.classList.remove('active');});
+  btn.classList.add('active');
+  renderPremium();
+}
+
+function cargarPremium(){
+  document.getElementById('premLoading').style.display='block';
+  premUnsub = WeFix.db.collection('solicitudes_premium').onSnapshot(function(snap){
+    document.getElementById('premLoading').style.display='none';
+    premAll = snap.docs.map(function(d){var o=d.data();o.id=d.id;return o;});
+    premAll.sort(function(a,b){var ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;var tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0;return tb-ta;});
+    var pend = premAll.filter(function(r){return (r.estado||'pendiente')==='pendiente';}).length;
+    var badge=document.getElementById('premBadge');
+    if(pend>0){ badge.textContent=pend; badge.style.display='flex'; } else { badge.style.display='none'; }
+    renderPremium();
+  }, function(e){ document.getElementById('premLoading').style.display='none'; console.error(e); toast('Error al cargar solicitudes Premium','error'); });
+}
+
+function renderPremium(){
+  var cont=document.getElementById('premList'), empty=document.getElementById('premEmpty');
+  var data = premFilter==='todas' ? premAll
+           : premFilter==='pendiente' ? premAll.filter(function(r){return (r.estado||'pendiente')==='pendiente';})
+           : premAll.filter(function(r){return (r.estado||'pendiente')!=='pendiente';});
+  if(!data.length){ cont.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  var LBLP={pendiente:'En revisión',aprobado:'Aprobado',rechazado:'Rechazado'};
+  cont.innerHTML = data.map(function(r){
+    var est=r.estado||'pendiente';
+    var fotos=(r.evidencia||[]).map(function(u){return '<a href="'+u+'" target="_blank" rel="noopener" style="display:block;width:74px;height:74px;border-radius:9px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;"><img src="'+u+'" style="width:100%;height:100%;object-fit:cover;"/></a>';}).join('');
+    var acciones = est==='pendiente'
+      ? '<div style="display:flex;gap:8px;margin-top:14px;"><button onclick="resolverPremium(\''+r.id+'\',\''+r.profesionalUid+'\',\'aprobado\')" style="flex:1;background:var(--green);color:#fff;border:none;border-radius:9px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:Poppins;">✓ Aprobar</button><button onclick="resolverPremium(\''+r.id+'\',\''+r.profesionalUid+'\',\'rechazado\')" style="flex:1;background:#fff;color:var(--red);border:1px solid #f8caca;border-radius:9px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:Poppins;">✕ Rechazar</button></div>'
+      : '<div style="margin-top:12px;font-size:11px;color:var(--muted);font-family:Poppins;">Resuelto'+(r.resolvedBy?(' por '+r.resolvedBy):'')+'</div>';
+    return '<div class="adm-card">'
+      + '<div class="adm-card-head"><div><div style="font-size:15px;font-weight:700;color:var(--text);font-family:Raleway;">'+(r.profesionalNombre||'Profesional')+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);font-family:Poppins;">Solicitud de categoría Premium</div></div>'
+      + '<span class="adm-badge '+est+'">'+(LBLP[est]||est)+'</span></div>'
+      + '<div style="font-size:12px;color:var(--text);font-family:Poppins;line-height:1.5;margin-bottom:10px;"><strong>Herramientas:</strong><br>'+(r.herramientas||'—')+'</div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--muted);font-family:Poppins;margin-bottom:6px;">EVIDENCIA FOTOGRÁFICA</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+(fotos||'<span style="font-size:11px;color:var(--muted);">Sin fotos</span>')+'</div>'
+      + acciones
+      + '</div>';
+  }).join('');
+}
+
+function resolverPremium(id, profUid, decision){
+  var msg = decision==='aprobado'
+    ? '¿Aprobar la solicitud Premium? El profesional aparecerá como Premium.'
+    : '¿Rechazar la solicitud Premium?';
+  if(!confirm(msg)) return;
+  var myEmail = (WeFix.profile && WeFix.profile.email) || (WeFix.user && WeFix.user.email) || 'equipo';
+  WeFix.db.collection('solicitudes_premium').doc(id).update({
+    estado: decision, resolvedBy: myEmail, resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    var updateProf = { premiumEstado: decision };
+    if(decision==='aprobado'){ updateProf.categorias = firebase.firestore.FieldValue.arrayUnion('premium'); }
+    else { updateProf.categorias = firebase.firestore.FieldValue.arrayRemove('premium'); }
+    return WeFix.db.collection('usuarios').doc(profUid).set(updateProf,{merge:true});
+  }).then(function(){
+    var nmsg = decision==='aprobado'
+      ? '¡Felicidades! Tu solicitud Premium fue aprobada. Ya apareces como profesional Premium. 💎'
+      : 'Tu solicitud Premium fue rechazada. Revisa tu evidencia y vuelve a enviarla desde "Publicar mi servicio".';
+    WeFix.db.collection('notificaciones').add({uid:profUid,tipo:'sistema',sender:'WeFix Premium',msg:nmsg,leida:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    toast(decision==='aprobado'?'Solicitud aprobada ✓':'Solicitud rechazada');
+  }).catch(function(e){ console.error(e); toast('No se pudo procesar','error'); });
+}
+
 </script>
 </body>
 </html>
