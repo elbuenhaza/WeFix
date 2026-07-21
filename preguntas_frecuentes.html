@@ -10,233 +10,53 @@
 
   <title>WeFix — Preguntas Frecuentes</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Raleway', sans-serif;
-    }
- 
-    body {
-      background: #f0f0f0;
-      max-width: 500px;
-      margin: 0 auto;
-      min-height: 100vh;
-    }
- 
-    /* ── NAVBAR ── */
-    .wf-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      background: #f4f4f6;
-      border-bottom: 1px solid #123853;
-      font-family: 'Segoe UI', Raleway, sans-serif;
-    }
- 
-    .wf-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a1a1a;
-      text-decoration: none;
-    }
- 
-    .wf-logo-icon {
-      width: 32px;
-      height: 32px;
-      border: 2px solid #1a1a1a;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: 'sans-serif', Raleway;
-    }
- 
-    .wf-nav-icons {
-      display: flex;
-      gap: 16px;
-    }
- 
-    .wf-nav-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      cursor: pointer;
-      color: #000000;
-      font-size: 10px;
-      background: none;
-      border: none;
-    }
- 
-    .wf-nav-icon svg {
-      width: 22px;
-      height: 22px;
-    }
- 
-    .wf-nav-icon:hover { color: #1a3a5c; }
- 
-    /* ── HEADER FAQ ── */
-    .wf-faq-header {
-      background: #f4f4f6;
-      text-align: center;
-      padding: 24px 20px 20px;
-      border-bottom: 1px solid #e0e0e0;
-      font-family: 'Raleway', sans-serif;;
-    }
- 
-    .wf-faq-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: #1a1a1a;
-      margin-bottom: 18px;
-    }
- 
-    /* ── SEARCH BOX ── */
-    .wf-search-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1.5px solid #1a1a1a;
-      border-radius: 8px;
-      padding: 10px 14px;
-      background: #ffffff;
-    }
- 
-    .wf-search-wrap svg {
-      width: 20px;
-      height: 20px;
-      color: #555;
-      flex-shrink: 0;
-    }
- 
-    .wf-search-wrap input {
-      border: none;
-      outline: none;
-      font-size: 15px;
-      color: #1a1a1a;
-      width: 100%;
-      background: transparent;
-    }
- 
-    .wf-search-wrap input::placeholder { color: #888; }
- 
-    .wf-search-hint {
-      color: #D85A30;
-      font-size: 13px;
-      margin-top: 8px;
-      text-align: left;
-      font-family: 'Segoe UI', Raleway, sans-serif;
-    }
- 
-    /* ── POPULAR TOPICS ── */
-    .wf-topics-section {
-      padding: 20px 16px 32px;
-      background-color: #f4f4f6
-    }
- 
-    .wf-topics-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 14px;
-    }
- 
-    .wf-topics-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
- 
-    .wf-topic-card {
-      background: #1a3a5c;
-      border-radius: 12px;
-      padding: 14px 10px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      min-height: 110px;
-    }
- 
-    .wf-topic-card:hover {
-      background: #24527f;
-      transform: scale(1.03);
-    }
- 
-    .wf-topic-icon {
-      font-size: 32px;
-      line-height: 1;
-    }
- 
-    .wf-topic-label {
-      font-size: 11px;
-      color: #ffffff;
-      text-align: center;
-      line-height: 1.35;
-    }
- 
-    /* ── ANSWER PANEL (slide-in) ── */
-    .wf-answer-panel {
-      display: none;
-      background: #ffffff;
-      border-radius: 12px;
-      margin: 0 16px 20px;
-      padding: 20px 16px;
-      border: 1px solid #e0e0e0;
-      animation: slideDown 0.2s ease;
-    }
- 
-    .wf-answer-panel.active { display: block; }
- 
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
- 
-    .wf-answer-panel h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1a3a5c;
-      margin-bottom: 8px;
-    }
- 
-    .wf-answer-panel p {
-      font-size: 13px;
-      color: #555;
-      line-height: 1.6;
-    }
- 
-    .wf-answer-close {
-      display: block;
-      margin-top: 12px;
-      background: none;
-      border: none;
-      color: #D85A30;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 0;
-      text-decoration: underline;
-    }
- 
-    /* ── NO RESULTS ── */
-    .wf-no-results {
-      display: none;
-      text-align: center;
-      color: #888;
-      font-size: 14px;
-      padding: 16px 0;
-    }
+    :root{--bg:#f4f4f6;--brand:#123853;--brand2:#1a4f72;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:30px;}
+
+    /* NAV */
+    .wf-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .wf-logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--brand);text-decoration:none;}
+    .wf-logo-icon{width:32px;height:32px;border:2px solid var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--brand);}
+    .wf-nav-icons{display:flex;gap:14px;}
+    .wf-nav-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;background:none;border:none;font-family:'Poppins',sans-serif;text-decoration:none;}
+    .wf-nav-icon svg{width:20px;height:20px;}
+    .wf-nav-icon:hover{color:var(--brand);}
+
+    /* HERO/HEADER */
+    .wf-faq-header{background:linear-gradient(135deg,var(--brand),var(--brand2));text-align:center;padding:30px 20px 26px;color:#fff;}
+    .wf-faq-header .wf-faq-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,.7);text-transform:uppercase;font-family:'Poppins',sans-serif;margin-bottom:6px;}
+    .wf-faq-header h1{font-size:23px;font-weight:800;letter-spacing:.3px;margin-bottom:6px;}
+    .wf-faq-header .wf-faq-sub{font-size:13px;color:rgba(255,255,255,.8);font-family:'Poppins',sans-serif;margin-bottom:18px;}
+    .wf-search-wrap{display:flex;align-items:center;gap:10px;border:none;border-radius:14px;padding:12px 16px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.12);}
+    .wf-search-wrap svg{width:20px;height:20px;color:var(--brand);flex-shrink:0;}
+    .wf-search-wrap input{border:none;outline:none;font-size:14px;color:var(--text);width:100%;background:transparent;font-family:'Poppins',sans-serif;}
+    .wf-search-wrap input::placeholder{color:#9aa5b1;}
+
+    /* SECCIÓN */
+    .wf-topics-section{padding:20px 16px 10px;}
+    .wf-topics-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+
+    /* ACORDEÓN de preguntas */
+    .wf-faq-list{display:flex;flex-direction:column;gap:10px;}
+    .wf-faq-item{background:var(--white);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,box-shadow .2s;box-shadow:var(--shadow);}
+    .wf-faq-item.open{border-color:var(--brand);}
+    .wf-faq-q{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;user-select:none;}
+    .wf-faq-q-icon{width:36px;height:36px;border-radius:10px;background:#eef4f8;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .wf-faq-item.open .wf-faq-q-icon{background:var(--brand);}
+    .wf-faq-q-text{flex:1;font-size:13.5px;font-weight:600;color:var(--text);line-height:1.35;}
+    .wf-faq-chevron{flex-shrink:0;color:var(--muted);transition:transform .25s;font-size:14px;}
+    .wf-faq-item.open .wf-faq-chevron{transform:rotate(180deg);color:var(--brand);}
+    .wf-faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+    .wf-faq-a-inner{padding:0 16px 16px 60px;font-size:13px;color:var(--muted);line-height:1.6;font-family:'Poppins',sans-serif;}
+    .wf-no-results{text-align:center;padding:30px 20px;color:var(--muted);font-size:13px;font-family:'Poppins',sans-serif;display:none;}
+
+    /* CONTACTO */
+    .wf-contact-card{margin:20px 16px 0;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:20px;text-align:center;box-shadow:var(--shadow);}
+    .wf-contact-card .wf-contact-emoji{font-size:30px;margin-bottom:8px;}
+    .wf-contact-card h3{font-size:15px;font-weight:700;color:var(--brand);margin-bottom:5px;}
+    .wf-contact-card p{font-size:12.5px;color:var(--muted);line-height:1.5;font-family:'Poppins',sans-serif;margin-bottom:14px;}
+    .wf-contact-btn{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;padding:11px 22px;border-radius:11px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;}
   </style>
   <!-- Favicon WeFix (en todas las páginas para que no se pierda al navegar) -->
   <link rel="icon" href="favicon.ico" sizes="any"/>
@@ -254,201 +74,160 @@
       WeFix
     </a>
     <div class="wf-nav-icons">
-
-
-    <!-- CALENDARIO -->
     <a class="wf-nav-icon" href="wefix-agenda.html" title="Calendario">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
       Calendario
     </a>
-      <!-- FAVORITOS -->
-      <a href="wefix-favoritos.html" class="wf-nav-icon" title="Favoritos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/>
-        </svg>
-        Favoritos
-      </a>
-
-      <!-- NOTIFICACIONES -->
-      <a href="wefix-notificaciones.html" class="wf-nav-icon" title="Notificaciones" style="position:relative;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-        </svg>
-        Notificaciones
-      </a>
-
-      <!-- PERFIL -->
-      <a href="wefix-perfil-usuario.html" class="wf-nav-icon" title="Perfil">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        Perfil
-      </a>
-
-    </div>
+    <a class="wf-nav-icon" href="wefix-favoritos.html" title="Favoritos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M5 3h14a2 2 0 0 1 2 2v16l-7-4-7 4V5a2 2 0 0 1 2-2z"/>
+      </svg>
+      Favoritos
+    </a>
+    <a class="wf-nav-icon" href="wefix-notificaciones.html" title="Notificaciones" style="position:relative;">
+      <span id="navNotifBadge" style="position:absolute;top:-4px;right:-4px;background:#f87171;color:#fff;border-radius:50%;min-width:14px;height:14px;padding:0 3px;font-size:8px;font-weight:700;display:none;align-items:center;justify-content:center;font-family:Poppins,sans-serif;"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Notificaciones
+    </a>
+    <a class="wf-nav-icon" href="wefix-perfil-usuario.html" title="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </a>
+  </div>
   </nav>
 
  
   <!-- HEADER -->
   <div class="wf-faq-header">
-    <h1>PREGUNTAS FRECUENTES</h1>
+    <div class="wf-faq-eyebrow">Centro de ayuda</div>
+    <h1>¿Cómo podemos ayudarte?</h1>
+    <div class="wf-faq-sub">Encuentra respuestas sobre WeFix, tus servicios y tu cuenta.</div>
     <div class="wf-search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="7"/>
-        <path d="M21 21l-4.35-4.35"/>
-      </svg>
-      <input type="text" id="searchInput" placeholder="Busqueda" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Busca una pregunta…" />
     </div>
-    <div class="wf-search-hint">Como te podemos ayudar?</div>
   </div>
- 
-  <!-- ANSWER PANEL -->
-  <div class="wf-answer-panel" id="answerPanel">
-    <h3 id="answerTitle"></h3>
-    <p id="answerText"></p>
-    <button class="wf-answer-close" id="answerClose">Cerrar respuesta</button>
-  </div>
- 
-  <!-- TOPICS -->
+  <!-- PREGUNTAS (acordeón) -->
   <div class="wf-topics-section">
-    <div class="wf-topics-title">Temas Populares</div>
- 
-    <div class="wf-topics-grid" id="topicsGrid">
- 
-      <div class="wf-topic-card" data-id="0">
-        <div class="wf-topic-icon">🛡️</div>
-        <div class="wf-topic-label">Como protegemos su integridad y la de su familia</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="1">
-        <div class="wf-topic-icon">📷</div>
-        <div class="wf-topic-label">Por que nuestro personal tiene cámaras?</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="2">
-        <div class="wf-topic-icon">💳</div>
-        <div class="wf-topic-label">Seguridad de pagos</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="3">
-        <div class="wf-topic-icon">💎</div>
-        <div class="wf-topic-label">Que ofrece el servicio premium</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="4">
-        <div class="wf-topic-icon">🚫</div>
-        <div class="wf-topic-label">Aceptamos pagos fuera de la app</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="5">
-        <div class="wf-topic-icon">🙋</div>
-        <div class="wf-topic-label">Donde encontrar soporte</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="6">
-        <div class="wf-topic-icon">👤</div>
-        <div class="wf-topic-label">Ayuda con mi cuenta</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="7">
-        <div class="wf-topic-icon">👥</div>
-        <div class="wf-topic-label">Ayuda a la comunidad</div>
-      </div>
- 
-      <div class="wf-topic-card" data-id="8">
-        <div class="wf-topic-icon">📰</div>
-        <div class="wf-topic-label">Donde ver nuestro blog</div>
-      </div>
- 
-    </div>
- 
-    <div class="wf-no-results" id="noResults">No se encontraron temas para tu búsqueda.</div>
+    <div class="wf-topics-title">📋 Preguntas frecuentes</div>
+    <div class="wf-faq-list" id="faqList"></div>
+    <div class="wf-no-results" id="noResults">No encontramos preguntas para tu búsqueda.</div>
   </div>
- 
+
+  <!-- CONTACTO -->
+  <div class="wf-contact-card">
+    <div class="wf-contact-emoji">💬</div>
+    <h3>¿No encontraste lo que buscabas?</h3>
+    <p>Escríbenos y con gusto te ayudamos.</p>
+    <a class="wf-contact-btn" href="mailto:soporte@wefixmx.mx">Contactar a soporte</a>
+  </div>
+
   <script>
     // ── Respuestas por tarjeta ──
     const faqs = [
       {
         title: "¿Cómo protegemos su integridad y la de su familia?",
-        text: "Todos nuestros profesionales pasan por un riguroso proceso de verificación de identidad y referencias laborales. Además contamos con seguro de responsabilidad civil para cada servicio contratado."
+        text: "Todos nuestros profesionales pasan por un proceso de verificación de identidad (INE) y referencias laborales antes de aparecer en la plataforma. Solo verás profesionales que hayan completado su verificación."
       },
       {
-        title: "¿Por qué nuestro personal tiene cámaras?",
-        text: "Las cámaras son una medida de transparencia y seguridad tanto para el cliente como para el profesional. Las grabaciones se almacenan de forma segura y solo se usan en caso de disputa o incidente."
+        title: "¿Cómo contrato a un profesional?",
+        text: "Explora los profesionales desde el inicio, entra a su perfil para ver reseñas y trabajos realizados, y toca 'Contratar'. Elige día y hora en el calendario, confirma y listo. Necesitas una cuenta (gratis) para contratar."
       },
       {
-        title: "Seguridad de pagos",
-        text: "Todos los pagos se procesan a través de pasarelas cifradas con tecnología SSL. Nunca almacenamos datos de tu tarjeta. Puedes pagar con tarjeta de crédito, débito o transferencia desde la app."
+        title: "¿Cómo funciona el chat con mi profesional?",
+        text: "Al contratar un servicio se abre automáticamente un chat con tu profesional. Desde ahí pueden coordinar detalles, y ambos pueden enviarse mensajes, fotos y archivos PDF en tiempo real. El chat vive en la sección 'Mensajes'."
       },
       {
-        title: "¿Qué ofrece el servicio premium?",
-        text: "El servicio premium incluye profesionales con mayor experiencia y calificación, tiempos de respuesta prioritarios, garantía extendida de satisfacción y acceso a servicios exclusivos como chef privado y chofer."
+        title: "¿Puedo enviar fotos por el chat?",
+        text: "Sí. Dentro de cualquier conversación toca el ícono de clip para adjuntar imágenes o documentos PDF (hasta 8 MB). Es útil para mostrar el problema antes del servicio o ver el resultado final."
       },
       {
-        title: "¿Aceptamos pagos fuera de la app?",
-        text: "No. Por seguridad de ambas partes, todos los pagos deben realizarse exclusivamente a través de la app WeFix. Los pagos en efectivo o fuera de la plataforma no están cubiertos por nuestra garantía."
+        title: "¿Cómo veo mis servicios agendados?",
+        text: "En la sección 'Calendario' encuentras tu agenda: los días con un servicio programado aparecen marcados, y puedes ver la lista completa de tus contrataciones, enviar un mensaje al profesional o cancelar un servicio."
       },
       {
-        title: "¿Dónde encontrar soporte?",
-        text: "Puedes contactar a nuestro equipo de soporte desde la sección 'Perfil' > 'Ayuda' dentro de la app, o escribirnos a soporte@wefix.mx. Nuestro horario de atención es de lunes a sábado de 8am a 8pm."
+        title: "¿Cómo cancelo un servicio?",
+        text: "Desde tu Calendario, toca el botón 'Cancelar' del servicio. Ten en cuenta que si faltan menos de 24 horas para el servicio, puede aplicar una penalización según nuestros Términos y Condiciones."
       },
       {
-        title: "Ayuda con mi cuenta",
-        text: "Si tienes problemas para iniciar sesión, cambiar tu contraseña o actualizar tus datos, ve a 'Perfil' > 'Configuración de cuenta'. También puedes solicitar asistencia desde el chat de soporte."
+        title: "¿Cómo se procesan los pagos?",
+        text: "Los pagos se realizan de forma segura dentro de la app mediante pasarelas cifradas. Nunca almacenamos los datos de tu tarjeta. Todos los pagos deben hacerse por la plataforma: los pagos fuera de WeFix no están cubiertos por nuestra garantía."
       },
       {
-        title: "Ayuda a la comunidad",
-        text: "WeFix cuenta con un foro comunitario donde puedes compartir experiencias, recomendar profesionales y obtener consejos de otros usuarios. Accede desde la sección 'Comunidad' en el menú principal."
+        title: "¿Qué es la membresía Onyx?",
+        text: "Onyx es nuestra membresía premium. Incluye acceso a profesionales exclusivos, servicio Flash de disponibilidad inmediata, descuentos, cashback en tus servicios, atención prioritaria y soporte personalizado."
       },
       {
-        title: "¿Dónde ver nuestro blog?",
-        text: "Nuestro blog está disponible en wefix.mx/blog. Publicamos artículos sobre cuidado del hogar, consejos de seguridad, novedades de la plataforma y entrevistas con nuestros profesionales destacados."
+        title: "¿Qué son los profesionales de planta?",
+        text: "Son profesionales que puedes contratar por periodos (por ejemplo, de lunes a viernes durante 4 semanas) para servicios de atención frecuente como limpieza, chofer o chef, con un precio preferencial frente a la contratación por horas sueltas."
+      },
+      {
+        title: "¿Cómo verifico mi correo electrónico?",
+        text: "Al crear tu cuenta te enviamos un correo con un enlace de verificación. Ábrelo y haz clic en el enlace; luego regresa a la app y pulsa 'Ya verifiqué mi correo'. Si no lo ves, revisa tu carpeta de spam o pide reenviarlo."
+      },
+      {
+        title: "¿Olvidé mi contraseña, qué hago?",
+        text: "En la pantalla de inicio de sesión toca '¿Olvidaste tu contraseña?'. Te enviaremos un correo con un enlace para restablecerla de forma segura."
+      },
+      {
+        title: "¿Dónde encuentro soporte?",
+        text: "Puedes escribirnos a soporte@wefixmx.mx. Estamos trabajando para ampliar nuestros canales de atención conforme crece la plataforma."
       }
     ];
  
-    // ── Referencias DOM ──
-    const cards       = document.querySelectorAll('.wf-topic-card');
-    const panel       = document.getElementById('answerPanel');
-    const answerTitle = document.getElementById('answerTitle');
-    const answerText  = document.getElementById('answerText');
-    const answerClose = document.getElementById('answerClose');
+    // ── Iconos por pregunta (en orden del array faqs) ──
+    const icons = ['🛡️','🧑\u200d🔧','💬','📎','📅','🚫','💳','💎','🏠','✉️','🔑','🙋'];
+
+    const faqList  = document.getElementById('faqList');
+    const noResults= document.getElementById('noResults');
     const searchInput = document.getElementById('searchInput');
-    const noResults   = document.getElementById('noResults');
- 
-    // ── Clic en tarjeta ──
-    cards.forEach(card => {
-      card.addEventListener('click', () => {
-        const id  = parseInt(card.dataset.id);
-        const faq = faqs[id];
-        answerTitle.textContent = faq.title;
-        answerText.textContent  = faq.text;
-        panel.classList.add('active');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // ── Render del acordeón ──
+    function renderFaqs(list){
+      faqList.innerHTML = list.map(function(item){
+        var i = item._i;
+        return '<div class="wf-faq-item" data-id="'+i+'">'
+          + '<div class="wf-faq-q" onclick="toggleFaq('+i+')">'
+          +   '<div class="wf-faq-q-icon">'+(icons[i]||'❓')+'</div>'
+          +   '<div class="wf-faq-q-text">'+faqs[i].title+'</div>'
+          +   '<div class="wf-faq-chevron">▼</div>'
+          + '</div>'
+          + '<div class="wf-faq-a" id="ans'+i+'"><div class="wf-faq-a-inner">'+faqs[i].text+'</div></div>'
+          + '</div>';
+      }).join('');
+    }
+
+    // índice a cada faq
+    faqs.forEach(function(f,i){ f._i = i; });
+    renderFaqs(faqs);
+
+    // ── Abrir/cerrar ──
+    function toggleFaq(i){
+      var item = document.querySelector('.wf-faq-item[data-id="'+i+'"]');
+      var ans  = document.getElementById('ans'+i);
+      var open = item.classList.contains('open');
+      // cerrar todos
+      document.querySelectorAll('.wf-faq-item.open').forEach(function(el){
+        el.classList.remove('open');
+        el.querySelector('.wf-faq-a').style.maxHeight = null;
       });
-    });
- 
-    // ── Cerrar panel ──
-    answerClose.addEventListener('click', () => {
-      panel.classList.remove('active');
-    });
- 
+      if(!open){
+        item.classList.add('open');
+        ans.style.maxHeight = ans.scrollHeight + 'px';
+      }
+    }
+
     // ── Búsqueda en tiempo real ──
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase().trim();
-      let found = 0;
-      cards.forEach(card => {
-        const label = card.querySelector('.wf-topic-label').textContent.toLowerCase();
-        const match = !q || label.includes(q);
-        card.style.display = match ? 'flex' : 'none';
-        if (match) found++;
+    searchInput.addEventListener('input', function(){
+      var q = this.value.toLowerCase().trim();
+      var filtered = faqs.filter(function(f){
+        return !q || f.title.toLowerCase().includes(q) || f.text.toLowerCase().includes(q);
       });
-      noResults.style.display = found === 0 ? 'block' : 'none';
-      if (q === '') panel.classList.remove('active');
+      renderFaqs(filtered);
+      noResults.style.display = filtered.length ? 'none' : 'block';
     });
   </script>
 </body>
 </html>
- 
