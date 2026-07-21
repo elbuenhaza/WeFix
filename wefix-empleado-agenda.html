@@ -151,50 +151,52 @@
 </nav>
 
 <script>
-var data = {
-  proximos: [
-    {id:1, client:'María González', initials:'MG', service:'Jardinería y mantenimiento', type:'normal', icon:'🌿',
-     date:'Mié 28 mayo', time:'10:00 AM', duration:'3 hrs', address:'Del Valle, CDMX',
-     price:600, status:'confirmed', review:null},
-    {id:2, client:'Carlos Herrera', initials:'CH', service:'Flash · Jardinería', type:'flash', icon:'⚡',
-     date:'Hoy', time:'2:00 PM', duration:'2 hrs', address:'Polanco, CDMX',
-     price:540, status:'confirmed', review:null},
-    {id:3, client:'Residencial Las Lomas', initials:'RL', service:'Premium · Diseño de jardín', type:'premium', icon:'💎',
-     date:'Vie 30 mayo', time:'9:00 AM', duration:'5 hrs', address:'Lomas de Chapultepec',
-     price:1100, status:'pending', review:null},
-  ],
-  pasados: [
-    {id:4, client:'Laura Torres', initials:'LT', service:'Jardinería y mantenimiento', type:'normal', icon:'🌿',
-     date:'Lun 19 mayo', time:'9:00 AM', duration:'3 hrs', address:'Coyoacán, CDMX',
-     price:600, status:'completed',
-     review:{stars:5, text:'Ana llegó puntual y dejó el jardín increíble. Muy profesional y amable. 100% la recomendaría.',
-             date:'19 mayo', punctuality:5, quality:5, communication:5}},
-    {id:5, client:'Rodrigo Pérez', initials:'RP', service:'Poda y mantenimiento', type:'normal', icon:'✂️',
-     date:'Vie 16 mayo', time:'11:00 AM', duration:'2 hrs', address:'Benito Juárez, CDMX',
-     price:400, status:'completed',
-     review:{stars:4, text:'Buen trabajo en general. La poda quedó muy bien, aunque llegó 10 minutos tarde.',
-             date:'16 mayo', punctuality:3, quality:5, communication:4}},
-    {id:6, client:'Sandra Morales', initials:'SM', service:'Flash · Jardinería urgente', type:'flash', icon:'⚡',
-     date:'Mié 14 mayo', time:'3:00 PM', duration:'1 hr', address:'Tlalpan, CDMX',
-     price:280, status:'completed',
-     review:{stars:5, text:'Super rápida y efectiva. Solucionó el problema de plagas al momento.',
-             date:'14 mayo', punctuality:5, quality:5, communication:5}},
-    {id:7, client:'Ivonne Ramírez', initials:'IR', service:'Diseño paisajístico', type:'premium', icon:'💎',
-     date:'Lun 12 mayo', time:'8:00 AM', duration:'6 hrs', address:'Pedregal, CDMX',
-     price:1400, status:'completed',
-     review:null},
-    {id:8, client:'Carlos Ávila', initials:'CA', service:'Jardinería general', type:'normal', icon:'🌿',
-     date:'Vie 9 mayo', time:'10:00 AM', duration:'2 hrs', address:'Xochimilco, CDMX',
-     price:400, status:'completed',
-     review:{stars:3, text:'El trabajo estuvo bien pero esperaba más detalle en las plantas de interior. Quizás la próxima vez.',
-             date:'9 mayo', punctuality:4, quality:3, communication:3}},
-  ],
-  cancelados: [
-    {id:9, client:'Miguel Soto', initials:'MS', service:'Mantenimiento general', type:'normal', icon:'🌿',
-     date:'Mar 13 mayo', time:'2:00 PM', duration:'2 hrs', address:'Iztapalapa, CDMX',
-     price:400, status:'cancelled', review:null, cancelReason:'El cliente canceló por emergencia familiar.'},
-  ]
-};
+var data = { proximos: [], pasados: [], cancelados: [] };
+
+// Mapea una contratación de Firestore al shape que usa buildJobCard
+function mapContratacion(id, c){
+  var est = c.estado || 'confirmado';
+  var statusMap = { confirmado:'confirmed', aceptado:'confirmed', pendiente:'pending', completado:'completed', cancelado:'cancelled', rechazado:'cancelled' };
+  var nombre = c.clienteNombre || 'Cliente';
+  return {
+    id: id,
+    client: nombre,
+    initials: nombre.split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(),
+    service: c.servicio || 'Servicio',
+    type: 'normal', icon: '🛠️',
+    date: c.fecha || 'Fecha por confirmar',
+    fechaISO: c.fechaISO || '',
+    time: c.hora || '—',
+    duration: c.duracion || '',
+    address: c.zona || '',
+    price: c.total || c.precio || 0,
+    status: statusMap[est] || 'confirmed',
+    _estado: est,
+    conversacionId: c.conversacionId || '',
+    review: null,
+    cancelReason: c.canceladoPor ? ('Cancelado por ' + (c.canceladoPor==='cliente'?'el cliente':(c.canceladoPor==='profesional'?'ti':'el equipo')) + '.') : null
+  };
+}
+
+function cargarAgendaProfesional(uid){
+  WeFix.db.collection('contrataciones').where('profesionalUid','==',uid)
+    .onSnapshot(function(snap){
+      var todos = snap.docs.map(function(d){ return mapContratacion(d.id, d.data()); });
+      var hoyISO = new Date().toISOString().slice(0,10);
+      data = { proximos: [], pasados: [], cancelados: [] };
+      todos.forEach(function(j){
+        if(j.status==='cancelled'){ data.cancelados.push(j); }
+        else if(j.status==='completed'){ data.pasados.push(j); }
+        else if(j.fechaISO && j.fechaISO < hoyISO){ data.pasados.push(j); } // fecha ya pasó
+        else { data.proximos.push(j); }
+      });
+      // ordenar: próximos por fecha ascendente, pasados/cancelados descendente
+      data.proximos.sort(function(a,b){ return (a.fechaISO||'9999').localeCompare(b.fechaISO||'9999'); });
+      data.pasados.sort(function(a,b){ return (b.fechaISO||'').localeCompare(a.fechaISO||''); });
+      data.cancelados.sort(function(a,b){ return (b.fechaISO||'').localeCompare(a.fechaISO||''); });
+      renderTab(currentTab);
+    }, function(err){ console.error(err); showToast('Error al cargar tu agenda'); });
+}
 
 var openReviews = {};
 
@@ -252,6 +254,7 @@ function buildJobCard(j) {
     + '<span class="wf-job-status ' + j.status + '">' + statusLabel[j.status] + '</span>'
     + (j.status === 'confirmed' || j.status === 'pending'
       ? '<button onclick="showToast(\'Abriendo mensajes…\');setTimeout(function(){window.location.href=\'wefix-empleado-mensajes.html\'},800)" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:Poppins,sans-serif;color:var(--brand);">💬 Mensaje</button>'
+        + '<button onclick="marcarCompletado(\'' + j.id + '\')" style="background:var(--green,#22c55e);border:none;border-radius:8px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:Poppins,sans-serif;color:#fff;font-weight:600;">✓ Marcar completado</button>'
       : '')
     + '</div>'
     + '</div>'
@@ -296,6 +299,36 @@ function showToast(msg) {
 }
 
 renderTab('proximos');
+
+// Cargar la agenda real del profesional
+WeFix.ready(function(user, profile){
+  if(!user) return;
+  cargarAgendaProfesional(user.uid);
+});
+
+// Marcar un trabajo como completado
+function marcarCompletado(id){
+  if(!confirm('¿Confirmas que este servicio ya fue completado?')) return;
+  var job = (data.proximos||[]).find(function(j){return j.id===id;});
+  WeFix.db.collection('contrataciones').doc(id).update({
+    estado:'completado', completadoAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    if(job){
+      // buscar clienteUid en la contratación original
+      WeFix.db.collection('contrataciones').doc(id).get().then(function(doc){
+        var c = doc.data();
+        if(c && c.clienteUid){
+          WeFix.db.collection('notificaciones').add({
+            uid:c.clienteUid, tipo:'servicio', sender:'WeFix',
+            msg:'Tu servicio de '+(c.servicio||'')+' fue marcado como completado. ¡Cuéntanos cómo te fue dejando una reseña!',
+            leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(function(){});
+        }
+      });
+    }
+    showToast('Trabajo marcado como completado ✓');
+  }).catch(function(e){ console.error(e); showToast('No se pudo actualizar'); });
+}
 </script>
 </body>
 </html>
