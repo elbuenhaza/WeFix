@@ -549,65 +549,12 @@
 <div class="wf-card">
   <div class="wf-card-header">
     <div class="wf-card-title"><span>🔔</span> Nuevas solicitudes</div>
-    <span style="font-size:11px;color:var(--accent);font-weight:600;">3 nuevas</span>
+    <span style="font-size:11px;color:var(--accent);font-weight:600;" id="jobsCount"></span>
   </div>
 
-  <!-- Trabajo 1 — normal -->
-  <div class="wf-job-notif unread" id="job1">
-    <div class="wf-job-icon">🌿</div>
-    <div class="wf-job-body">
-      <div class="wf-job-service">Jardinería y mantenimiento</div>
-      <div class="wf-job-client">María González</div>
-      <div class="wf-job-detail">📍 Del Valle, CDMX · 📅 Mié 28 mayo · 🕙 10:00 AM · 3 hrs</div>
-      <div class="wf-job-actions">
-        <button class="wf-job-btn accept" onclick="acceptJob(1)">✓ Aceptar</button>
-        <button class="wf-job-btn reschedule" onclick="openReschedule('María González')">🕐 Reprogramar</button>
-        <button class="wf-job-btn decline" onclick="declineJob(1)">✕</button>
-      </div>
-    </div>
-    <div class="wf-job-right">
-      <div class="wf-job-time">Hace 5 min</div>
-      <div class="wf-job-price">$600</div>
-    </div>
-  </div>
-
-  <!-- Trabajo 2 — Flash -->
-  <div class="wf-job-notif unread" id="job2">
-    <div class="wf-job-icon flash">⚡</div>
-    <div class="wf-job-body">
-      <div class="wf-job-service" style="color:var(--onyx-b);">⚡ Servicio Flash</div>
-      <div class="wf-job-client">Carlos Herrera</div>
-      <div class="wf-job-detail">📍 Polanco, CDMX · 📅 Hoy · 🕑 2:00 PM · 2 hrs</div>
-      <div class="wf-job-actions">
-        <button class="wf-job-btn accept" onclick="acceptJob(2)">✓ Aceptar</button>
-        <button class="wf-job-btn reschedule" onclick="openReschedule('Carlos Herrera')">🕐 Reprogramar</button>
-        <button class="wf-job-btn decline" onclick="declineJob(2)">✕</button>
-      </div>
-    </div>
-    <div class="wf-job-right">
-      <div class="wf-job-time">Hace 12 min</div>
-      <div class="wf-job-price" style="color:var(--onyx-b);">$480<br><span style="font-size:9px;color:var(--green);font-weight:700;">+$60 Flash</span></div>
-    </div>
-  </div>
-
-  <!-- Trabajo 3 — Premium -->
-  <div class="wf-job-notif unread" id="job3">
-    <div class="wf-job-icon premium">💎</div>
-    <div class="wf-job-body">
-      <div class="wf-job-service" style="color:#7c3aed;">💎 Trabajo Premium</div>
-      <div class="wf-job-client">Residencial Las Lomas</div>
-      <div class="wf-job-detail">📍 Lomas de Chapultepec · 📅 Vie 30 mayo · 🕙 9:00 AM · 5 hrs</div>
-      <div class="wf-job-actions">
-        <button class="wf-job-btn accept" onclick="acceptJob(3)">✓ Aceptar</button>
-        <button class="wf-job-btn reschedule" onclick="openReschedule('Residencial Las Lomas')">🕐 Reprogramar</button>
-        <button class="wf-job-btn decline" onclick="declineJob(3)">✕</button>
-      </div>
-    </div>
-    <div class="wf-job-right">
-      <div class="wf-job-time">Hace 1 h</div>
-      <div class="wf-job-price" style="color:#7c3aed;">$1,100</div>
-    </div>
-  </div>
+  <div id="jobsList"></div>
+  <div id="jobsLoading" style="text-align:center;padding:26px;"><div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:spin .8s linear infinite;"></div></div>
+  <div id="jobsEmpty" style="display:none;text-align:center;padding:26px 20px;color:var(--muted);font-size:12.5px;font-family:'Poppins',sans-serif;">No tienes solicitudes nuevas por ahora.</div>
 </div>
 
 <!-- ══ CALENDARIO ══ -->
@@ -662,7 +609,7 @@
     <div class="wf-card-title"><span>⚡</span> Modos de trabajo</div>
   </div>
   <div class="wf-mode-grid">
-    <div class="wf-mode-card flash-card" onclick="showToast('Modo Flash activado ⚡')">
+    <div class="wf-mode-card flash-card" onclick="toggleFlash()">
       <div class="wf-mode-icon">⚡</div>
       <div class="wf-mode-title">Flash</div>
       <div class="wf-mode-desc">Trabajos inmediatos con bono extra por disponibilidad</div>
@@ -974,19 +921,107 @@ function showToast(msg) {
 }
 
 // ══ JOB ACTIONS ══
-function acceptJob(id) {
-  const el = document.getElementById('job'+id);
-  if (!el) return;
-  el.classList.remove('unread');
-  el.style.opacity = '.6';
-  el.querySelector('.wf-job-actions').innerHTML =
-    '<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Aceptado — aparece en tu agenda</span>';
-  showToast('Trabajo aceptado ✓');
+// ════════════════════════════════════════════════
+//  SOLICITUDES REALES (contrataciones dirigidas a este profesional)
+// ════════════════════════════════════════════════
+var MY_UID_JOBS = null;
+var jobsData = [];
+var jobsUnsub = null;
+
+function timeAgoJob(ts){
+  if(!ts||!ts.toDate) return '';
+  var s=Math.floor((Date.now()-ts.toDate().getTime())/1000);
+  if(s<60) return 'ahora'; var m=Math.floor(s/60);
+  if(m<60) return 'hace '+m+' min'; var h=Math.floor(m/60);
+  if(h<24) return 'hace '+h+' h'; var d=Math.floor(h/24);
+  return 'hace '+d+(d===1?' día':' días');
 }
+function escJob(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+
+function cargarSolicitudes(uid){
+  if(jobsUnsub) jobsUnsub();
+  document.getElementById('jobsLoading').style.display='block';
+  jobsUnsub = WeFix.db.collection('contrataciones')
+    .where('profesionalUid','==',uid)
+    .onSnapshot(function(snap){
+      document.getElementById('jobsLoading').style.display='none';
+      jobsData = snap.docs.map(function(d){var o=d.data();o.id=d.id;return o;})
+        // solo las que esperan respuesta del profesional
+        .filter(function(j){ return (j.estado||'confirmado')==='confirmado'; });
+      // más recientes primero
+      jobsData.sort(function(a,b){
+        var ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;
+        var tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0; return tb-ta; });
+      renderSolicitudes();
+    }, function(err){
+      document.getElementById('jobsLoading').style.display='none';
+      console.error(err); showToast('Error al cargar solicitudes');
+    });
+}
+
+function renderSolicitudes(){
+  var cont=document.getElementById('jobsList');
+  var empty=document.getElementById('jobsEmpty');
+  var count=document.getElementById('jobsCount');
+  if(!jobsData.length){ cont.innerHTML=''; empty.style.display='block'; count.textContent=''; return; }
+  empty.style.display='none';
+  count.textContent = jobsData.length + (jobsData.length===1?' nueva':' nuevas');
+  cont.innerHTML = jobsData.map(function(j){
+    return '<div class="wf-job-notif unread" id="job-'+j.id+'">'
+      + '<div class="wf-job-icon">🛠️</div>'
+      + '<div class="wf-job-body">'
+      +   '<div class="wf-job-service">'+escJob(j.servicio||'Servicio')+'</div>'
+      +   '<div class="wf-job-client">'+escJob(j.clienteNombre||'Cliente')+'</div>'
+      +   '<div class="wf-job-detail">📅 '+escJob(j.fecha||'—')+' · 🕙 '+escJob(j.hora||'—')+' · '+escJob(j.duracion||'')+'</div>'
+      +   '<div class="wf-job-actions">'
+      +     '<button class="wf-job-btn accept" onclick="acceptJob(\''+j.id+'\')">✓ Aceptar</button>'
+      +     '<button class="wf-job-btn reschedule" onclick="openReschedule(\''+escJob(j.clienteNombre||'')+'\')">🕐 Reprogramar</button>'
+      +     '<button class="wf-job-btn decline" onclick="declineJob(\''+j.id+'\')">✕</button>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="wf-job-right">'
+      +   '<div class="wf-job-time">'+timeAgoJob(j.createdAt)+'</div>'
+      +   '<div class="wf-job-price">$'+((j.total||j.precio||0).toLocaleString('es-MX'))+'</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function acceptJob(id) {
+  var job = jobsData.find(function(j){return j.id===id;});
+  var el = document.getElementById('job-'+id);
+  if(el){ el.style.opacity='.6'; el.querySelector('.wf-job-actions').innerHTML='<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Aceptado — aparece en tu agenda</span>'; }
+  WeFix.db.collection('contrataciones').doc(id).update({
+    estado:'aceptado', aceptadoAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    // avisar al cliente
+    if(job && job.clienteUid){
+      WeFix.db.collection('notificaciones').add({
+        uid:job.clienteUid, tipo:'servicio', sender:'WeFix',
+        msg:(job.profesionalNombre||'Tu profesional')+' aceptó tu servicio de '+(job.servicio||'')+' del '+(job.fecha||'')+'.',
+        leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+    }
+    showToast('Trabajo aceptado ✓');
+  }).catch(function(e){ console.error(e); showToast('No se pudo aceptar'); });
+}
+
 function declineJob(id) {
-  const el = document.getElementById('job'+id);
-  if (el) { el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),320); }
-  showToast('Trabajo rechazado');
+  var job = jobsData.find(function(j){return j.id===id;});
+  if(!confirm('¿Rechazar esta solicitud? Recuerda que no puedes rechazar más del 10% de tus trabajos.')) return;
+  var el = document.getElementById('job-'+id);
+  if (el) { el.style.transition='opacity .3s'; el.style.opacity='0'; }
+  WeFix.db.collection('contrataciones').doc(id).update({
+    estado:'rechazado', rechazadoAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    if(job && job.clienteUid){
+      WeFix.db.collection('notificaciones').add({
+        uid:job.clienteUid, tipo:'servicio', sender:'WeFix',
+        msg:'Tu servicio de '+(job.servicio||'')+' no pudo ser aceptado. Te ayudamos a encontrar otro profesional.',
+        leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+    }
+    showToast('Trabajo rechazado');
+  }).catch(function(e){ console.error(e); showToast('No se pudo procesar'); });
 }
 
 // ══ CALENDAR ══
@@ -1304,8 +1339,36 @@ renderChart();
         av.textContent = initialsOf(nombre);
       }
     }
+
+    // Cargar solicitudes reales dirigidas a este profesional
+    MY_UID_JOBS = user.uid;
+    cargarSolicitudes(user.uid);
+
+    // Reflejar estado del Modo Flash según categorías publicadas
+    var cats = profile.categorias || [];
+    flashActivo = cats.indexOf('flash') > -1;
+    pintarFlash();
   });
 })();
+
+// ══ MODO FLASH (real: activa/desactiva la categoría flash) ══
+var flashActivo = false;
+function pintarFlash(){
+  var card = document.querySelector('.wf-mode-card.flash-card');
+  if(!card) return;
+  var badge = card.querySelector('.wf-mode-badge');
+  if(flashActivo){ card.style.outline='2px solid var(--green)'; if(badge){ badge.textContent='✓ Activo'; badge.style.background='var(--green)'; badge.style.color='#fff'; } }
+  else { card.style.outline='none'; if(badge){ badge.textContent='+$60 por trabajo'; badge.style.background=''; badge.style.color=''; } }
+}
+function toggleFlash(){
+  if(!WeFix.user){ return; }
+  var nuevo = !flashActivo;
+  var op = nuevo ? firebase.firestore.FieldValue.arrayUnion('flash')
+                 : firebase.firestore.FieldValue.arrayRemove('flash');
+  WeFix.db.collection('usuarios').doc(WeFix.user.uid).set({categorias:op},{merge:true})
+    .then(function(){ flashActivo=nuevo; pintarFlash(); showToast(nuevo?'Modo Flash activado ⚡':'Modo Flash desactivado'); })
+    .catch(function(){ showToast('No se pudo cambiar el Modo Flash'); });
+}
 </script>
 </body>
 </html>
