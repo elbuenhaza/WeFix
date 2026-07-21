@@ -389,7 +389,7 @@ const allPros = [
 ];
 
 // IDs marcados como favoritos (simulado con Set — en producción vendría del backend)
-let favorites = new Set(allPros.map(p => p.id));
+let favArr = [];  // favoritos reales cargados de Firestore
 
 let activeFilter = "todos";
 let searchQuery  = "";
@@ -410,14 +410,13 @@ function render() {
   const label   = document.getElementById('sectionLabel');
 
   const q = searchQuery.toLowerCase();
-  const filtered = allPros.filter(p => {
-    if (!favorites.has(p.id)) return false;
+  const filtered = favArr.filter(p => {
     const matchCat    = activeFilter === "todos" || p.prof === activeFilter;
     const matchSearch = !q || p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q);
     return matchCat && matchSearch;
   });
 
-  count.textContent = favorites.size;
+  count.textContent = favArr.length;
   label.textContent = activeFilter === "todos"
     ? `Todos los favoritos (${filtered.length})`
     : `${filtered[0]?.label || ''} (${filtered.length})`;
@@ -430,7 +429,7 @@ function render() {
     empty.style.display   = 'none';
     favList.style.display = 'flex';
     favList.innerHTML = filtered.map((p, i) => `
-      <a class="wf-fav-card" href="wefix-perfil.html?id=${p.id}" style="animation-delay:${i*55}ms">
+      <a class="wf-fav-card" href="wefix-perfil.html?${p.profReal?'uid':'id'}=${p.id}" style="animation-delay:${i*55}ms">
         <div class="wf-fav-avatar" style="background:${avatarColor(p.id)}">
           ${initials(p.name)}
           ${p.verified ? '<div class="verified">✓</div>' : ''}
@@ -445,8 +444,8 @@ function render() {
           </div>
         </div>
         <div class="wf-fav-actions" onclick="event.preventDefault()">
-          <button class="wf-heart-btn" title="Quitar de favoritos" onclick="toggleFav(${p.id}, this)">❤️</button>
-          <button class="wf-contact-btn" onclick="goProfile(${p.id})">Ver perfil</button>
+          <button class="wf-heart-btn" title="Quitar de favoritos" onclick="toggleFav('${p.id}', this)">❤️</button>
+          <button class="wf-contact-btn" onclick="goProfile('${p.id}',${p.profReal})">Ver perfil</button>
         </div>
       </a>
     `).join('');
@@ -454,21 +453,17 @@ function render() {
 }
 
 function toggleFav(id, btn) {
-  if (favorites.has(id)) {
-    if (!confirm('¿Quitar este profesional de tus favoritos?')) return;
-    favorites.delete(id);
-    btn.textContent = '🤍';
-    // remove card with animation
-    const card = btn.closest('.wf-fav-card');
-    card.style.transition = 'opacity .3s, transform .3s';
-    card.style.opacity = '0';
-    card.style.transform = 'translateX(30px)';
-    setTimeout(() => render(), 320);
-  }
+  if (!confirm('¿Quitar este profesional de tus favoritos?')) return;
+  if (!WeFix.user) return;
+  var card = btn.closest('.wf-fav-card');
+  card.style.transition = 'opacity .3s, transform .3s';
+  card.style.opacity = '0'; card.style.transform = 'translateX(30px)';
+  WeFix.db.collection('favoritos').doc(WeFix.user.uid + '_' + id).delete()
+    .catch(function(){ /* onSnapshot re-render de todos modos */ });
 }
 
-function goProfile(id) {
-  window.location.href = `wefix-perfil.html?id=${id}`;
+function goProfile(id, esReal) {
+  window.location.href = 'wefix-perfil.html?' + (esReal?'uid':'id') + '=' + id;
 }
 
 // ── CHIPS ──
@@ -487,7 +482,20 @@ document.getElementById('searchInput').addEventListener('input', e => {
   render();
 });
 
-// ── INIT ──
+// ── INIT: cargar favoritos reales ──
+WeFix.ready(function(user){
+  if(!user) return;
+  WeFix.db.collection('favoritos').where('clienteUid','==',user.uid)
+    .onSnapshot(function(snap){
+      favArr = snap.docs.map(function(d){
+        var x=d.data();
+        return { id:x.profId, profReal:!!x.profReal, name:x.nombre||'Profesional',
+                 label:x.especialidad||'Servicio', prof:x.prof||'', price:x.precio||0,
+                 stars:x.stars||5, verified:true };
+      });
+      render();
+    }, function(e){ console.warn('favoritos:', e); render(); });
+});
 render();
 </script>
 </body>
