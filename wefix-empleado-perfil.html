@@ -50,6 +50,9 @@
     .wf-card-title span{font-size:16px;}
     .wf-edit-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;}
     .wf-edit-btn:hover,.wf-edit-btn.active{background:var(--brand);color:var(--white);border-color:var(--brand);}
+    .wf-dia-chip{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--text);cursor:pointer;font-family:'Poppins',sans-serif;user-select:none;}
+    .wf-dia-chip input{accent-color:var(--brand);cursor:pointer;}
+    .wf-dia-chip:has(input:checked){background:var(--brand);color:#fff;border-color:var(--brand);}
     .wf-save-btn{background:var(--brand);color:var(--white);border:none;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;display:none;}
 
     /* FIELDS */
@@ -161,6 +164,16 @@
   </div>
 </div>
 
+<!-- BOTÓN PUBLICAR MI SERVICIO -->
+<a href="wefix-empleado-publicar.html" style="display:flex;align-items:center;gap:12px;margin:14px 16px 0;padding:15px 16px;background:linear-gradient(135deg,#123853,#1a4f72);border-radius:14px;text-decoration:none;box-shadow:0 4px 14px rgba(18,56,83,.2);">
+  <div style="width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📣</div>
+  <div style="flex:1;">
+    <div style="font-size:14.5px;font-weight:700;color:#fff;font-family:'Raleway',sans-serif;">Publicar mi servicio</div>
+    <div style="font-size:11.5px;color:rgba(255,255,255,.7);font-family:'Poppins',sans-serif;margin-top:1px;">Elige dónde aparecer: Flash, Premium o Planta</div>
+  </div>
+  <div style="color:#fff;font-size:20px;">›</div>
+</a>
+
 <!-- INFO PERSONAL -->
 <div class="wf-card" id="cardPersonal">
   <div class="wf-card-header">
@@ -209,6 +222,63 @@
     <div class="wf-field-label">Precio por hora (MXN)</div>
     <div class="wf-field-value">$200 / hr</div>
     <input type="number" value="200" min="50"/>
+  </div>
+</div>
+
+<!-- SERVICIO DE PLANTA -->
+<div class="wf-card" id="cardPlanta">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🗓️</span> Servicio de planta</div>
+    <button class="wf-edit-btn" onclick="toggleEdit('planta')">Editar</button>
+    <button class="wf-save-btn" id="savePlanta" onclick="saveSection('planta')">Guardar</button>
+  </div>
+
+  <div style="padding:12px 16px 4px;font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;line-height:1.5;">
+    El servicio de planta permite que un cliente te contrate por 4 semanas seguidas para atención frecuente (limpieza, chofer, chef). Define tu disponibilidad y aparecerás en la sección "Profesionales de planta".
+  </div>
+
+  <!-- ¿Ofreces planta? -->
+  <div class="wf-field" id="f-plantaActivo">
+    <div class="wf-field-label">¿Ofreces servicio de planta?</div>
+    <div class="wf-field-value" id="plantaActivoVal">No activado</div>
+    <select id="plantaActivoSel">
+      <option value="no">No, solo por horas</option>
+      <option value="si">Sí, ofrezco planta</option>
+    </select>
+  </div>
+
+  <!-- Horas por día -->
+  <div class="wf-field" id="f-plantaHoras">
+    <div class="wf-field-label">Horas por día</div>
+    <div class="wf-field-value" id="plantaHorasVal">—</div>
+    <select id="plantaHorasSel">
+      <option value="4">4 horas/día</option>
+      <option value="6">6 horas/día</option>
+      <option value="8">8 horas/día</option>
+    </select>
+  </div>
+
+  <!-- Días de la semana -->
+  <div class="wf-field" id="f-plantaDias">
+    <div class="wf-field-label">Días que trabajas</div>
+    <div class="wf-field-value" id="plantaDiasVal">—</div>
+    <div class="wf-dias-picker" id="plantaDiasPicker" style="display:none;flex-wrap:wrap;gap:7px;margin-top:8px;">
+      <label class="wf-dia-chip"><input type="checkbox" value="L"/> Lun</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="M"/> Mar</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="X"/> Mié</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="J"/> Jue</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="V"/> Vie</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="S"/> Sáb</label>
+      <label class="wf-dia-chip"><input type="checkbox" value="D"/> Dom</label>
+    </div>
+  </div>
+
+  <!-- Vista previa del precio de planta (calculado, informativo) -->
+  <div id="plantaPreview" style="margin:12px 16px 4px;padding:12px 14px;background:#eef4f8;border-radius:12px;display:none;">
+    <div style="font-size:11px;color:var(--muted);font-family:'Poppins',sans-serif;margin-bottom:4px;">Precio estimado del paquete mensual (4 semanas)</div>
+    <div id="plantaPreviewPrecio" style="font-size:20px;font-weight:800;color:var(--brand);font-family:'Raleway',sans-serif;">—</div>
+    <div id="plantaPreviewDetalle" style="font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;margin-top:3px;"></div>
+    <div style="font-size:10px;color:#8a97a5;font-family:'Poppins',sans-serif;margin-top:6px;">Incluye 10% de descuento WeFix por paquete. El precio final se calcula con tu tarifa por hora.</div>
   </div>
 </div>
 
@@ -457,6 +527,74 @@ function pintarPerfil(p) {
     if (val) val.textContent = (p.precio ? ('$' + p.precio + ' / hr') : '—');
     if (inp) inp.value = p.precio || '';
   })();
+  pintarPlanta(p);
+}
+
+// ── SERVICIO DE PLANTA ──
+var DIAS_NOMBRE = {L:'Lun',M:'Mar',X:'Mié',J:'Jue',V:'Vie',S:'Sáb',D:'Dom'};
+
+function pintarPlanta(p) {
+  var activo = p.plantaActivo === true || p.plantaActivo === 'si';
+  var horas  = p.plantaHoras || 4;
+  var dias   = Array.isArray(p.plantaDias) ? p.plantaDias : [];
+
+  // ¿Activo?
+  var selA = document.getElementById('plantaActivoSel');
+  if (selA) selA.value = activo ? 'si' : 'no';
+  var valA = document.getElementById('plantaActivoVal');
+  if (valA) valA.textContent = activo ? 'Sí, ofrezco planta ✓' : 'No activado';
+
+  // Horas
+  var selH = document.getElementById('plantaHorasSel');
+  if (selH) selH.value = String(horas);
+  var valH = document.getElementById('plantaHorasVal');
+  if (valH) valH.textContent = activo ? (horas + ' horas/día') : '—';
+
+  // Días (checkboxes + resumen)
+  document.querySelectorAll('#plantaDiasPicker input').forEach(function(chk){
+    chk.checked = dias.indexOf(chk.value) > -1;
+  });
+  var valD = document.getElementById('plantaDiasVal');
+  if (valD) valD.textContent = (activo && dias.length)
+    ? dias.map(function(d){return DIAS_NOMBRE[d];}).join(', ')
+    : '—';
+
+  actualizarPreviewPlanta();
+}
+
+// Precio estimado del paquete (informativo): tarifa/hr × horas × días × 4 semanas × (1 - 10%)
+function actualizarPreviewPlanta() {
+  var box = document.getElementById('plantaPreview');
+  if (!box) return;
+  var activoSel = document.getElementById('plantaActivoSel');
+  var editando  = document.getElementById('f-plantaActivo').classList.contains('editing');
+  // usar valores en vivo si edita, si no los guardados
+  var activo = editando ? (activoSel && activoSel.value === 'si')
+                        : (currentProfile.plantaActivo === true || currentProfile.plantaActivo === 'si');
+  if (!activo) { box.style.display = 'none'; return; }
+
+  var horas = parseInt((editando ? document.getElementById('plantaHorasSel').value : currentProfile.plantaHoras) || 4, 10);
+  var dias;
+  if (editando) {
+    dias = []; document.querySelectorAll('#plantaDiasPicker input:checked').forEach(function(c){ dias.push(c.value); });
+  } else {
+    dias = Array.isArray(currentProfile.plantaDias) ? currentProfile.plantaDias : [];
+  }
+  var precioHora = parseInt(currentProfile.precio || getInputVal('f-precio') || 0, 10);
+
+  if (!dias.length || !precioHora) { box.style.display = 'block';
+    document.getElementById('plantaPreviewPrecio').textContent = '—';
+    document.getElementById('plantaPreviewDetalle').textContent = 'Define tus días y tu precio por hora para ver el estimado.';
+    return;
+  }
+  var DESC = 0.10; // descuento WeFix por paquete (política de plataforma)
+  var horasMes = horas * dias.length * 4;
+  var bruto = precioHora * horasMes;
+  var conDesc = Math.round(bruto * (1 - DESC));
+  box.style.display = 'block';
+  document.getElementById('plantaPreviewPrecio').textContent = '$' + conDesc.toLocaleString('es-MX') + ' / mes';
+  document.getElementById('plantaPreviewDetalle').textContent =
+    horas + ' hrs × ' + dias.length + ' días × 4 semanas = ' + horasMes + ' hrs · antes $' + bruto.toLocaleString('es-MX');
 }
 
 // Cuando wefix-auth.js confirme la sesion, cargamos los datos
@@ -495,7 +633,8 @@ document.getElementById('avatarInput').addEventListener('change', function() {
 
 // EDIT SECTIONS
 var sectionFields = {
-  personal: ['f-nombre','f-telefono','f-email','f-especialidad','f-zona','f-bio','f-precio']
+  personal: ['f-nombre','f-telefono','f-email','f-especialidad','f-zona','f-bio','f-precio'],
+  planta: ['f-plantaActivo','f-plantaHoras','f-plantaDias']
 };
 function toggleEdit(sec) {
   var fields = sectionFields[sec];
@@ -506,21 +645,40 @@ function toggleEdit(sec) {
   editBtn.classList.toggle('active', !isEditing);
   editBtn.textContent = isEditing ? 'Editar' : 'Cancelar';
   saveBtn.style.display = isEditing ? 'none' : 'inline-block';
+
+  // En planta: mostrar el selector de días al editar y refrescar preview en vivo
+  if (sec === 'planta') {
+    var editingNow = !isEditing;
+    var picker = document.getElementById('plantaDiasPicker');
+    if (picker) picker.style.display = editingNow ? 'flex' : 'none';
+    if (!editingNow) pintarPlanta(currentProfile); // cancelar: restaura lo guardado
+    else actualizarPreviewPlanta();
+  }
 }
 function saveSection(sec) {
   if (!currentUid) { showToast('Debes iniciar sesión'); return; }
   var editBtn = document.querySelector('#card' + capitalize(sec) + ' .wf-edit-btn');
   var saveBtn = document.getElementById('save' + capitalize(sec));
 
-  var data = {
-    nombre:       getInputVal('f-nombre'),
-    telefono:     getInputVal('f-telefono'),
-    especialidad: getInputVal('f-especialidad'),
-    zona:         getInputVal('f-zona'),
-    bio:          getInputVal('f-bio'),
-    precio:       parseInt(getInputVal('f-precio'), 10) || 0
-  };
-  // el correo NO se cambia aquí (está ligado a la cuenta)
+  var data;
+  if (sec === 'planta') {
+    var activo = document.getElementById('plantaActivoSel').value === 'si';
+    var horas  = parseInt(document.getElementById('plantaHorasSel').value, 10) || 4;
+    var dias   = [];
+    document.querySelectorAll('#plantaDiasPicker input:checked').forEach(function(c){ dias.push(c.value); });
+    if (activo && !dias.length) { showToast('Selecciona al menos un día'); return; }
+    data = { plantaActivo: activo, plantaHoras: horas, plantaDias: dias };
+  } else {
+    data = {
+      nombre:       getInputVal('f-nombre'),
+      telefono:     getInputVal('f-telefono'),
+      especialidad: getInputVal('f-especialidad'),
+      zona:         getInputVal('f-zona'),
+      bio:          getInputVal('f-bio'),
+      precio:       parseInt(getInputVal('f-precio'), 10) || 0
+    };
+    // el correo NO se cambia aquí (está ligado a la cuenta)
+  }
 
   saveBtn.textContent = 'Guardando…';
   WeFix.db.collection('usuarios').doc(currentUid).set(data, { merge: true })
@@ -548,6 +706,15 @@ function activateDiscount() {
   document.getElementById('discountActive').textContent = '✓ Descuento del ' + val + '% activo en tu perfil';
   showToast('Descuento del ' + val + '% activado 🏷️');
 }
+
+// Preview de planta en vivo al cambiar controles
+['plantaActivoSel','plantaHorasSel'].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('change', actualizarPreviewPlanta);
+});
+document.querySelectorAll('#plantaDiasPicker input').forEach(function(chk){
+  chk.addEventListener('change', actualizarPreviewPlanta);
+});
 
 // TOAST
 var toastTimer;
