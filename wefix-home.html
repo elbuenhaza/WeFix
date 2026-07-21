@@ -802,10 +802,47 @@ function avatarColor(id) {
   return colors[id % colors.length];
 }
 
+// ════════════════════════════════════════════════
+//  FAVORITOS (persistentes en Firestore)
+// ════════════════════════════════════════════════
+let favSet = new Set();  // ids/uids de profesionales favoritos del cliente
+
+function cargarFavoritos(){
+  if(!window.WeFix || !WeFix.db || !WeFix.user){ return; }
+  WeFix.db.collection('favoritos').where('clienteUid','==',WeFix.user.uid)
+    .onSnapshot(function(snap){
+      favSet = new Set();
+      snap.forEach(function(d){ favSet.add(String(d.data().profId)); });
+      // refrescar corazones visibles
+      document.querySelectorAll('.wf-fav-heart').forEach(function(btn){
+        var id = btn.getAttribute('data-pid');
+        btn.textContent = favSet.has(id) ? '❤️' : '🤍';
+      });
+    }, function(e){ console.warn('favoritos:', e); });
+}
+
+function toggleFavHome(ev, pid, isReal, nombre, label, precio, stars, prof){
+  ev.preventDefault(); ev.stopPropagation();
+  if(!window.WeFix || !WeFix.user){ window.location.href='index.html'; return; }
+  pid = String(pid);
+  var docId = WeFix.user.uid + '_' + pid;
+  var ref = WeFix.db.collection('favoritos').doc(docId);
+  if(favSet.has(pid)){
+    ref.delete().catch(function(){});
+  } else {
+    ref.set({
+      clienteUid: WeFix.user.uid, profId: pid, profReal: !!isReal,
+      nombre:nombre||'', especialidad:label||'', precio:precio||0, stars:stars||5, prof:prof||'',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+  }
+}
+
 function cardHTML(p) {
   const isOnyx = p.onyx;
   return `<a class="wf-pcard ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" title="${p.name}" style="position:relative;">
     ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
+    <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:${isOnyx?'42px':'10px'};right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
     <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
       ${initials(p.name)}
       ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
@@ -843,6 +880,7 @@ function plantaCardHTML(p) {
   const pr = plantaPrecios(p);
   return `<a class="wf-pcard planta-card" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}&modo=planta" title="${p.name}" style="position:relative;">
     <div class="wf-planta-tag">🗓️ Planta</div>
+    <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:42px;right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
     <div class="wf-pcard-avatar" style="background:${avatarColor(p.id)}">
       ${initials(p.name)}
       ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
@@ -973,7 +1011,7 @@ applyAll();
 
 function renderAllGrid() {
   const q = filters.search.toLowerCase();
-  const all = [...professionals, ...onyxProfessionals].filter(p => {
+  const all = [...baseProfessionals, ...baseOnyxProfessionals].filter(p => {
     const matchCat = filters.cat === 'todos' || p.prof === filters.cat;
     const matchQ   = !q || p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q);
     return matchCat && matchQ;
@@ -983,6 +1021,7 @@ function renderAllGrid() {
     const isOnyx = p.onyx;
     return `<a class="wf-all-card ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" style="position:relative;">
       ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
+      <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:${isOnyx?'42px':'10px'};right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
       <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
         ${initials(p.name)}
         ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
@@ -1000,6 +1039,7 @@ renderAllGrid();
 
 // Cargar profesionales reales desde Firestore (se fusionan con los demo)
 cargarProfesionalesReales();
+cargarFavoritos();
 </script>
 </body>
 </html>
