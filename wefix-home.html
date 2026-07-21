@@ -721,6 +721,71 @@ const onyxProfessionals = [
 let filters = { search:"", cat:"todos", profesion:"", precio:800, stars:0, verified:false, fecha:"" };
 let activeStarBtn = document.querySelector('.wf-star-btn[data-stars="0"]');
 
+// ════════════════════════════════════════════════
+//  PROFESIONALES REALES desde Firestore
+//  Se fusionan con los demo (reales primero). Cuando tengas
+//  suficientes profesionales reales, puedes vaciar los arrays demo.
+// ════════════════════════════════════════════════
+let realProfessionals = [];      // no-Onyx reales
+let realOnyxProfessionals = [];  // Onyx reales
+let baseProfessionals = professionals;          // lo que usa applyAll (se re-asigna al cargar)
+let baseOnyxProfessionals = onyxProfessionals;
+
+// map de especialidad guardada -> clave interna de filtro
+function profKey(especialidad){
+  var e = (especialidad||'').toLowerCase();
+  if(e.indexOf('chofer')>-1) return 'chofer';
+  if(e.indexOf('limpieza')>-1) return 'limpieza';
+  if(e.indexOf('jardin')>-1) return 'jardinero';
+  if(e.indexOf('chef')>-1) return 'chef';
+  if(e.indexOf('car')>-1 || e.indexOf('wash')>-1) return 'carwash';
+  if(e.indexOf('mascota')>-1) return 'mascotas';
+  return 'otro';
+}
+
+function mapRealPro(uid, d){
+  var cats = d.categorias || [];
+  var esOnyx = d.premiumEstado === 'aprobado' || cats.indexOf('premium') > -1;
+  return {
+    id: uid,                     // uid real (string) — el perfil abre con ?uid=
+    uid: uid,
+    name: d.nombre || 'Profesional',
+    prof: profKey(d.especialidad),
+    label: d.especialidad || 'Servicio',
+    stars: Math.round(d.rating || d.stars || 5),
+    price: parseInt(d.precio, 10) || 0,
+    verified: d.emailVerificado === true || !!d.verified,
+    onyx: esOnyx,
+    desc: d.bio || 'Profesional de WeFix.',
+    _real: true,
+    _cats: cats,
+    _plantaActivo: d.plantaActivo === true || d.plantaActivo === 'si',
+    _flash: cats.indexOf('flash') > -1
+  };
+}
+
+function cargarProfesionalesReales(){
+  if(!window.WeFix || !WeFix.db){ setTimeout(cargarProfesionalesReales, 200); return; }
+  WeFix.db.collection('usuarios').where('rol','==','profesional')
+    .onSnapshot(function(snap){
+      realProfessionals = []; realOnyxProfessionals = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        // Solo profesionales que publicaron al menos una categoría (aparecer en el directorio)
+        var cats = d.categorias || [];
+        var publicado = cats.length > 0 || d.premiumEstado === 'aprobado';
+        if(!publicado) return;
+        var pro = mapRealPro(doc.id, d);
+        if(pro.onyx) realOnyxProfessionals.push(pro);
+        else realProfessionals.push(pro);
+      });
+      // Fusión: reales primero, luego demo como relleno visual
+      baseProfessionals = realProfessionals.concat(professionals);
+      baseOnyxProfessionals = realOnyxProfessionals.concat(onyxProfessionals);
+      applyAll();
+    }, function(err){ console.warn('No se pudieron cargar profesionales reales:', err); });
+}
+
 // ── HELPERS ──
 function starsHTML(n) {
   return [1,2,3,4,5].map(i =>
@@ -739,7 +804,7 @@ function avatarColor(id) {
 
 function cardHTML(p) {
   const isOnyx = p.onyx;
-  return `<a class="wf-pcard ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?id=${p.id}" title="${p.name}" style="position:relative;">
+  return `<a class="wf-pcard ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" title="${p.name}" style="position:relative;">
     ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
     <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
       ${initials(p.name)}
@@ -776,7 +841,7 @@ function plantaPrecios(p) {
 
 function plantaCardHTML(p) {
   const pr = plantaPrecios(p);
-  return `<a class="wf-pcard planta-card" href="wefix-perfil.html?id=${p.id}&modo=planta" title="${p.name}" style="position:relative;">
+  return `<a class="wf-pcard planta-card" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}&modo=planta" title="${p.name}" style="position:relative;">
     <div class="wf-planta-tag">🗓️ Planta</div>
     <div class="wf-pcard-avatar" style="background:${avatarColor(p.id)}">
       ${initials(p.name)}
@@ -793,7 +858,7 @@ function plantaCardHTML(p) {
 
 function applyAll() {
   const q = filters.search.toLowerCase();
-  let result = professionals.filter(p => {
+  let result = baseProfessionals.filter(p => {
     const matchSearch   = !q || p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q);
     const matchCat      = filters.cat === 'todos' || p.prof === filters.cat;
     const matchProfesion= !filters.profesion || p.prof === filters.profesion;
@@ -804,19 +869,24 @@ function applyAll() {
   });
 
   const top   = [...result].sort((a,b)=>b.stars-a.stars);
-  const flash = [...result].sort((a,b)=>a.price-b.price);
+  // Flash: reales que publicaron la categoría 'flash' primero; demo como relleno por precio
+  const flash = [...result].sort((a,b)=>{
+    var af = a._flash?0:1, bf = b._flash?0:1;
+    if(af!==bf) return af-bf;
+    return a.price-b.price;
+  });
 
   document.getElementById('carouselTop').innerHTML   = top.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados</p>';
   document.getElementById('carouselFlash').innerHTML = flash.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados</p>';
 
   // Onyx carousel
-  let onyxResult = onyxProfessionals.filter(p => filters.cat === 'todos' || p.prof === filters.cat);
+  let onyxResult = baseOnyxProfessionals.filter(p => filters.cat === 'todos' || p.prof === filters.cat);
   if (q) onyxResult = onyxResult.filter(p => p.name.toLowerCase().includes(q) || p.label.toLowerCase().includes(q));
   document.getElementById('carouselOnyx').innerHTML = onyxResult.map(cardHTML).join('') || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin resultados Onyx</p>';
 
-  // Planta: solo categorías de atención casi diaria, respetando los filtros activos
+  // Planta: reales con plantaActivo primero; demo por categoría como relleno
   const plantaResult = result
-    .filter(p => PLANTA.categorias.includes(p.prof))
+    .filter(p => p._real ? p._plantaActivo : PLANTA.categorias.includes(p.prof))
     .sort((a,b) => b.stars - a.stars);
   document.getElementById('carouselPlanta').innerHTML = plantaResult.map(plantaCardHTML).join('')
     || '<p style="padding:16px;color:#aaa;font-size:13px;">Sin profesionales de planta con esos filtros</p>';
@@ -911,7 +981,7 @@ function renderAllGrid() {
 
   document.getElementById('allGrid').innerHTML = all.map(p => {
     const isOnyx = p.onyx;
-    return `<a class="wf-all-card ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?id=${p.id}" style="position:relative;">
+    return `<a class="wf-all-card ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" style="position:relative;">
       ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
       <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
         ${initials(p.name)}
@@ -927,6 +997,9 @@ function renderAllGrid() {
   }).join('');
 }
 renderAllGrid();
+
+// Cargar profesionales reales desde Firestore (se fusionan con los demo)
+cargarProfesionalesReales();
 </script>
 </body>
 </html>
