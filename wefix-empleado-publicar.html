@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Publicar mi servicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="profesional"></script>
+
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--brand2:#1a4f72;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--gold-a:#fbbf24;--gold-b:#f97316;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:40px;}
+
+    .wf-top{background:var(--brand);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+    .wf-back{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;padding:0;}
+    .wf-top-title{font-size:16px;font-weight:700;}
+
+    .wf-intro{padding:18px 18px 6px;}
+    .wf-intro h1{font-size:19px;font-weight:800;color:var(--text);margin-bottom:6px;}
+    .wf-intro p{font-size:13px;color:var(--muted);line-height:1.5;font-family:'Poppins',sans-serif;}
+
+    .wf-section{padding:14px 18px;}
+    .wf-section-label{font-size:12px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;font-family:'Poppins',sans-serif;}
+
+    /* Tarjetas de categoría */
+    .wf-cat{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;transition:border-color .18s,box-shadow .18s;position:relative;box-shadow:var(--shadow);}
+    .wf-cat.selected{border-color:var(--brand);}
+    .wf-cat-head{display:flex;align-items:center;gap:12px;}
+    .wf-cat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .wf-cat-icon.flash{background:#fef3e2;}
+    .wf-cat-icon.premium{background:linear-gradient(135deg,var(--gold-a),var(--gold-b));}
+    .wf-cat-icon.planta{background:#e3edf4;}
+    .wf-cat-body{flex:1;min-width:0;}
+    .wf-cat-name{font-size:15px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:7px;}
+    .wf-cat-desc{font-size:11.5px;color:var(--muted);font-family:'Poppins',sans-serif;line-height:1.45;margin-top:2px;}
+    .wf-cat-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:all .15s;}
+    .wf-cat.selected .wf-cat-check{background:var(--brand);border-color:var(--brand);}
+    .wf-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:.3px;}
+    .wf-tag.instant{background:#e7f8ee;color:#15803d;}
+    .wf-tag.review{background:#fef3e2;color:#b45309;}
+    .wf-cat-status{margin-top:10px;font-size:11px;font-family:'Poppins',sans-serif;padding:7px 10px;border-radius:9px;display:none;}
+    .wf-cat-status.active{display:block;background:#e7f8ee;color:#15803d;}
+    .wf-cat-status.pending{display:block;background:#fef3e2;color:#b45309;}
+
+    /* Formulario premium (se despliega) */
+    .wf-premium-form{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);display:none;}
+    .wf-premium-form.open{display:block;}
+    .wf-field{margin-bottom:14px;}
+    .wf-field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:'Poppins',sans-serif;}
+    .wf-field textarea,.wf-field input[type=text]{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;resize:vertical;}
+    .wf-field textarea:focus,.wf-field input:focus{border-color:var(--brand);}
+    .wf-hint{font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;margin-top:4px;}
+
+    /* Uploader de evidencia */
+    .wf-evidence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+    .wf-ev-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#f0f3f6;}
+    .wf-ev-thumb img{width:100%;height:100%;object-fit:cover;}
+    .wf-ev-thumb .wf-ev-del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:1;}
+    .wf-ev-add{aspect-ratio:1;border:2px dashed var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);font-size:10px;font-family:'Poppins',sans-serif;background:none;}
+    .wf-ev-add:hover{border-color:var(--brand);color:var(--brand);}
+    .wf-ev-add svg{width:22px;height:22px;}
+    #evInput{display:none;}
+
+    .wf-save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--white);border-top:1px solid var(--border);padding:12px 18px;z-index:60;}
+    .wf-save-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .wf-save-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    .wf-upbar{margin-top:8px;display:none;}
+    .wf-upbar-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+    .wf-upbar-fill{height:100%;background:var(--brand);width:0%;transition:width .2s;}
+
+    .wf-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:12px 22px;font-size:13px;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:transform .3s;max-width:90%;text-align:center;font-family:'Poppins',sans-serif;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+    .wf-toast.error{background:var(--red);}
+  </style>
+</head>
+<body>
+
+  <div class="wf-top">
+    <button class="wf-back" onclick="window.location.href='wefix-empleado-perfil.html'">‹</button>
+    <div class="wf-top-title">Publicar mi servicio</div>
+  </div>
+
+  <div class="wf-intro">
+    <h1>¿Dónde quieres aparecer?</h1>
+    <p>Elige una o varias categorías donde ofrecer tu servicio. Puedes cambiarlas cuando quieras.</p>
+  </div>
+
+  <div class="wf-section">
+    <div class="wf-section-label">Categorías disponibles</div>
+
+    <!-- FLASH -->
+    <div class="wf-cat" id="cat-flash" onclick="toggleCat('flash')">
+      <div class="wf-cat-head">
+        <div class="wf-cat-icon flash">⚡</div>
+        <div class="wf-cat-body">
+          <div class="wf-cat-name">Flash <span class="wf-tag instant">Activación inmediata</span></div>
+          <div class="wf-cat-desc">Recibe solicitudes de servicio inmediato. Los clientes que necesitan ayuda urgente te encontrarán primero.</div>
+        </div>
+        <div class="wf-cat-check">✓</div>
+      </div>
+      <div class="wf-cat-status" id="status-flash"></div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div class="wf-cat" id="cat-premium" onclick="toggleCat('premium')">
+      <div class="wf-cat-head">
+        <div class="wf-cat-icon premium">💎</div>
+        <div class="wf-cat-body">
+          <div class="wf-cat-name">Premium <span class="wf-tag review">Requiere revisión</span></div>
+          <div class="wf-cat-desc">Aparece entre los profesionales exclusivos. Requiere validar tus herramientas de trabajo con evidencia fotográfica.</div>
+        </div>
+        <div class="wf-cat-check">✓</div>
+      </div>
+      <div class="wf-cat-status" id="status-premium"></div>
+
+      <!-- Formulario premium -->
+      <div class="wf-premium-form" id="premiumForm" onclick="event.stopPropagation()">
+        <div class="wf-field">
+          <label>Describe tus herramientas de trabajo</label>
+          <textarea id="premTools" rows="4" placeholder="Ej: Hidrolavadora industrial 2000 PSI, kit de jardinería profesional, aspiradora de grado comercial…"></textarea>
+          <div class="wf-hint">Sé específico: marca, tipo y para qué usas cada herramienta.</div>
+        </div>
+        <div class="wf-field">
+          <label>Evidencia fotográfica de tus herramientas</label>
+          <div class="wf-evidence-grid" id="evGrid">
+            <button class="wf-ev-add" id="evAddBtn" onclick="document.getElementById('evInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+              Agregar
+            </button>
+          </div>
+          <input type="file" id="evInput" accept="image/*"/>
+          <div class="wf-hint">Sube de 1 a 6 fotos claras de tus herramientas (máx. 8 MB c/u).</div>
+          <div class="wf-upbar" id="upBar"><div class="wf-upbar-track"><div class="wf-upbar-fill" id="upFill"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANTA -->
+    <div class="wf-cat" id="cat-planta" onclick="toggleCat('planta')">
+      <div class="wf-cat-head">
+        <div class="wf-cat-icon planta">🗓️</div>
+        <div class="wf-cat-body">
+          <div class="wf-cat-name">De planta <span class="wf-tag instant">Activación inmediata</span></div>
+          <div class="wf-cat-desc">Ofrece contrataciones por periodos de 4 semanas. Configura tus horas y días en tu perfil.</div>
+        </div>
+        <div class="wf-cat-check">✓</div>
+      </div>
+      <div class="wf-cat-status" id="status-planta"></div>
+    </div>
+
+  </div>
+
+  <div class="wf-save-bar">
+    <button class="wf-save-btn" id="saveBtn" onclick="guardar()">Guardar mis categorías</button>
+  </div>
+
+  <div class="wf-toast" id="toast"></div>
+
+<script>
+  var MY_UID=null, MY_NOMBRE='';
+  // Estado de selección en vivo
+  var sel = { flash:false, premium:false, planta:false };
+  // Estado premium guardado en Firestore: 'ninguno' | 'pendiente' | 'aprobado' | 'rechazado'
+  var premiumEstado = 'ninguno';
+  var evidencias = [];   // URLs de fotos subidas
+  var premToolsGuardado = '';
+
+  function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='wf-toast show'+(type==='error'?' error':'');clearTimeout(window.__t);window.__t=setTimeout(function(){t.className='wf-toast'+(type==='error'?' error':'');},3200);}
+
+  function toggleCat(cat){
+    // Premium en revisión o aprobado no se puede "desmarcar" a la ligera desde aquí
+    sel[cat] = !sel[cat];
+    document.getElementById('cat-'+cat).classList.toggle('selected', sel[cat]);
+    if(cat==='premium'){
+      document.getElementById('premiumForm').classList.toggle('open', sel[cat]);
+    }
+    pintarStatus();
+  }
+
+  function pintarStatus(){
+    // Flash y planta: inmediatas
+    ['flash','planta'].forEach(function(c){
+      var el=document.getElementById('status-'+c);
+      if(sel[c]){ el.className='wf-cat-status active'; el.textContent='✓ Se activará al guardar — visible de inmediato.'; }
+      else { el.className='wf-cat-status'; el.textContent=''; }
+    });
+    // Premium: depende del estado
+    var elp=document.getElementById('status-premium');
+    if(!sel['premium']){ elp.className='wf-cat-status'; elp.textContent=''; return; }
+    if(premiumEstado==='aprobado'){ elp.className='wf-cat-status active'; elp.textContent='✓ Premium aprobado — ya apareces como profesional exclusivo.'; }
+    else if(premiumEstado==='pendiente'){ elp.className='wf-cat-status pending'; elp.textContent='⏳ En revisión por el equipo WeFix. Te avisaremos cuando se apruebe.'; }
+    else if(premiumEstado==='rechazado'){ elp.className='wf-cat-status pending'; elp.textContent='Tu solicitud anterior fue rechazada. Ajusta tu evidencia y vuelve a enviar.'; }
+    else { elp.className='wf-cat-status pending'; elp.textContent='Al guardar, tu solicitud irá a revisión del equipo antes de aparecer como Premium.'; }
+  }
+
+  // ── EVIDENCIA (subida a Storage) ──
+  document.getElementById('evInput').addEventListener('change', function(){
+    var file=this.files[0]; this.value=''; if(!file||!MY_UID) return;
+    if(evidencias.length>=6){ toast('Máximo 6 fotos'); return; }
+    if(file.size>8*1024*1024){ toast('La imagen supera 8 MB'); return; }
+    var bar=document.getElementById('upBar'), fill=document.getElementById('upFill');
+    bar.style.display='block'; fill.style.width='0%';
+    var path='premium-evidencia/'+MY_UID+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+    var task=firebase.storage().ref(path).put(file);
+    task.on('state_changed',
+      function(s){ fill.style.width=Math.round((s.bytesTransferred/s.totalBytes)*100)+'%'; },
+      function(e){ console.error(e); bar.style.display='none'; toast('No se pudo subir la foto','error'); },
+      function(){ task.snapshot.ref.getDownloadURL().then(function(url){ bar.style.display='none'; evidencias.push(url); pintarEvidencias(); }); });
+  });
+
+  function pintarEvidencias(){
+    var grid=document.getElementById('evGrid');
+    var thumbs=evidencias.map(function(url,i){
+      return '<div class="wf-ev-thumb"><img src="'+url+'"/><button class="wf-ev-del" onclick="quitarEv('+i+')">×</button></div>';
+    }).join('');
+    var addBtn = evidencias.length<6
+      ? '<button class="wf-ev-add" id="evAddBtn" onclick="document.getElementById(\'evInput\').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Agregar</button>'
+      : '';
+    grid.innerHTML = thumbs + addBtn;
+  }
+  function quitarEv(i){ evidencias.splice(i,1); pintarEvidencias(); }
+
+  // ── GUARDAR ──
+  function guardar(){
+    if(!MY_UID){ toast('Debes iniciar sesión'); return; }
+    var btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='Guardando…';
+
+    // Categorías inmediatas
+    var categorias = [];
+    if(sel['flash']) categorias.push('flash');
+    if(sel['planta']) categorias.push('planta');
+
+    // Objeto base a guardar en el doc del profesional
+    var data = { categorias: categorias };
+
+    // ── Lógica Premium ──
+    var nuevaSolicitudPremium = false;
+    if(sel['premium']){
+      if(premiumEstado==='aprobado'){
+        // ya aprobado: se mantiene, se agrega a categorias visibles
+        categorias.push('premium');
+        data.categorias = categorias;
+      } else {
+        // requiere (re)enviar a revisión
+        var tools=document.getElementById('premTools').value.trim();
+        if(!tools){ toast('Describe tus herramientas de trabajo'); btn.disabled=false; btn.textContent='Guardar mis categorías'; return; }
+        if(evidencias.length<1){ toast('Sube al menos una foto de evidencia'); btn.disabled=false; btn.textContent='Guardar mis categorías'; return; }
+        data.premiumEstado='pendiente';
+        data.premiumHerramientas=tools;
+        data.premiumEvidencia=evidencias;
+        nuevaSolicitudPremium = true;
+      }
+    } else {
+      // No seleccionó premium: si antes estaba aprobado/pendiente, lo damos de baja
+      if(premiumEstado!=='ninguno'){ data.premiumEstado='ninguno'; }
+    }
+
+    WeFix.db.collection('usuarios').doc(MY_UID).set(data,{merge:true}).then(function(){
+      // Si hay nueva solicitud premium, crear registro en la cola de revisión del equipo
+      if(nuevaSolicitudPremium){
+        return WeFix.db.collection('solicitudes_premium').add({
+          profesionalUid: MY_UID,
+          profesionalNombre: MY_NOMBRE || '',
+          herramientas: document.getElementById('premTools').value.trim(),
+          evidencia: evidencias,
+          estado: 'pendiente',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }).then(function(){
+      btn.disabled=false; btn.textContent='Guardar mis categorías';
+      if(nuevaSolicitudPremium){ premiumEstado='pendiente'; pintarStatus();
+        toast('Guardado. Tu solicitud Premium está en revisión ⏳'); }
+      else { toast('Categorías actualizadas ✓'); }
+    }).catch(function(e){
+      console.error(e); btn.disabled=false; btn.textContent='Guardar mis categorías';
+      toast('No se pudo guardar','error');
+    });
+  }
+
+  // ── CARGA ──
+  WeFix.ready(function(user,profile){
+    if(!user) return;
+    MY_UID=user.uid; MY_NOMBRE=(profile&&profile.nombre)||'';
+    var cats = (profile&&profile.categorias)||[];
+    premiumEstado = (profile&&profile.premiumEstado)||'ninguno';
+    premToolsGuardado = (profile&&profile.premiumHerramientas)||'';
+    evidencias = (profile&&profile.premiumEvidencia)||[];
+
+    sel['flash']  = cats.indexOf('flash')>-1;
+    sel['planta'] = cats.indexOf('planta')>-1;
+    sel['premium']= (premiumEstado==='aprobado'||premiumEstado==='pendiente');
+
+    // reflejar en UI
+    ['flash','premium','planta'].forEach(function(c){
+      document.getElementById('cat-'+c).classList.toggle('selected', sel[c]);
+    });
+    if(sel['premium']){ document.getElementById('premiumForm').classList.add('open'); }
+    if(premToolsGuardado){ document.getElementById('premTools').value = premToolsGuardado; }
+    pintarEvidencias();
+    pintarStatus();
+  });
+</script>
+</body>
+</html>
