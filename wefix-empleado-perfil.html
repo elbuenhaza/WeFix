@@ -10,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="wefix-auth.js" data-guard="require" data-role="profesional"></script>
 
   <style>
@@ -337,11 +338,13 @@
       <img class="wf-portfolio-thumb" src="bonito3.jpg" onerror="this.style.background='#dcfce7'" alt="Resultado" style="width:100%;height:120px;object-fit:cover;border-radius:10px;"/>
     </div>
     <!-- Agregar nuevo -->
-    <div class="wf-add-portfolio" onclick="showToast('Función de carga próximamente 📸')">
+    <div class="wf-add-portfolio" onclick="document.getElementById('trabajoInput').click()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
       Agregar resultado
     </div>
+    <input type="file" id="trabajoInput" accept="image/*" style="display:none"/>
   </div>
+  <div id="trabajoUpBar" style="display:none;padding:0 16px 12px;"><div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;"><div id="trabajoUpFill" style="height:100%;background:var(--brand);width:0%;transition:width .2s;"></div></div></div>
 </div>
 
 <!-- VERIFICACIÓN -->
@@ -354,7 +357,7 @@
     <div class="wf-verif-body">
       <div class="wf-verif-name">INE / Pasaporte</div>
       <div class="wf-verif-desc">Documento oficial de identidad vigente</div>
-      <button class="wf-upload-btn" onclick="showToast('Subiendo documento… 📄')">Subir documento</button>
+      <button class="wf-upload-btn" onclick="document.getElementById('ineInput').click()">Subir documento</button><input type="file" id="ineInput" accept="image/*,.pdf" style="display:none"/>
     </div>
     <div class="wf-verif-status ok">Verificado ✓</div>
   </div>
@@ -371,7 +374,7 @@
     <div class="wf-verif-body">
       <div class="wf-verif-name">Herramientas certificadas</div>
       <div class="wf-verif-desc">Foto de tus herramientas de trabajo</div>
-      <button class="wf-upload-btn" onclick="showToast('Subiendo fotos… 📸')">Subir fotos</button>
+      <button class="wf-upload-btn" onclick="document.getElementById('herramInput').click()">Subir fotos</button><input type="file" id="herramInput" accept="image/*" style="display:none"/>
     </div>
     <div class="wf-verif-status ok">Certificado ✓</div>
   </div>
@@ -380,7 +383,7 @@
     <div class="wf-verif-body">
       <div class="wf-verif-name">Cuenta bancaria</div>
       <div class="wf-verif-desc">CLABE para recibir pagos</div>
-      <button class="wf-upload-btn" onclick="showToast('Abriendo formulario bancario…')">Agregar cuenta</button>
+      <button class="wf-upload-btn" onclick="showToast('El registro de cuenta bancaria estará disponible al activar pagos con Conekta 🏦')">Agregar cuenta</button>
     </div>
     <div class="wf-verif-status needed">Pendiente</div>
   </div>
@@ -528,7 +531,94 @@ function pintarPerfil(p) {
     if (inp) inp.value = p.precio || '';
   })();
   pintarPlanta(p);
+  pintarTrabajos(p);
 }
+
+// ── TRABAJOS REALIZADOS (fotos de resultado, reales en Firestore + Storage) ──
+function pintarTrabajos(p){
+  var trabajos = Array.isArray(p.trabajos) ? p.trabajos : [];
+  var grid = document.getElementById('portfolioGrid');
+  if(!grid) return;
+  // Si el profesional ya subió trabajos reales, reemplazamos los demo
+  if(trabajos.length){
+    var cards = trabajos.map(function(t, i){
+      return '<div class="wf-portfolio-pair">'
+        + '<div class="wf-portfolio-pair-label">'+ (t.titulo || ('Trabajo '+(i+1))) +' ✓ '
+        + '<span onclick="borrarTrabajo('+i+')" style="cursor:pointer;color:#ef4444;font-size:11px;margin-left:4px;">×</span></div>'
+        + '<img class="wf-portfolio-thumb" src="'+t.foto+'" alt="Resultado" style="width:100%;height:120px;object-fit:cover;border-radius:10px;"/>'
+        + '</div>';
+    }).join('');
+    var addBtn = '<div class="wf-add-portfolio" onclick="document.getElementById(\'trabajoInput\').click()">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>Agregar resultado</div>'
+      + '<input type="file" id="trabajoInput" accept="image/*" style="display:none"/>';
+    grid.innerHTML = cards + addBtn;
+    engancharTrabajoInput();
+  }
+}
+
+function engancharTrabajoInput(){
+  var inp = document.getElementById('trabajoInput');
+  if(!inp || inp._hooked) return;
+  inp._hooked = true;
+  inp.addEventListener('change', subirTrabajo);
+}
+
+function subirTrabajo(){
+  var file = this.files[0]; this.value=''; if(!file || !currentUid) return;
+  if(file.size > 8*1024*1024){ showToast('La imagen supera 8 MB'); return; }
+  var titulo = prompt('Título del trabajo (ej. "Jardín residencial en Coyoacán"):', '');
+  if(titulo===null) return; // canceló
+  var bar=document.getElementById('trabajoUpBar'), fill=document.getElementById('trabajoUpFill');
+  if(bar){ bar.style.display='block'; fill.style.width='0%'; }
+  var path='trabajos/'+currentUid+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+  var task=firebase.storage().ref(path).put(file);
+  task.on('state_changed',
+    function(s){ if(fill) fill.style.width=Math.round((s.bytesTransferred/s.totalBytes)*100)+'%'; },
+    function(e){ console.error(e); if(bar) bar.style.display='none'; showToast('No se pudo subir la foto'); },
+    function(){ task.snapshot.ref.getDownloadURL().then(function(url){
+      if(bar) bar.style.display='none';
+      var trabajos = Array.isArray(currentProfile.trabajos) ? currentProfile.trabajos.slice() : [];
+      trabajos.push({ foto:url, titulo:(titulo||'Trabajo realizado'), createdAt: Date.now() });
+      WeFix.db.collection('usuarios').doc(currentUid).set({trabajos:trabajos},{merge:true}).then(function(){
+        currentProfile.trabajos = trabajos; pintarTrabajos(currentProfile);
+        showToast('Trabajo agregado ✓');
+      }).catch(function(){ showToast('No se pudo guardar'); });
+    }); });
+}
+
+function borrarTrabajo(i){
+  if(!confirm('¿Quitar este trabajo de tu perfil?')) return;
+  var trabajos = Array.isArray(currentProfile.trabajos) ? currentProfile.trabajos.slice() : [];
+  trabajos.splice(i,1);
+  WeFix.db.collection('usuarios').doc(currentUid).set({trabajos:trabajos},{merge:true}).then(function(){
+    currentProfile.trabajos = trabajos; pintarTrabajos(currentProfile);
+    showToast('Trabajo eliminado');
+  }).catch(function(){ showToast('No se pudo eliminar'); });
+}
+
+// ── SUBIDA DE DOCUMENTOS DE VERIFICACIÓN (INE, herramientas) ──
+function subirVerificacion(file, tipo, campoFirestore){
+  if(!file || !currentUid) return;
+  if(file.size > 8*1024*1024){ showToast('El archivo supera 8 MB'); return; }
+  showToast('Subiendo…');
+  var path='verificacion/'+currentUid+'/'+tipo+'_'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+  var task=firebase.storage().ref(path).put(file);
+  task.on('state_changed', null,
+    function(e){ console.error(e); showToast('No se pudo subir'); },
+    function(){ task.snapshot.ref.getDownloadURL().then(function(url){
+      var upd={}; upd[campoFirestore]=url; upd[campoFirestore+'Estado']='en_revision';
+      WeFix.db.collection('usuarios').doc(currentUid).set(upd,{merge:true}).then(function(){
+        showToast('Documento enviado a revisión ✓');
+      }).catch(function(){ showToast('No se pudo guardar'); });
+    }); });
+}
+
+(function(){
+  var ine = document.getElementById('ineInput');
+  if(ine) ine.addEventListener('change', function(){ subirVerificacion(this.files[0],'ine','docINE'); this.value=''; });
+  var her = document.getElementById('herramInput');
+  if(her) her.addEventListener('change', function(){ subirVerificacion(this.files[0],'herramientas','fotoHerramientas'); this.value=''; });
+})();
 
 // ── SERVICIO DE PLANTA ──
 var DIAS_NOMBRE = {L:'Lun',M:'Mar',X:'Mié',J:'Jue',V:'Vie',S:'Sáb',D:'Dom'};
@@ -603,6 +693,7 @@ WeFix.ready(function (user, profile) {
   currentUid     = user.uid;
   currentProfile = profile || {};
   pintarPerfil(currentProfile);
+  engancharTrabajoInput();
 });
 
 // AVATAR (redimensiona a 256px y guarda en Firestore, sin necesitar Storage)
