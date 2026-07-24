@@ -695,7 +695,9 @@ const portfolioHTML = (function() {
 })();
 
 // Reviews HTML
-const reviewsHTML = revs.map(r => {
+const reviewsHTML = !revs.length
+  ? '<div style="text-align:center;padding:26px 16px;color:var(--muted);font-size:12.5px;font-family:Poppins,sans-serif;">Este profesional aún no tiene reseñas. ¡Sé el primero en dejar una!</div>'
+  : revs.map(r => {
   const avatarHTML = r.img
     ? `<img class="wf-review-avatar" src="${r.img}" alt="${r.name}"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>`
@@ -703,16 +705,19 @@ const reviewsHTML = revs.map(r => {
   const fallbackHTML = `<div class="wf-review-avatar-fallback" ${r.img?'style="display:none;"':''}>
     ${r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
   </div>`;
+  // Una reseña puede tener solo estrellas, solo texto, o ambas
+  const starsBlock = r.stars ? `<div class="wf-review-stars">${starsHTML(r.stars,12,1)}</div>` : '';
+  const textBlock  = r.text ? `<div class="wf-review-text">${r.text}</div>` : '';
   return `
     <div class="wf-review">
       <div class="wf-review-header">
         ${avatarHTML}${fallbackHTML}
         <div class="wf-review-meta">
           <div class="wf-review-name">${r.name}</div>
-          <div class="wf-review-stars">${starsHTML(r.stars,12)}</div>
+          ${starsBlock}
         </div>
       </div>
-      <div class="wf-review-text">${r.text}</div>
+      ${textBlock}
     </div>`;
 }).join('');
 
@@ -749,7 +754,7 @@ document.getElementById('profileContent').innerHTML = `
   </div>
 
   <div class="wf-section">
-    <h3>Trabajos realizados / Herramientas de trabajo</h3>
+    <h3>Trabajos realizados</h3>
     ${portfolioHTML}
   </div>
 
@@ -775,10 +780,32 @@ if (REAL_UID) {
               label:d.especialidad||'Servicio', stars:((d.numResenas>0 && d.ratingPromedio) ? d.ratingPromedio : 0), numResenas:(d.numResenas||0), price:d.precio||0,
               verified:!!d.verificado, desc:d.bio||'Profesional verificado de WeFix.', trabajos:(d.trabajos||[]),
               fotoPerfil:d.fotoPerfil||'' };
-      revs = reviews.default;
+      revs = [];  // se llenan con las reales
       renderProfile();
+      cargarResenasReales(REAL_UID);
     }).catch(function(e){ console.error(e); });
   })();
+}
+
+// ── Reseñas reales del profesional ──
+function cargarResenasReales(uid){
+  WeFix.db.collection('resenas').where('profesionalUid','==',uid).get()
+    .then(function(snap){
+      var arr=[];
+      snap.forEach(function(d){
+        var r=d.data();
+        arr.push({
+          name: r.clienteNombre || 'Cliente WeFix',
+          stars: r.estrellas || 0,
+          text: r.texto || '',
+          img: null,
+          _ts: (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : 0
+        });
+      });
+      arr.sort(function(a,b){ return b._ts - a._ts; });  // más recientes primero
+      revs = arr;
+      renderProfile();
+    }).catch(function(e){ console.warn('reseñas:', e); });
 }
 
 // ══════════════════════════════════
