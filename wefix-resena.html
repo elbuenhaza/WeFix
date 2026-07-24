@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeFix — Califica tu servicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="require" data-role="cliente"></script>
+
+  <link rel="icon" href="favicon.ico" sizes="any"/>
+  <meta name="theme-color" content="#123853"/>
+
+  <style>
+    :root{--bg:#f4f4f6;--brand:#123853;--brand2:#1a4f72;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
+    body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:40px;}
+
+    .wf-top{background:var(--brand);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+    .wf-back{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;padding:0;}
+    .wf-top-title{font-size:16px;font-weight:700;}
+
+    .wf-card{background:var(--white);border-radius:16px;margin:16px;padding:22px 18px;box-shadow:0 2px 12px rgba(18,56,83,.08);}
+
+    .wf-pro-row{display:flex;align-items:center;gap:13px;margin-bottom:6px;}
+    .wf-pro-avatar{width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;background-size:cover;background-position:center;}
+    .wf-pro-name{font-size:17px;font-weight:800;color:var(--text);}
+    .wf-pro-serv{font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;margin-top:2px;}
+
+    .wf-ask{text-align:center;font-size:15px;font-weight:700;color:var(--text);margin:22px 0 4px;}
+    .wf-ask-sub{text-align:center;font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;margin-bottom:14px;}
+
+    /* Estrellas */
+    .wf-stars{display:flex;justify-content:center;gap:8px;margin-bottom:6px;}
+    .wf-star{font-size:40px;cursor:pointer;color:#d8dee6;transition:transform .12s,color .12s;user-select:none;line-height:1;}
+    .wf-star:hover{transform:scale(1.12);}
+    .wf-star.on{color:var(--gold);}
+    .wf-star-label{text-align:center;font-size:12.5px;color:var(--muted);font-family:'Poppins',sans-serif;height:18px;margin-bottom:16px;}
+
+    /* Texto */
+    .wf-field-label{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:7px;font-family:'Poppins',sans-serif;display:flex;justify-content:space-between;align-items:center;}
+    .wf-opt{font-size:10.5px;color:var(--muted);font-weight:500;font-style:italic;}
+    textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13.5px;font-family:'Poppins',sans-serif;outline:none;resize:vertical;min-height:96px;line-height:1.5;}
+    textarea:focus{border-color:var(--brand);}
+    .wf-count{text-align:right;font-size:10.5px;color:var(--muted);margin-top:4px;font-family:'Poppins',sans-serif;}
+
+    .wf-submit{width:100%;background:var(--brand);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:20px;}
+    .wf-submit:disabled{opacity:.45;cursor:not-allowed;}
+    .wf-skip{width:100%;background:none;border:none;color:var(--muted);font-size:12.5px;padding:14px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline;}
+
+    .wf-hint{font-size:11px;color:var(--muted);font-family:'Poppins',sans-serif;text-align:center;margin-top:10px;line-height:1.5;}
+
+    /* Estado final */
+    .wf-done{text-align:center;padding:50px 24px;}
+    .wf-done-emoji{font-size:52px;margin-bottom:14px;}
+    .wf-done h2{font-size:19px;color:var(--brand);margin-bottom:8px;}
+    .wf-done p{font-size:13px;color:var(--muted);font-family:'Poppins',sans-serif;line-height:1.6;margin-bottom:22px;}
+    .wf-done a{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;padding:13px 30px;border-radius:12px;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;}
+
+    .wf-loading{text-align:center;padding:60px 20px;}
+    .wf-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;margin:0 auto;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .wf-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;border-radius:30px;padding:12px 22px;font-size:13px;z-index:9999;transition:transform .3s;max-width:90%;text-align:center;font-family:'Poppins',sans-serif;}
+    .wf-toast.show{transform:translateX(-50%) translateY(0);}
+    .wf-toast.error{background:var(--red);}
+  </style>
+</head>
+<body>
+
+  <div class="wf-top">
+    <button class="wf-back" onclick="history.back()">‹</button>
+    <div class="wf-top-title">Califica tu servicio</div>
+  </div>
+
+  <div id="loadingState" class="wf-loading"><div class="wf-spin"></div></div>
+
+  <div id="formState" style="display:none;">
+    <div class="wf-card">
+      <div class="wf-pro-row">
+        <div class="wf-pro-avatar" id="proAvatar">?</div>
+        <div>
+          <div class="wf-pro-name" id="proName">Profesional</div>
+          <div class="wf-pro-serv" id="proServ">Servicio</div>
+        </div>
+      </div>
+
+      <div class="wf-ask">¿Cómo estuvo el servicio?</div>
+      <div class="wf-ask-sub">Tu opinión ayuda a otros clientes a elegir mejor</div>
+
+      <div class="wf-stars" id="starsRow">
+        <span class="wf-star" data-v="1">★</span>
+        <span class="wf-star" data-v="2">★</span>
+        <span class="wf-star" data-v="3">★</span>
+        <span class="wf-star" data-v="4">★</span>
+        <span class="wf-star" data-v="5">★</span>
+      </div>
+      <div class="wf-star-label" id="starLabel"></div>
+
+      <div class="wf-field-label">
+        <span>Cuéntanos tu experiencia</span>
+        <span class="wf-opt">opcional</span>
+      </div>
+      <textarea id="reviewText" maxlength="500" placeholder="¿Qué te pareció el trabajo? ¿Fue puntual? ¿Lo recomendarías?"></textarea>
+      <div class="wf-count"><span id="charCount">0</span>/500</div>
+
+      <button class="wf-submit" id="submitBtn" onclick="enviarResena()" disabled>Enviar reseña</button>
+      <div class="wf-hint">Puedes calificar solo con estrellas, solo escribir, o ambas cosas.</div>
+      <button class="wf-skip" onclick="history.back()">Ahora no</button>
+    </div>
+  </div>
+
+  <div id="doneState" style="display:none;">
+    <div class="wf-done">
+      <div class="wf-done-emoji">🌟</div>
+      <h2>¡Gracias por tu reseña!</h2>
+      <p>Tu opinión ya es visible en el perfil del profesional y ayuda a que otros clientes elijan con confianza.</p>
+      <a href="wefix-home.html">Volver al inicio</a>
+    </div>
+  </div>
+
+  <div class="wf-toast" id="toast"></div>
+
+<script>
+  var params = new URLSearchParams(location.search);
+  var CONTRATACION_ID = params.get('c') || '';
+  var MY_UID=null, MY_NOMBRE='';
+  var contratacion=null, profUid='';
+  var starValue = 0;
+
+  var LABELS = {1:'Muy malo',2:'Malo',3:'Regular',4:'Bueno',5:'¡Excelente!'};
+
+  function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.className='wf-toast show'+(t==='error'?' error':'');setTimeout(function(){e.className='wf-toast'+(t==='error'?' error':'');},3000);}
+
+  // ── Estrellas ──
+  document.querySelectorAll('.wf-star').forEach(function(st){
+    st.addEventListener('click', function(){
+      starValue = parseInt(this.dataset.v,10);
+      pintarEstrellas();
+      validar();
+    });
+  });
+  function pintarEstrellas(){
+    document.querySelectorAll('.wf-star').forEach(function(s){
+      s.classList.toggle('on', parseInt(s.dataset.v,10) <= starValue);
+    });
+    document.getElementById('starLabel').textContent = starValue ? LABELS[starValue] : '';
+  }
+
+  // ── Texto ──
+  var ta = document.getElementById('reviewText');
+  ta.addEventListener('input', function(){
+    document.getElementById('charCount').textContent = this.value.length;
+    validar();
+  });
+
+  // Se puede enviar con SOLO estrellas, SOLO texto, o ambos
+  function validar(){
+    var hayEstrellas = starValue > 0;
+    var hayTexto = ta.value.trim().length > 0;
+    document.getElementById('submitBtn').disabled = !(hayEstrellas || hayTexto);
+  }
+
+  // ── Enviar ──
+  function enviarResena(){
+    if(!MY_UID || !profUid){ toast('Falta información','error'); return; }
+    var texto = ta.value.trim();
+    if(!starValue && !texto){ toast('Califica con estrellas o escribe tu experiencia'); return; }
+
+    var btn=document.getElementById('submitBtn');
+    btn.disabled=true; btn.textContent='Enviando…';
+
+    var resena = {
+      profesionalUid: profUid,
+      clienteUid: MY_UID,
+      clienteNombre: MY_NOMBRE || 'Cliente WeFix',
+      contratacionId: CONTRATACION_ID,
+      estrellas: starValue || null,          // puede ir sin estrellas
+      texto: texto || '',                    // puede ir sin texto
+      servicio: (contratacion && contratacion.servicio) || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    WeFix.db.collection('resenas').add(resena).then(function(){
+      // marcar la contratación como reseñada (para no pedirla dos veces)
+      if(CONTRATACION_ID){
+        WeFix.db.collection('contrataciones').doc(CONTRATACION_ID)
+          .update({resenada:true}).catch(function(){});
+      }
+      return recalcularPromedio(profUid);
+    }).then(function(){
+      document.getElementById('formState').style.display='none';
+      document.getElementById('doneState').style.display='block';
+    }).catch(function(e){
+      console.error(e); btn.disabled=false; btn.textContent='Enviar reseña';
+      toast('No se pudo enviar tu reseña','error');
+    });
+  }
+
+  // ── Recalcular el promedio del profesional (solo cuentan las que tienen estrellas) ──
+  function recalcularPromedio(uid){
+    return WeFix.db.collection('resenas').where('profesionalUid','==',uid).get()
+      .then(function(snap){
+        var suma=0, n=0, total=0;
+        snap.forEach(function(d){
+          var r=d.data(); total++;
+          if(r.estrellas){ suma += r.estrellas; n++; }
+        });
+        var promedio = n ? (suma/n) : 0;
+        return WeFix.db.collection('usuarios').doc(uid).set({
+          ratingPromedio: Math.round(promedio*10)/10,   // 1 decimal
+          numResenas: n,                                 // reseñas con estrellas
+          numComentarios: total                          // todas (incl. solo texto)
+        },{merge:true});
+      });
+  }
+
+  // ── Carga ──
+  WeFix.ready(function(user, profile){
+    if(!user) return;
+    MY_UID=user.uid; MY_NOMBRE=(profile&&profile.nombre)||'';
+
+    if(!CONTRATACION_ID){
+      document.getElementById('loadingState').innerHTML =
+        '<p style="color:#6b7280;font-size:13px;font-family:Poppins,sans-serif;">No encontramos el servicio a calificar.</p>';
+      return;
+    }
+
+    WeFix.db.collection('contrataciones').doc(CONTRATACION_ID).get().then(function(doc){
+      if(!doc.exists){ throw new Error('no existe'); }
+      contratacion = doc.data();
+      if(contratacion.clienteUid !== MY_UID){ throw new Error('no es tuya'); }
+      profUid = contratacion.profesionalUid;
+
+      document.getElementById('proName').textContent = contratacion.profesionalNombre || 'Profesional';
+      document.getElementById('proServ').textContent = (contratacion.servicio||'Servicio') + (contratacion.fecha ? ' · ' + contratacion.fecha : '');
+
+      // avatar del profesional
+      WeFix.db.collection('usuarios').doc(profUid).get().then(function(p){
+        var d=p.data()||{};
+        var av=document.getElementById('proAvatar');
+        if(d.fotoPerfil){ av.style.backgroundImage='url('+d.fotoPerfil+')'; av.textContent=''; }
+        else { av.textContent=(d.nombre||'P').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
+      }).catch(function(){});
+
+      document.getElementById('loadingState').style.display='none';
+      document.getElementById('formState').style.display='block';
+    }).catch(function(e){
+      console.error(e);
+      document.getElementById('loadingState').innerHTML =
+        '<p style="color:#6b7280;font-size:13px;font-family:Poppins,sans-serif;">No pudimos cargar este servicio.</p>';
+    });
+  });
+</script>
+</body>
+</html>
