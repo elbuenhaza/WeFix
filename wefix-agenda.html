@@ -16,10 +16,10 @@
   <link rel="icon" href="favicon.ico" sizes="any"/>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
-  <meta name="theme-color" content="#123853"/>
+  <meta name="theme-color" content="#0B1D35"/>
 
   <style>
-    :root{--bg:#f4f4f6;--brand:#123853;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--shadow:0 2px 12px rgba(18,56,83,.10);}
+    :root{--bg:#f4f4f6;--brand:#0B1D35;--accent:#f87171;--white:#fff;--border:#dde1e7;--text:#1a1a2e;--muted:#6b7280;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--shadow:0 2px 12px rgba(18,56,83,.10);}
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Raleway',sans-serif;}
     body{background:var(--bg);max-width:500px;margin:0 auto;min-height:100vh;padding-bottom:34px;}
 
@@ -44,26 +44,25 @@
     .wf-count-pill{font-size:10px;font-weight:700;background:var(--brand);color:#fff;padding:2px 8px;border-radius:20px;font-family:'Poppins',sans-serif;}
 
     /* CALENDARIO */
-    .wf-cal{border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--white);}
-    .wf-cal-header{background:var(--brand);display:flex;align-items:center;justify-content:space-between;padding:12px 14px;}
-    .wf-cal-month{font-size:14px;font-weight:700;color:var(--white);text-transform:capitalize;}
-    .wf-cal-nav{background:rgba(255,255,255,.18);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px;line-height:1;}
-    .wf-cal-nav:hover{background:rgba(255,255,255,.3);}
-    .wf-cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);background:#e8eef3;}
-    .wf-cal-day-name{text-align:center;font-size:10px;font-weight:600;color:var(--muted);padding:7px 0;font-family:'Poppins',sans-serif;}
-    .wf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);background:var(--white);padding-bottom:6px;}
-    .wf-cal-cell{position:relative;height:40px;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--text);cursor:pointer;font-family:'Poppins',sans-serif;}
-    .wf-cal-cell:hover:not(.empty){background:#e8f0fb;}
+    .wf-cal{border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(11,29,53,.10);background:var(--white);border:1px solid #e8ecf1;}
+    .wf-cal-header{background:var(--brand);display:flex;align-items:center;justify-content:space-between;padding:15px 16px;}
+    .wf-cal-month{font-size:16px;font-weight:700;color:var(--white);text-transform:capitalize;letter-spacing:.2px;}
+    .wf-cal-nav{background:rgba(255,255,255,.14);border:none;color:#fff;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:17px;line-height:1;transition:background .15s;}
+    .wf-cal-nav:hover{background:rgba(255,255,255,.26);}
+    .wf-cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);background:#f7f9fc;border-top:1px solid #eef2f6;border-bottom:1px solid #eef2f6;}
+    .wf-cal-day-name{text-align:center;font-size:10.5px;font-weight:600;color:#8a97a5;padding:9px 0;font-family:'Poppins',sans-serif;letter-spacing:.3px;}
+    .wf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);background:var(--white);padding:6px 4px 8px;}
+    .wf-cal-cell{position:relative;height:44px;display:flex;align-items:center;justify-content:center;font-size:13.5px;color:var(--text);cursor:pointer;font-family:'Poppins',sans-serif;border-radius:12px;transition:background .12s;}
+    .wf-cal-cell:hover:not(.empty){background:#f2f6fc;}
     .wf-cal-cell.empty{cursor:default;}
-    .wf-cal-cell.today{font-weight:700;color:var(--accent);}
-    .wf-cal-cell.selected{background:var(--brand);color:var(--white);border-radius:50%;font-weight:700;}
-    .wf-cal-cell.past{color:#c7ccd1;}
-    /* Días con servicio: en ROJO */
-    .wf-cal-cell.has-jobs{color:var(--red);font-weight:800;}
-    .wf-cal-cell.has-jobs::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--red);}
+    .wf-cal-cell.today{font-weight:700;color:var(--brand2);}
+    .wf-cal-cell.selected{background:var(--brand);color:var(--white);font-weight:700;}
+    .wf-cal-cell.past{color:#ccd2d9;}
+    .wf-cal-cell.has-jobs{color:#e11d48;font-weight:700;}
+    .wf-cal-cell.has-jobs::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#e11d48;}
     .wf-cal-cell.selected.has-jobs{color:#fff;}
     .wf-cal-cell.selected.has-jobs::after{background:#fff;}
-    .wf-cal-legend{display:flex;align-items:center;gap:6px;justify-content:center;padding:8px 0 12px;font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;}
+    .wf-cal-legend{display:flex;align-items:center;gap:6px;justify-content:center;padding:10px 0 14px;font-size:10.5px;color:#8a97a5;font-family:'Poppins',sans-serif;border-top:1px solid #f2f5f9;}
     .wf-legend-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;}
 
     /* Detalle del día */
@@ -191,7 +190,7 @@
   var selectedISO = null;        // día seleccionado (YYYY-MM-DD)
 
   var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  var COLORS = ['#123853','#1a4f72','#0d2b3e','#1e6091','#2a6f97','#14532d','#7c2d12'];
+  var COLORS = ['#0B1D35','#2563FF','#0d2b3e','#1e6091','#2a6f97','#14532d','#7c2d12'];
 
   function toast(msg,type){
     var t=document.getElementById('toast');
