@@ -623,17 +623,99 @@
     onyxCta.parentNode.insertBefore(b, onyxCta.nextSibling);
   }
 
-  // ── ACTIVAR / COMPRAR ──
+  // ── ACTIVAR / COMPRAR (abre el modal de método de pago) ──
   onyxCta.addEventListener('click', function(){
     if(!MI_UID){ window.location.href = 'index.html'; return; }
     if(onyxVigente(MI_PERFIL) && MI_PERFIL.onyxEstado !== 'cancelada') return; // ya activo
+    abrirModalPago();
+  });
 
+  // ── MODAL DE PAGO (maqueta visual — el cobro real lo hará Conekta) ──
+  var pagoModal = document.getElementById('pagoModal');
+
+  function abrirModalPago(){
+    var yaUsoPrueba = MI_PERFIL && MI_PERFIL.onyxTrialUsado === true;
+    var reactivando = MI_PERFIL && MI_PERFIL.onyxEstado === 'cancelada' && onyxVigente(MI_PERFIL);
+    var plan = btnMensual.classList.contains('active') ? 'mensual' : 'anual';
+    var precioTxt = plan==='mensual' ? '$350/mes' : '$3,360/año';
+
+    var titulo = document.getElementById('pagoTitulo');
+    var sub = document.getElementById('pagoSub');
+    var btn = document.getElementById('pagoConfirmar');
+
+    if(reactivando){
+      titulo.textContent = 'Confirma tu método de pago';
+      sub.textContent = 'Reactivarás la renovación automática de tu membresía Onyx.';
+      btn.textContent = 'Reactivar Onyx';
+    } else if(!yaUsoPrueba){
+      titulo.textContent = 'Agrega tu método de pago';
+      sub.textContent = 'Inicia tu prueba de 7 días gratis. No se te cobrará hoy; podrás cancelar antes de que termine y no habrá cargo.';
+      btn.textContent = 'Iniciar prueba gratis';
+    } else {
+      titulo.textContent = 'Agrega tu método de pago';
+      sub.textContent = 'Activa tu membresía WeFix Onyx por ' + precioTxt + '.';
+      btn.textContent = 'Pagar y activar — ' + precioTxt;
+    }
+    pagoModal.style.display = 'flex';
+  }
+
+  function cerrarModalPago(){ pagoModal.style.display = 'none'; }
+
+  // Formateo bonito de los campos de tarjeta
+  document.getElementById('ccNum').addEventListener('input', function(){
+    var v = this.value.replace(/\D/g,'').slice(0,16);
+    this.value = v.replace(/(.{4})/g,'$1 ').trim();
+    var brand = document.getElementById('ccBrand');
+    if(/^4/.test(v)) brand.textContent='💳'; else if(/^5/.test(v)) brand.textContent='💳'; else brand.textContent='💳';
+  });
+  document.getElementById('ccExp').addEventListener('input', function(){
+    var v=this.value.replace(/\D/g,'').slice(0,4);
+    this.value = v.length>2 ? v.slice(0,2)+'/'+v.slice(2) : v;
+  });
+  document.getElementById('ccCvv').addEventListener('input', function(){
+    this.value=this.value.replace(/\D/g,'').slice(0,4);
+  });
+
+  document.getElementById('pagoCancelar').addEventListener('click', cerrarModalPago);
+  pagoModal.addEventListener('click', function(e){ if(e.target===pagoModal) cerrarModalPago(); });
+
+  // Confirmar pago → validar campos (maqueta) → activar membresía
+  document.getElementById('pagoConfirmar').addEventListener('click', function(){
+    var num=document.getElementById('ccNum').value.replace(/\s/g,'');
+    var exp=document.getElementById('ccExp').value;
+    var cvv=document.getElementById('ccCvv').value;
+    var name=document.getElementById('ccName').value.trim();
+    // Validación de forma (NO valida la tarjeta de verdad — eso lo hará Conekta)
+    if(num.length<15){ alert('Ingresa un número de tarjeta válido'); return; }
+    if(!/^\d{2}\/\d{2}$/.test(exp)){ alert('Ingresa el vencimiento (MM/AA)'); return; }
+    if(cvv.length<3){ alert('Ingresa el CVV'); return; }
+    if(!name){ alert('Ingresa el nombre de la tarjeta'); return; }
+
+    var btn=this; btn.disabled=true; btn.textContent='Procesando…';
+
+    // ╔═══════════════════════════════════════════════════════════╗
+    // ║  AQUÍ VA LA INTEGRACIÓN REAL DE CONEKTA (pendiente):       ║
+    // ║  1. Tokenizar la tarjeta con Conekta.js (nunca enviarla    ║
+    // ║     a tu servidor ni a Firestore).                         ║
+    // ║  2. Llamar una Cloud Function que cree el cliente y la     ║
+    // ║     suscripción recurrente en Conekta con ese token.       ║
+    // ║  3. Solo si Conekta responde OK, ejecutar activarOnyx().   ║
+    // ║  Por ahora, la maqueta activa directamente:                ║
+    // ╚═══════════════════════════════════════════════════════════╝
+    setTimeout(function(){
+      cerrarModalPago();
+      btn.disabled=false;
+      activarOnyx();
+    }, 700); // pequeño delay para simular el procesamiento
+  });
+
+  // ── ACTIVACIÓN REAL DE LA MEMBRESÍA EN FIRESTORE ──
+  function activarOnyx(){
     var plan = btnMensual.classList.contains('active') ? 'mensual' : 'anual';
     var reactivando = MI_PERFIL && MI_PERFIL.onyxEstado === 'cancelada' && onyxVigente(MI_PERFIL);
     var yaUsoPrueba = MI_PERFIL && MI_PERFIL.onyxTrialUsado === true;
 
     onyxCta.disabled = true; onyxCta.textContent = 'Procesando…';
-
     var ahora = hoy();
     var data = {
       onyxPlan: plan,
@@ -642,23 +724,17 @@
     };
 
     if(reactivando){
-      // Reactivar: mantiene la vigencia que ya tenía pagada, solo quita el estado cancelada
       data.onyxEstado = 'activa';
-      // no tocamos onyxVigenciaHasta ni la prueba
     } else if(!yaUsoPrueba){
-      // PRIMERA VEZ EN LA VIDA DE LA CUENTA: prueba de 7 días (única)
       data.onyxEnPrueba = true;
       data.onyxTrialUsado = true;   // ← bandera permanente, nunca se revierte
       data.onyxVigenciaHasta = sumarDias(ahora, 7);
     } else {
-      // Ya usó su prueba antes: entra directo al plan pagado
       data.onyxEnPrueba = false;
-      var hasta = plan==='mensual' ? sumarMeses(ahora,1) : sumarMeses(ahora,12);
-      data.onyxVigenciaHasta = hasta;
+      data.onyxVigenciaHasta = plan==='mensual' ? sumarMeses(ahora,1) : sumarMeses(ahora,12);
     }
 
     WeFix.db.collection('usuarios').doc(MI_UID).set(data,{merge:true}).then(function(){
-      // refrescar perfil local
       Object.keys(data).forEach(function(k){
         if(k==='onyxVigenciaHasta') MI_PERFIL[k]={toDate:function(){return data[k];}};
         else MI_PERFIL[k]=data[k];
@@ -673,7 +749,7 @@
       console.error(e); alert('No se pudo activar. Intenta de nuevo.');
       onyxCta.disabled=false; pintarEstadoOnyx();
     });
-  });
+  }
 
   // ── CANCELAR (sigue activa hasta el fin del periodo pagado) ──
   function cancelarOnyx(){
@@ -705,5 +781,49 @@
     pintarEstadoOnyx();
   });
 </script>
+<!-- ═══ MODAL: MÉTODO DE PAGO (maqueta — reemplazar por Conekta) ═══ -->
+<div id="pagoModal" style="display:none;position:fixed;inset:0;background:rgba(11,29,53,.6);z-index:1000;align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;width:100%;max-width:500px;border-radius:22px 22px 0 0;padding:24px 20px 28px;animation:slideUp .28s ease;">
+    <div style="width:40px;height:4px;background:#dde1e7;border-radius:3px;margin:0 auto 18px;"></div>
+
+    <div style="text-align:center;margin-bottom:6px;">
+      <div style="font-size:19px;font-weight:800;color:var(--brand);font-family:'Raleway',sans-serif;" id="pagoTitulo">Agrega tu método de pago</div>
+      <div style="font-size:12.5px;color:#6b7280;font-family:'Poppins',sans-serif;margin-top:5px;line-height:1.5;" id="pagoSub">Inicia tu prueba de 7 días gratis. No se te cobrará hoy; podrás cancelar antes de que termine.</div>
+    </div>
+
+    <div style="background:#f7f9fc;border-radius:14px;padding:16px;margin:18px 0;">
+      <label style="display:block;font-size:11px;font-weight:700;color:#1a1a2e;font-family:'Poppins',sans-serif;margin-bottom:6px;">Número de tarjeta</label>
+      <div style="position:relative;margin-bottom:14px;">
+        <input id="ccNum" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" style="width:100%;border:1.5px solid #dde1e7;border-radius:10px;padding:12px 42px 12px 12px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;letter-spacing:1px;"/>
+        <span id="ccBrand" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:18px;">💳</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <div style="flex:1;">
+          <label style="display:block;font-size:11px;font-weight:700;color:#1a1a2e;font-family:'Poppins',sans-serif;margin-bottom:6px;">Vencimiento</label>
+          <input id="ccExp" inputmode="numeric" maxlength="5" placeholder="MM/AA" style="width:100%;border:1.5px solid #dde1e7;border-radius:10px;padding:12px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;"/>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block;font-size:11px;font-weight:700;color:#1a1a2e;font-family:'Poppins',sans-serif;margin-bottom:6px;">CVV</label>
+          <input id="ccCvv" inputmode="numeric" maxlength="4" placeholder="123" style="width:100%;border:1.5px solid #dde1e7;border-radius:10px;padding:12px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;"/>
+        </div>
+      </div>
+      <label style="display:block;font-size:11px;font-weight:700;color:#1a1a2e;font-family:'Poppins',sans-serif;margin:14px 0 6px;">Nombre en la tarjeta</label>
+      <input id="ccName" placeholder="Como aparece en la tarjeta" style="width:100%;border:1.5px solid #dde1e7;border-radius:10px;padding:12px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;"/>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;background:#eef4ff;border-radius:10px;padding:10px 12px;margin-bottom:16px;">
+      <span style="font-size:15px;">🔒</span>
+      <span style="font-size:10.5px;color:#3a4a5c;font-family:'Poppins',sans-serif;line-height:1.4;">Tus datos se procesarán de forma segura mediante nuestro procesador de pagos certificado. WeFix no almacena tu número de tarjeta.</span>
+    </div>
+
+    <button id="pagoConfirmar" style="width:100%;background:linear-gradient(135deg,var(--onyx-a),var(--onyx-b));color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">Confirmar y activar</button>
+    <button id="pagoCancelar" style="width:100%;background:none;border:none;color:#9aa5b1;font-size:13px;padding:14px 0 0;cursor:pointer;font-family:'Poppins',sans-serif;">Ahora no</button>
+  </div>
+</div>
+
+<style>
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+</style>
+
 </body>
 </html>
