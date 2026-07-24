@@ -15,7 +15,7 @@
   <style>
     :root {
       --bg:       #f4f4f6;
-      --brand:    #123853;
+      --brand:    #0B1D35;
       --accent:   #f87171;
       --white:    #ffffff;
       --border:   #dde1e7;
@@ -82,7 +82,7 @@
     .wf-hero {
       position: relative;
       height: 220px;
-      background: linear-gradient(135deg, #1a4f72 0%, #123853 60%, #0d2b3e 100%);
+      background: linear-gradient(135deg, #2563FF 0%, #0B1D35 60%, #0d2b3e 100%);
       overflow: hidden;
       display: flex; align-items: flex-end;
     }
@@ -108,8 +108,8 @@
       margin-bottom: 4px;
     }
     .wf-hero-content .tagline {
-      font-size: 13px; font-weight: 500;
-      color: var(--accent); line-height: 1.3;
+      font-size: 11.5px; font-weight: 500;
+      color: var(--accent); line-height: 1.35; max-width: 260px;
     }
 
     /* ── PROFESSION CHIPS ── */
@@ -176,7 +176,7 @@
       font-family: 'Poppins', sans-serif;
       transition: background .18s;
     }
-    .wf-filter-btn:hover { background: #1a4f72; }
+    .wf-filter-btn:hover { background: #2563FF; }
     .wf-filter-btn svg { width: 16px; height: 16px; }
 
     /* ── FILTER PANEL ── */
@@ -371,13 +371,13 @@
 
     /* ── FLASH amarillo ── */
     .wf-carousel-wrap.planta-wrap { background: linear-gradient(135deg, #eef4f8 0%, #e3edf4 100%); }
-    .wf-carousel-wrap.planta-wrap .wf-section-head h2 { color: #123853; }
-    .wf-carousel-wrap.planta-wrap .wf-arrow:hover { background: #123853; border-color: #123853; }
-    .wf-planta-pill { font-size: 9px; font-weight: 700; background: #123853; color: #fff; padding: 3px 8px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
+    .wf-carousel-wrap.planta-wrap .wf-section-head h2 { color: #0B1D35; }
+    .wf-carousel-wrap.planta-wrap .wf-arrow:hover { background: #0B1D35; border-color: #0B1D35; }
+    .wf-planta-pill { font-size: 9px; font-weight: 700; background: #0B1D35; color: #fff; padding: 3px 8px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
     .wf-planta-sub { font-size: 10.5px; color: #5b6b7a; padding: 0 2px 10px; line-height: 1.5; font-family: 'Poppins', sans-serif; }
     .wf-pcard.planta-card { border-color: #c7d7e3; }
-    .wf-planta-tag { position: absolute; top: 8px; right: 8px; background: #123853; color: #fff; font-size: 8.5px; font-weight: 700; padding: 3px 7px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
-    .wf-planta-price { font-size: 14px; font-weight: 800; color: #123853; font-family: 'Raleway', sans-serif; margin-top: 2px; }
+    .wf-planta-tag { position: absolute; top: 8px; right: 8px; background: #0B1D35; color: #fff; font-size: 8.5px; font-weight: 700; padding: 3px 7px; border-radius: 20px; font-family: 'Poppins', sans-serif; }
+    .wf-planta-price { font-size: 14px; font-weight: 800; color: #0B1D35; font-family: 'Raleway', sans-serif; margin-top: 2px; }
     .wf-planta-note { font-size: 9px; color: #5b6b7a; margin-top: 3px; line-height: 1.4; font-family: 'Poppins', sans-serif; }
     .wf-planta-save { display:inline-block; margin-top:4px; font-size: 9px; font-weight:700; color: #15803d; background:#e7f8ee; padding:2px 6px; border-radius:20px; font-family: 'Poppins', sans-serif; }
     .wf-carousel-wrap.flash-wrap { background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); }
@@ -424,7 +424,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
-  <meta name="theme-color" content="#123853"/>
+  <meta name="theme-color" content="#0B1D35"/>
 </head>
 <body>
 
@@ -465,7 +465,7 @@
   <div class="wf-hero-img"></div>
   <div class="wf-hero-content">
     <div class="brand-name">WeFix</div>
-    <div class="tagline">Nosotros<br>resolvemos</div>
+    <div class="tagline">Los profesionales que necesitas.<br>La confianza que buscas.</div>
   </div>
 </section>
 
@@ -810,7 +810,7 @@ function initials(name) {
 }
 
 function avatarColor(id) {
-  const colors = ['#123853','#1a4f72','#0d2b3e','#1e6091','#145374'];
+  const colors = ['#0B1D35','#2563FF','#0d2b3e','#1e6091','#145374'];
   return colors[id % colors.length];
 }
 
