@@ -171,6 +171,14 @@
   var testT0 = 0;
   var testDocId = null;
 
+  // Si la notificación trae accion:'resena', se muestra el botón de calificar
+  function actsFor(n){
+    if(n && n.accion==='resena'){
+      return [{label:'⭐ Calificar', primary:true, go:'RESENA'},{label:'Descartar'}];
+    }
+    return (TYPE_META[n && n.tipo] || TYPE_META.sistema).acts;
+  }
+
   var TYPE_META = {
     mensaje:     { sender:'Mensaje nuevo',      acts:[{label:'Abrir chat', primary:true, go:'CHAT'},{label:'Descartar'}] },
     sistema:     { sender:'WeFix Sistema',      acts:[{label:'Ver perfil', primary:true, go:'wefix-perfil-usuario.html'},{label:'Descartar'}] },
@@ -207,7 +215,7 @@
   function cardHTML(n,delay){
     var meta = TYPE_META[n.tipo] || TYPE_META.servicio;
     var sender = n.sender || meta.sender;
-    var acts = meta.acts.map(function(a){
+    var acts = actsFor(n).map(function(a){
       return '<button class="wf-act-btn '+(a.primary?'primary':'')+'" onclick="handleAction(\''+n.id+'\',\''+a.label+'\',\''+(a.go||'')+'\',event)">'+a.label+'</button>';
     }).join('');
     return '<div class="wf-item '+(n.leida?'read':'unread')+'" style="animation-delay:'+delay+'ms" onclick="markRead(\''+n.id+'\')">'
@@ -246,6 +254,10 @@
       markRead(id);
       var n=notifs.find(function(x){return x.id===id;});
       window.location.href='wefix-mensajes.html'+(n&&n.convId?('?conv='+n.convId):'');
+    } else if(go==='RESENA'){
+      markRead(id);
+      var nr=notifs.find(function(x){return x.id===id;});
+      window.location.href='wefix-resena.html'+(nr&&nr.contratacionId?('?c='+nr.contratacionId):'');
     } else if(go){
       markRead(id);
       window.location.href=go;
