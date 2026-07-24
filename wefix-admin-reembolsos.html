@@ -143,6 +143,7 @@
     <div class="adm-tabs" style="margin-bottom:16px;">
       <button class="adm-sec-tab active" data-sec="reembolsos" onclick="cambiarSeccion('reembolsos')" style="flex:1;padding:11px;background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins';">💸 Reembolsos</button>
       <button class="adm-sec-tab" data-sec="premium" onclick="cambiarSeccion('premium')" style="flex:1;padding:11px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins';position:relative;">💎 Evidencia Premium <span id="premBadge" style="display:none;position:absolute;top:-5px;right:6px;background:var(--amber);color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px;">0</span></button>
+      <button class="adm-sec-tab" data-sec="seguro" onclick="cambiarSeccion('seguro')" style="flex:1;padding:11px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins';position:relative;">🛡️ Seguros <span id="segBadge" style="display:none;position:absolute;top:-5px;right:6px;background:var(--amber);color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:700;align-items:center;justify-content:center;padding:0 4px;">0</span></button>
     </div>
 
     <!-- ═══ SECCIÓN REEMBOLSOS ═══ -->
@@ -165,6 +166,21 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       <p id="emptyMsg">No hay solicitudes en esta vista.</p>
     </div>
+    </div>
+
+    <!-- ═══ SECCIÓN SEGUROS ═══ -->
+    <div id="seccionSeguro" style="display:none">
+      <div class="adm-tabs">
+        <button class="adm-stab active" data-sf="pendiente" onclick="setSegFilter('pendiente',this)">Pendientes</button>
+        <button class="adm-stab" data-sf="resueltas" onclick="setSegFilter('resueltas',this)">Resueltas</button>
+        <button class="adm-stab" data-sf="todas" onclick="setSegFilter('todas',this)">Todas</button>
+      </div>
+      <div class="adm-loading" id="segLoading"><div class="adm-spin"></div></div>
+      <div id="segList"></div>
+      <div class="adm-empty" id="segEmpty" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+        <p>No hay pólizas en esta vista.</p>
+      </div>
     </div>
 
     <!-- ═══ SECCIÓN EVIDENCIA PREMIUM ═══ -->
@@ -342,9 +358,9 @@
 var premAll = [], premFilter = 'pendiente', premUnsub = null;
 
 function cambiarSeccion(sec){
-  var esReemb = sec==='reembolsos';
-  document.getElementById('seccionReembolsos').style.display = esReemb ? 'block' : 'none';
-  document.getElementById('seccionPremium').style.display = esReemb ? 'none' : 'block';
+  document.getElementById('seccionReembolsos').style.display = (sec==='reembolsos') ? 'block' : 'none';
+  document.getElementById('seccionPremium').style.display    = (sec==='premium')    ? 'block' : 'none';
+  document.getElementById('seccionSeguro').style.display     = (sec==='seguro')     ? 'block' : 'none';
   document.querySelectorAll('.adm-sec-tab').forEach(function(t){
     var on = t.dataset.sec===sec;
     t.classList.toggle('active', on);
@@ -353,6 +369,7 @@ function cambiarSeccion(sec){
     t.style.borderColor = on ? 'var(--brand)' : 'var(--border)';
   });
   if(sec==='premium' && !premUnsub) cargarPremium();
+  if(sec==='seguro'  && !segUnsub)  cargarSeguros();
 }
 
 function setPremFilter(f, btn){
@@ -420,6 +437,81 @@ function resolverPremium(id, profUid, decision){
       : 'Tu solicitud Premium fue rechazada. Revisa tu evidencia y vuelve a enviarla desde "Publicar mi servicio".';
     WeFix.db.collection('notificaciones').add({uid:profUid,tipo:'sistema',sender:'WeFix Premium',msg:nmsg,leida:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
     toast(decision==='aprobado'?'Solicitud aprobada ✓':'Solicitud rechazada');
+  }).catch(function(e){ console.error(e); toast('No se pudo procesar','error'); });
+}
+
+
+// ══════════════════════════════════════════
+//  SECCIÓN SEGUROS
+// ══════════════════════════════════════════
+var segAll = [], segFilter = 'pendiente', segUnsub = null;
+var TIPO_SEG = {auto:'Seguro de auto', rc:'Responsabilidad civil', gastos_medicos:'Gastos médicos', otro:'Otro'};
+
+function setSegFilter(f, btn){
+  segFilter = f;
+  document.querySelectorAll('.adm-stab').forEach(function(x){x.classList.remove('active');});
+  btn.classList.add('active');
+  renderSeguros();
+}
+
+function cargarSeguros(){
+  document.getElementById('segLoading').style.display='block';
+  segUnsub = WeFix.db.collection('solicitudes_seguro').onSnapshot(function(snap){
+    document.getElementById('segLoading').style.display='none';
+    segAll = snap.docs.map(function(d){var o=d.data();o.id=d.id;return o;});
+    segAll.sort(function(a,b){
+      var ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;
+      var tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0; return tb-ta; });
+    var pend = segAll.filter(function(r){return (r.estado||'pendiente')==='pendiente';}).length;
+    var badge=document.getElementById('segBadge');
+    if(pend>0){ badge.textContent=pend; badge.style.display='flex'; } else { badge.style.display='none'; }
+    renderSeguros();
+  }, function(e){ document.getElementById('segLoading').style.display='none'; console.error(e); toast('Error al cargar seguros','error'); });
+}
+
+function renderSeguros(){
+  var cont=document.getElementById('segList'), empty=document.getElementById('segEmpty');
+  var data = segFilter==='todas' ? segAll
+           : segFilter==='pendiente' ? segAll.filter(function(r){return (r.estado||'pendiente')==='pendiente';})
+           : segAll.filter(function(r){return (r.estado||'pendiente')!=='pendiente';});
+  if(!data.length){ cont.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  var LBL={pendiente:'En revisión',aprobado:'Aprobado',rechazado:'Rechazado'};
+  cont.innerHTML = data.map(function(r){
+    var est=r.estado||'pendiente';
+    var vig = r.vigencia ? ('Vigente hasta ' + r.vigencia) : 'Sin fecha de vigencia';
+    var acciones = est==='pendiente'
+      ? '<div style="display:flex;gap:8px;margin-top:14px;"><button onclick="resolverSeguro(\''+r.id+'\',\''+r.profesionalUid+'\',\'aprobado\')" style="flex:1;background:var(--green);color:#fff;border:none;border-radius:9px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:Poppins;">✓ Aprobar</button><button onclick="resolverSeguro(\''+r.id+'\',\''+r.profesionalUid+'\',\'rechazado\')" style="flex:1;background:#fff;color:var(--red);border:1px solid #f8caca;border-radius:9px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:Poppins;">✕ Rechazar</button></div>'
+      : '<div style="margin-top:12px;font-size:11px;color:var(--muted);font-family:Poppins;">Resuelto'+(r.resolvedBy?(' por '+r.resolvedBy):'')+'</div>';
+    return '<div class="adm-card">'
+      + '<div class="adm-card-head"><div><div style="font-size:15px;font-weight:700;color:var(--text);font-family:Raleway;">'+(r.profesionalNombre||'Profesional')+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);font-family:Poppins;">'+(TIPO_SEG[r.tipo]||r.tipo||'Seguro')+'</div></div>'
+      + '<span class="adm-badge '+est+'">'+(LBL[est]||est)+'</span></div>'
+      + '<div style="font-size:12px;color:var(--text);font-family:Poppins;line-height:1.6;margin-bottom:10px;">'
+      +   '<strong>Aseguradora:</strong> '+(r.aseguradora||'—')+'<br>'
+      +   '<strong>'+vig+'</strong></div>'
+      + (r.documento ? '<a href="'+r.documento+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;background:#f2f5f9;border-radius:10px;padding:10px 14px;text-decoration:none;color:var(--brand);font-size:12px;font-family:Poppins;font-weight:600;">📄 Ver póliza</a>' : '<span style="font-size:11px;color:var(--muted);">Sin documento</span>')
+      + acciones
+      + '</div>';
+  }).join('');
+}
+
+function resolverSeguro(id, profUid, decision){
+  var msg = decision==='aprobado'
+    ? '¿Aprobar esta póliza? El profesional mostrará el distintivo de seguro.'
+    : '¿Rechazar esta póliza?';
+  if(!confirm(msg)) return;
+  var myEmail = (WeFix.profile && WeFix.profile.email) || (WeFix.user && WeFix.user.email) || 'equipo';
+  WeFix.db.collection('solicitudes_seguro').doc(id).update({
+    estado: decision, resolvedBy: myEmail, resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    return WeFix.db.collection('usuarios').doc(profUid).set({seguroEstado: decision},{merge:true});
+  }).then(function(){
+    var nmsg = decision==='aprobado'
+      ? 'Tu póliza de seguro fue aprobada. Ya aparece como distintivo de confianza en tu perfil. 🛡️'
+      : 'Tu póliza de seguro fue rechazada. Revisa que el documento sea legible y esté vigente, y vuelve a enviarla.';
+    WeFix.db.collection('notificaciones').add({uid:profUid,tipo:'sistema',sender:'WeFix Seguros',msg:nmsg,leida:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    toast(decision==='aprobado'?'Póliza aprobada ✓':'Póliza rechazada');
   }).catch(function(e){ console.error(e); toast('No se pudo procesar','error'); });
 }
 
