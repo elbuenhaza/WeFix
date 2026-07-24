@@ -321,6 +321,7 @@ function marcarCompletado(id){
           WeFix.db.collection('notificaciones').add({
             uid:c.clienteUid, tipo:'servicio', sender:'WeFix',
             msg:'Tu servicio de '+(c.servicio||'')+' fue marcado como completado. ¡Cuéntanos cómo te fue dejando una reseña!',
+            contratacionId: id, accion:'resena',
             leida:false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }).catch(function(){});
         }
