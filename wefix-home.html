@@ -757,6 +757,7 @@ function mapRealPro(uid, d){
     verified: d.emailVerificado === true || !!d.verified,
     onyx: esOnyx,
     desc: d.bio || 'Profesional de WeFix.',
+    fotoPerfil: d.fotoPerfil || '',
     _real: true,
     _cats: cats,
     _plantaActivo: d.plantaActivo === true || d.plantaActivo === 'si',
@@ -843,8 +844,8 @@ function cardHTML(p) {
   return `<a class="wf-pcard ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" title="${p.name}" style="position:relative;">
     ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
     <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:${isOnyx?'42px':'10px'};right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
-    <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
-      ${initials(p.name)}
+    <div class="wf-pcard-avatar" style="background:${p.fotoPerfil?`url('${p.fotoPerfil}') center/cover`:(isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id))}">
+      ${p.fotoPerfil?'':initials(p.name)}
       ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
     </div>
     <div class="wf-pcard-name">${p.name}</div>
@@ -881,8 +882,8 @@ function plantaCardHTML(p) {
   return `<a class="wf-pcard planta-card" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}&modo=planta" title="${p.name}" style="position:relative;">
     <div class="wf-planta-tag">🗓️ Planta</div>
     <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:42px;right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
-    <div class="wf-pcard-avatar" style="background:${avatarColor(p.id)}">
-      ${initials(p.name)}
+    <div class="wf-pcard-avatar" style="background:${p.fotoPerfil?`url('${p.fotoPerfil}') center/cover`:avatarColor(p.id)}">
+      ${p.fotoPerfil?'':initials(p.name)}
       ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
     </div>
     <div class="wf-pcard-name">${p.name}</div>
@@ -1022,8 +1023,8 @@ function renderAllGrid() {
     return `<a class="wf-all-card ${isOnyx?'onyx-card':''}" href="wefix-perfil.html?${p._real?'uid':'id'}=${p.id}" style="position:relative;">
       ${isOnyx ? '<div class="onyx-badge">✦ Onyx</div>' : ''}
       <button class="wf-fav-heart" data-pid="${p.id}" onclick="toggleFavHome(event,'${p.id}',${!!p._real},'${(p.name||'').replace(/'/g,'')}','${(p.label||'').replace(/'/g,'')}',${p.price},${p.stars},'${p.prof}')" style="position:absolute;top:${isOnyx?'42px':'10px'};right:10px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;z-index:3;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.15);">${favSet.has(String(p.id))?'❤️':'🤍'}</button>
-      <div class="wf-pcard-avatar" style="background:${isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id)}">
-        ${initials(p.name)}
+      <div class="wf-pcard-avatar" style="background:${p.fotoPerfil?`url('${p.fotoPerfil}') center/cover`:(isOnyx?'linear-gradient(135deg,#f59e0b,#f97316)':avatarColor(p.id))}">
+        ${p.fotoPerfil?'':initials(p.name)}
         ${p.verified ? '<div class="verified-badge">✓</div>' : ''}
       </div>
       <div class="wf-pcard-name">${p.name}</div>
