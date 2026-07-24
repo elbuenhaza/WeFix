@@ -6,10 +6,15 @@
   <title>WeFix — Members</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="wefix-auth.js" data-guard="optional" data-role="cliente"></script>
   <style>
     :root {
       --bg:     #f4f4f6;
-      --brand:  #123853;
+      --brand:  #0B1D35;
       --accent: #f87171;
       --white:  #ffffff;
       --border: #dde1e7;
@@ -42,8 +47,7 @@
       color: var(--brand); text-decoration: none;
     }
     .wf-logo-icon {
-      width: 32px; height: 32px; border: 2px solid var(--brand);
-      border-radius: 6px; display: flex; align-items: center;
+      width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center;
       justify-content: center; font-size: 14px; font-weight: 700; color: var(--brand);
     }
     .wf-nav-icons { display: flex; gap: 14px; }
@@ -321,17 +325,21 @@
   </style>
   <!-- Favicon WeFix (en todas las páginas para que no se pierda al navegar) -->
   <link rel="icon" href="favicon.ico" sizes="any"/>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
-  <meta name="theme-color" content="#123853"/>
+  <link rel="manifest" href="site.webmanifest"/>
+  <meta name="msapplication-config" content="browserconfig.xml"/>
+  <meta name="theme-color" content="#0B1D35"/>
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav class="wf-nav">
   <a class="wf-logo" href="wefix-home.html">
-    <div class="wf-logo-icon">W</div>
+    <div class="wf-logo-icon"><img src="app-logo.png" alt="WeFix" style="width:100%;height:100%;object-fit:contain;border-radius:6px;"/></div>
     WeFix
 
  </a>
@@ -543,13 +551,158 @@
     });
   });
 
-  // CTA
+  // CTA plan Basic
   document.querySelector('.wf-cta-btn').addEventListener('click', () => {
     alert('Ya cuentas con el plan Basic. ¡Gratis para siempre!');
   });
-  onyxCta.addEventListener('click', () => {
-    const plan = btnMensual.classList.contains('active') ? 'mensual ($350/mes)' : 'anual ($3,360/año)';
-    alert(`¡Excelente elección! Iniciando proceso de pago para WeFix Onyx ${plan}. 🎉`);
+
+  // ════════════════════════════════════════════════
+  //  MEMBRESÍA ONYX — motor real en Firestore
+  //  Capa 1: registro de suscripción (activa, vigencia, prueba única).
+  //  El cobro recurrente real se enchufa con Conekta + Cloud Functions.
+  // ════════════════════════════════════════════════
+  var MI_UID = null, MI_PERFIL = null;
+
+  function hoy(){ return new Date(); }
+  function sumarDias(fecha, dias){ var d=new Date(fecha); d.setDate(d.getDate()+dias); return d; }
+  function sumarMeses(fecha, meses){ var d=new Date(fecha); d.setMonth(d.getMonth()+meses); return d; }
+  function fmt(fecha){ return fecha.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}); }
+
+  // ¿La membresía sigue vigente? (activa o cancelada pero dentro del periodo pagado)
+  function onyxVigente(p){
+    if(!p || !p.onyxVigenciaHasta) return false;
+    var hasta = p.onyxVigenciaHasta.toDate ? p.onyxVigenciaHasta.toDate() : new Date(p.onyxVigenciaHasta);
+    return hasta.getTime() > Date.now();
+  }
+
+  function pintarEstadoOnyx(){
+    if(!onyxCta) return;
+    var plan = btnMensual.classList.contains('active') ? 'mensual' : 'anual';
+    var precioTxt = plan==='mensual' ? '$350/mes' : '$3,360/año';
+
+    if(!MI_UID){
+      // invitado: el botón lleva a iniciar sesión
+      onyxCta.textContent = 'Activar WeFix Onyx — ' + precioTxt;
+      onyxCta.disabled = false;
+      return;
+    }
+
+    if(onyxVigente(MI_PERFIL)){
+      var hasta = MI_PERFIL.onyxVigenciaHasta.toDate();
+      var enPrueba = MI_PERFIL.onyxEnPrueba === true;
+      var cancelada = MI_PERFIL.onyxEstado === 'cancelada';
+      if(cancelada){
+        onyxCta.textContent = 'Activa hasta ' + fmt(hasta) + ' · Reactivar';
+        onyxCta.disabled = false;
+      } else if(enPrueba){
+        onyxCta.textContent = '✓ En prueba gratis hasta ' + fmt(hasta);
+        onyxCta.disabled = true;
+        mostrarBotonCancelar(hasta, true);
+      } else {
+        onyxCta.textContent = '✓ Onyx activo · renueva ' + fmt(hasta);
+        onyxCta.disabled = true;
+        mostrarBotonCancelar(hasta, false);
+      }
+    } else {
+      // sin membresía vigente
+      var yaUsoPrueba = MI_PERFIL && MI_PERFIL.onyxTrialUsado === true;
+      onyxCta.textContent = yaUsoPrueba
+        ? 'Activar WeFix Onyx — ' + precioTxt
+        : 'Comenzar prueba de 7 días gratis';
+      onyxCta.disabled = false;
+    }
+  }
+
+  function mostrarBotonCancelar(hasta, enPrueba){
+    if(document.getElementById('onyxCancelBtn')) return;
+    var b=document.createElement('button');
+    b.id='onyxCancelBtn';
+    b.textContent = enPrueba ? 'Cancelar prueba' : 'Cancelar renovación';
+    b.style.cssText='width:100%;margin-top:10px;background:none;border:none;color:#9aa5b1;font-size:12px;text-decoration:underline;cursor:pointer;font-family:Poppins,sans-serif;';
+    b.addEventListener('click', cancelarOnyx);
+    onyxCta.parentNode.insertBefore(b, onyxCta.nextSibling);
+  }
+
+  // ── ACTIVAR / COMPRAR ──
+  onyxCta.addEventListener('click', function(){
+    if(!MI_UID){ window.location.href = 'index.html'; return; }
+    if(onyxVigente(MI_PERFIL) && MI_PERFIL.onyxEstado !== 'cancelada') return; // ya activo
+
+    var plan = btnMensual.classList.contains('active') ? 'mensual' : 'anual';
+    var reactivando = MI_PERFIL && MI_PERFIL.onyxEstado === 'cancelada' && onyxVigente(MI_PERFIL);
+    var yaUsoPrueba = MI_PERFIL && MI_PERFIL.onyxTrialUsado === true;
+
+    onyxCta.disabled = true; onyxCta.textContent = 'Procesando…';
+
+    var ahora = hoy();
+    var data = {
+      onyxPlan: plan,
+      onyxEstado: 'activa',
+      onyxDesde: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if(reactivando){
+      // Reactivar: mantiene la vigencia que ya tenía pagada, solo quita el estado cancelada
+      data.onyxEstado = 'activa';
+      // no tocamos onyxVigenciaHasta ni la prueba
+    } else if(!yaUsoPrueba){
+      // PRIMERA VEZ EN LA VIDA DE LA CUENTA: prueba de 7 días (única)
+      data.onyxEnPrueba = true;
+      data.onyxTrialUsado = true;   // ← bandera permanente, nunca se revierte
+      data.onyxVigenciaHasta = sumarDias(ahora, 7);
+    } else {
+      // Ya usó su prueba antes: entra directo al plan pagado
+      data.onyxEnPrueba = false;
+      var hasta = plan==='mensual' ? sumarMeses(ahora,1) : sumarMeses(ahora,12);
+      data.onyxVigenciaHasta = hasta;
+    }
+
+    WeFix.db.collection('usuarios').doc(MI_UID).set(data,{merge:true}).then(function(){
+      // refrescar perfil local
+      Object.keys(data).forEach(function(k){
+        if(k==='onyxVigenciaHasta') MI_PERFIL[k]={toDate:function(){return data[k];}};
+        else MI_PERFIL[k]=data[k];
+      });
+      var msg = data.onyxEnPrueba ? '¡Prueba de 7 días activada! 🎉'
+              : reactivando ? 'Renovación reactivada ✓'
+              : '¡WeFix Onyx activado! 🎉';
+      alert(msg);
+      var old=document.getElementById('onyxCancelBtn'); if(old) old.remove();
+      pintarEstadoOnyx();
+    }).catch(function(e){
+      console.error(e); alert('No se pudo activar. Intenta de nuevo.');
+      onyxCta.disabled=false; pintarEstadoOnyx();
+    });
+  });
+
+  // ── CANCELAR (sigue activa hasta el fin del periodo pagado) ──
+  function cancelarOnyx(){
+    var enPrueba = MI_PERFIL.onyxEnPrueba === true;
+    var hasta = MI_PERFIL.onyxVigenciaHasta.toDate();
+    var aviso = enPrueba
+      ? '¿Cancelar tu prueba? Seguirás con acceso hasta el ' + fmt(hasta) + ', y no se te cobrará. Recuerda que la prueba gratis solo se ofrece una vez.'
+      : '¿Cancelar la renovación? Conservarás los beneficios Onyx hasta el ' + fmt(hasta) + '. Después no se te volverá a cobrar.';
+    if(!confirm(aviso)) return;
+
+    WeFix.db.collection('usuarios').doc(MI_UID).set({
+      onyxEstado:'cancelada',
+      onyxCanceladaEn: firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true}).then(function(){
+      MI_PERFIL.onyxEstado='cancelada';
+      alert('Renovación cancelada. Mantienes Onyx hasta el ' + fmt(hasta) + '.');
+      var b=document.getElementById('onyxCancelBtn'); if(b) b.remove();
+      pintarEstadoOnyx();
+    }).catch(function(e){ console.error(e); alert('No se pudo cancelar.'); });
+  }
+
+  // Repintar el botón cuando cambian de plan mensual/anual
+  btnMensual.addEventListener('click', function(){ pintarEstadoOnyx(); });
+  btnAnual.addEventListener('click', function(){ pintarEstadoOnyx(); });
+
+  // ── CARGA ──
+  WeFix.ready(function(user, profile){
+    if(user){ MI_UID=user.uid; MI_PERFIL=profile||{}; }
+    pintarEstadoOnyx();
   });
 </script>
 </body>
