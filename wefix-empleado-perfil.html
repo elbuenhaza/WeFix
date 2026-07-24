@@ -227,6 +227,52 @@
 </div>
 
 <!-- SERVICIO DE PLANTA -->
+<!-- SEGURO -->
+<div class="wf-card" id="cardSeguro">
+  <div class="wf-card-header">
+    <div class="wf-card-title"><span>🛡️</span> Seguro</div>
+    <span id="seguroBadge" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:'Poppins',sans-serif;"></span>
+  </div>
+
+  <div style="padding:12px 16px 4px;font-size:12px;color:var(--muted);font-family:'Poppins',sans-serif;line-height:1.5;">
+    Sube tu póliza vigente (seguro de auto, responsabilidad civil o el que aplique a tu servicio). El equipo de WeFix la revisará y, una vez aprobada, aparecerá como distintivo de confianza en tu perfil.
+  </div>
+
+  <div class="wf-field">
+    <div class="wf-field-label">Tipo de seguro</div>
+    <div class="wf-field-value" id="seguroTipoVal">—</div>
+    <select id="seguroTipoSel">
+      <option value="">Selecciona…</option>
+      <option value="auto">Seguro de auto</option>
+      <option value="rc">Responsabilidad civil</option>
+      <option value="gastos_medicos">Gastos médicos</option>
+      <option value="otro">Otro</option>
+    </select>
+  </div>
+
+  <div class="wf-field">
+    <div class="wf-field-label">Aseguradora</div>
+    <div class="wf-field-value" id="seguroCiaVal">—</div>
+    <input type="text" id="seguroCiaInp" placeholder="Ej. GNP, Qualitas, AXA…"/>
+  </div>
+
+  <div class="wf-field">
+    <div class="wf-field-label">Vigencia (hasta)</div>
+    <div class="wf-field-value" id="seguroVigVal">—</div>
+    <input type="date" id="seguroVigInp"/>
+  </div>
+
+  <div style="padding:4px 16px 14px;">
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:7px;font-family:'Poppins',sans-serif;">Documento de la póliza</div>
+    <div id="seguroDocPreview" style="margin-bottom:8px;"></div>
+    <button class="wf-upload-btn" onclick="document.getElementById('seguroInput').click()">📄 Subir póliza</button>
+    <input type="file" id="seguroInput" accept="image/*,.pdf" style="display:none"/>
+    <div id="seguroUpBar" style="display:none;margin-top:8px;"><div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;"><div id="seguroUpFill" style="height:100%;background:var(--brand);width:0%;transition:width .2s;"></div></div></div>
+    <div style="font-size:10.5px;color:var(--muted);font-family:'Poppins',sans-serif;margin-top:6px;">PDF o imagen, máx. 8 MB.</div>
+    <button id="seguroEnviarBtn" onclick="enviarSeguro()" style="width:100%;margin-top:12px;background:var(--brand);color:#fff;border:none;border-radius:11px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">Enviar a revisión</button>
+  </div>
+</div>
+
 <div class="wf-card" id="cardPlanta">
   <div class="wf-card-header">
     <div class="wf-card-title"><span>🗓️</span> Servicio de planta</div>
@@ -532,6 +578,100 @@ function pintarPerfil(p) {
   })();
   pintarPlanta(p);
   pintarTrabajos(p);
+  pintarSeguro(p);
+}
+
+// ── SEGURO (póliza del profesional) ──
+var seguroDocUrl = '';
+
+function pintarSeguro(p){
+  var est = p.seguroEstado || 'ninguno';
+  var badge = document.getElementById('seguroBadge');
+  var MAP = {
+    ninguno:   {t:'Sin registrar', bg:'#f1f3f5', c:'#6b7280'},
+    pendiente: {t:'⏳ En revisión', bg:'#fef3e2', c:'#b45309'},
+    aprobado:  {t:'✓ Aprobado',    bg:'#e7f8ee', c:'#15803d'},
+    rechazado: {t:'✕ Rechazado',   bg:'#fdecec', c:'#b91c1c'}
+  };
+  var m = MAP[est] || MAP.ninguno;
+  if(badge){ badge.textContent=m.t; badge.style.background=m.bg; badge.style.color=m.c; }
+
+  var TIPOS = {auto:'Seguro de auto', rc:'Responsabilidad civil', gastos_medicos:'Gastos médicos', otro:'Otro'};
+  var t=document.getElementById('seguroTipoVal'); if(t) t.textContent = p.seguroTipo ? (TIPOS[p.seguroTipo]||p.seguroTipo) : '—';
+  var c=document.getElementById('seguroCiaVal'); if(c) c.textContent = p.seguroAseguradora || '—';
+  var v=document.getElementById('seguroVigVal'); if(v) v.textContent = p.seguroVigencia || '—';
+
+  var ts=document.getElementById('seguroTipoSel'); if(ts) ts.value = p.seguroTipo || '';
+  var ci=document.getElementById('seguroCiaInp'); if(ci) ci.value = p.seguroAseguradora || '';
+  var vi=document.getElementById('seguroVigInp'); if(vi) vi.value = p.seguroVigencia || '';
+
+  seguroDocUrl = p.seguroDoc || '';
+  var prev=document.getElementById('seguroDocPreview');
+  if(prev){
+    prev.innerHTML = seguroDocUrl
+      ? '<a href="'+seguroDocUrl+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;background:#f2f5f9;border-radius:10px;padding:9px 12px;text-decoration:none;color:var(--brand);font-size:12px;font-family:Poppins,sans-serif;font-weight:600;">📄 Ver póliza cargada</a>'
+      : '<div style="font-size:11.5px;color:var(--muted);font-family:Poppins,sans-serif;font-style:italic;">Aún no has subido tu póliza.</div>';
+  }
+  // Los campos de seguro siempre editables
+  ['seguroTipoSel','seguroCiaInp','seguroVigInp'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.style.display='block';
+  });
+}
+
+(function(){
+  var inp=document.getElementById('seguroInput');
+  if(!inp) return;
+  inp.addEventListener('change', function(){
+    var file=this.files[0]; this.value=''; if(!file||!currentUid) return;
+    if(file.size>8*1024*1024){ showToast('El archivo supera 8 MB'); return; }
+    var bar=document.getElementById('seguroUpBar'), fill=document.getElementById('seguroUpFill');
+    bar.style.display='block'; fill.style.width='0%';
+    var path='seguros/'+currentUid+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+    var task=firebase.storage().ref(path).put(file);
+    task.on('state_changed',
+      function(s){ fill.style.width=Math.round((s.bytesTransferred/s.totalBytes)*100)+'%'; },
+      function(e){ console.error(e); bar.style.display='none'; showToast('No se pudo subir'); },
+      function(){ task.snapshot.ref.getDownloadURL().then(function(url){
+        bar.style.display='none'; seguroDocUrl=url;
+        document.getElementById('seguroDocPreview').innerHTML =
+          '<a href="'+url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;background:#f2f5f9;border-radius:10px;padding:9px 12px;text-decoration:none;color:var(--brand);font-size:12px;font-family:Poppins,sans-serif;font-weight:600;">📄 Ver póliza cargada</a>';
+        showToast('Póliza cargada ✓ — ahora envíala a revisión');
+      }); });
+  });
+})();
+
+function enviarSeguro(){
+  if(!currentUid){ showToast('Debes iniciar sesión'); return; }
+  var tipo=document.getElementById('seguroTipoSel').value;
+  var cia=document.getElementById('seguroCiaInp').value.trim();
+  var vig=document.getElementById('seguroVigInp').value;
+  if(!tipo){ showToast('Selecciona el tipo de seguro'); return; }
+  if(!cia){ showToast('Escribe la aseguradora'); return; }
+  if(!seguroDocUrl){ showToast('Sube el documento de tu póliza'); return; }
+
+  var btn=document.getElementById('seguroEnviarBtn');
+  btn.disabled=true; btn.textContent='Enviando…';
+
+  var data={ seguroTipo:tipo, seguroAseguradora:cia, seguroVigencia:vig,
+             seguroDoc:seguroDocUrl, seguroEstado:'pendiente' };
+
+  WeFix.db.collection('usuarios').doc(currentUid).set(data,{merge:true}).then(function(){
+    return WeFix.db.collection('solicitudes_seguro').add({
+      profesionalUid: currentUid,
+      profesionalNombre: (currentProfile.nombre||''),
+      tipo: tipo, aseguradora: cia, vigencia: vig, documento: seguroDocUrl,
+      estado: 'pendiente',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(function(){
+    Object.keys(data).forEach(function(k){ currentProfile[k]=data[k]; });
+    pintarSeguro(currentProfile);
+    btn.disabled=false; btn.textContent='Enviar a revisión';
+    showToast('Seguro enviado a revisión ⏳');
+  }).catch(function(e){
+    console.error(e); btn.disabled=false; btn.textContent='Enviar a revisión';
+    showToast('No se pudo enviar');
+  });
 }
 
 // ── TRABAJOS REALIZADOS (fotos de resultado, reales en Firestore + Storage) ──
