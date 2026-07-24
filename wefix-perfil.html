@@ -669,14 +669,17 @@ const portfolioHTML = (function() {
   }
   const slides = resultados.map(function(p, i) {
     const counter = (i+1) + ' / ' + resultados.length;
+    // Los trabajos reales se guardan como {foto, titulo}; los demo como {img, caption}
+    const src = p.foto || p.img || '';
+    const cap = p.titulo || p.caption || '';
     return '<div class="wf-portfolio-slide">'
       + '<div class="wf-portfolio-img-wrap">'
-      + '<img class="wf-portfolio-img-single" src="' + p.img + '" alt="Resultado"'
+      + '<img class="wf-portfolio-img-single" src="' + src + '" alt="Resultado"'
       + ' onerror="this.style.background=\'#dcfce7\'"/>'
       + '<div class="wf-portfolio-badge after">✓ Resultado</div>'
       + '<div class="wf-portfolio-counter-badge">' + counter + '</div>'
       + '</div>'
-      + '<div class="wf-portfolio-caption">' + (p.caption||'') + '</div>'
+      + '<div class="wf-portfolio-caption">' + cap + '</div>'
       + '</div>';
   }).join('');
 
@@ -746,7 +749,7 @@ document.getElementById('profileContent').innerHTML = `
   </div>
 
   <div class="wf-section">
-    <h3>Trabajos realizados</h3>
+    <h3>Trabajos realizados / Herramientas de trabajo</h3>
     ${portfolioHTML}
   </div>
 
