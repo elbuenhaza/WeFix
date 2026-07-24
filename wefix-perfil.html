@@ -707,8 +707,8 @@ const reviewsHTML = revs.map(r => {
 
 document.getElementById('profileContent').innerHTML = `
   <div class="wf-profile-header">
-    <div class="wf-big-avatar">
-      ${initials(pro.name)}
+    <div class="wf-big-avatar" ${pro.fotoPerfil ? `style="background-image:url('${pro.fotoPerfil}');background-size:cover;background-position:center;"` : ''}>
+      ${pro.fotoPerfil ? '' : initials(pro.name)}
       ${pro.verified ? '<div class="verified-badge">✓</div>' : ''}
     </div>
     <div class="wf-profile-name">${pro.name}</div>
@@ -762,7 +762,8 @@ if (REAL_UID) {
       if (d.rol !== 'profesional') return;
       pro = { id:REAL_UID, uid:REAL_UID, name:d.nombre||'Profesional', prof:(d.especialidad||'servicio'),
               label:d.especialidad||'Servicio', stars:Math.round(d.calificacion||0), price:d.precio||0,
-              verified:!!d.verificado, desc:d.bio||'Profesional verificado de WeFix.', trabajos:(d.trabajos||[]) };
+              verified:!!d.verificado, desc:d.bio||'Profesional verificado de WeFix.', trabajos:(d.trabajos||[]),
+              fotoPerfil:d.fotoPerfil||'' };
       revs = reviews.default;
       renderProfile();
     }).catch(function(e){ console.error(e); });
@@ -1106,5 +1107,7 @@ setTimeout(initPortfolioCarousel, 100);
   }, {passive: true});
 })();
 </script>
+</body>
+</html>
 </body>
 </html>
