@@ -752,7 +752,8 @@ function mapRealPro(uid, d){
     name: d.nombre || 'Profesional',
     prof: profKey(d.especialidad),
     label: d.especialidad || 'Servicio',
-    stars: Math.round(d.rating || d.stars || 5),
+    stars: (d.numResenas > 0 && d.ratingPromedio) ? d.ratingPromedio : 0,
+    numResenas: d.numResenas || 0,
     price: parseInt(d.precio, 10) || 0,
     verified: d.emailVerificado === true || !!d.verified,
     onyx: esOnyx,
@@ -788,10 +789,20 @@ function cargarProfesionalesReales(){
 }
 
 // ── HELPERS ──
-function starsHTML(n) {
-  return [1,2,3,4,5].map(i =>
-    `<span class="${i<=n?'wf-star-filled':'wf-star-empty'}">★</span>`
-  ).join('');
+function starsHTML(n, numResenas) {
+  // Sin reseñas: no mostramos estrellas, mostramos leyenda
+  if (numResenas === 0 || (numResenas === undefined && !n)) {
+    return '<span style="font-size:10.5px;color:#8a97a5;font-family:Poppins,sans-serif;font-style:italic;">Sin reseñas</span>';
+  }
+  // Con reseñas: estrellas por promedio (media estrella si aplica) + número
+  var prom = Number(n) || 0;
+  var html = [1,2,3,4,5].map(function(i){
+    if (prom >= i)           return '<span class="wf-star-filled">★</span>';
+    if (prom >= i - 0.5)     return '<span class="wf-star-filled" style="opacity:.55">★</span>';
+    return '<span class="wf-star-empty">★</span>';
+  }).join('');
+  var etiqueta = prom.toFixed(1) + (numResenas ? ' (' + numResenas + ')' : '');
+  return html + '<span style="font-size:10px;color:#6b7280;font-family:Poppins,sans-serif;margin-left:4px;">' + etiqueta + '</span>';
 }
 
 function initials(name) {
@@ -828,14 +839,17 @@ function toggleFavHome(ev, pid, isReal, nombre, label, precio, stars, prof){
   pid = String(pid);
   var docId = WeFix.user.uid + '_' + pid;
   var ref = WeFix.db.collection('favoritos').doc(docId);
+  var btn = ev.currentTarget || ev.target;
   if(favSet.has(pid)){
-    ref.delete().catch(function(){});
+    favSet.delete(pid); if(btn) btn.textContent='🤍';
+    ref.delete().catch(function(e){ console.error('fav delete:',e); favSet.add(pid); if(btn) btn.textContent='❤️'; });
   } else {
+    favSet.add(pid); if(btn) btn.textContent='❤️';
     ref.set({
       clienteUid: WeFix.user.uid, profId: pid, profReal: !!isReal,
       nombre:nombre||'', especialidad:label||'', precio:precio||0, stars:stars||5, prof:prof||'',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(function(){});
+    }).catch(function(e){ console.error('fav set:',e); favSet.delete(pid); if(btn) btn.textContent='🤍'; });
   }
 }
 
@@ -851,7 +865,7 @@ function cardHTML(p) {
     <div class="wf-pcard-name">${p.name}</div>
     <div class="wf-pcard-prof">${p.label}</div>
     <div class="wf-pcard-desc">${p.desc}</div>
-    <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
+    <div class="wf-pcard-stars">${starsHTML(p.stars, p._real ? p.numResenas : undefined)}</div>
     <div class="wf-pcard-price">$${p.price}/hr</div>
     ${isOnyx ? `<div class='wf-onyx-note'>💎 Con Onyx: $${Math.round(p.price*0.8)}/hr (-20%)</div>` : ''}
   </a>`;
@@ -888,7 +902,7 @@ function plantaCardHTML(p) {
     </div>
     <div class="wf-pcard-name">${p.name}</div>
     <div class="wf-pcard-prof">${p.label}</div>
-    <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
+    <div class="wf-pcard-stars">${starsHTML(p.stars, p._real ? p.numResenas : undefined)}</div>
     <div class="wf-planta-price">$${pr.total.toLocaleString('es-MX')}</div>
     <div class="wf-planta-note">por ${PLANTA.semanas} semanas · L–V · ${PLANTA.horasPorDia} hrs/día</div>
     <div class="wf-planta-save">Ahorras $${pr.ahorro.toLocaleString('es-MX')}</div>
@@ -902,7 +916,7 @@ function applyAll() {
     const matchCat      = filters.cat === 'todos' || p.prof === filters.cat;
     const matchProfesion= !filters.profesion || p.prof === filters.profesion;
     const matchPrecio   = p.price <= filters.precio;
-    const matchStars    = p.stars >= filters.stars;
+    const matchStars    = filters.stars === 0 ? true : (p.stars >= filters.stars);
     const matchVerified = !filters.verified || p.verified;
     return matchSearch && matchCat && matchProfesion && matchPrecio && matchStars && matchVerified;
   });
@@ -1030,7 +1044,7 @@ function renderAllGrid() {
       <div class="wf-pcard-name">${p.name}</div>
       <div class="wf-pcard-prof">${p.label}</div>
       <div class="wf-pcard-desc">${p.desc}</div>
-      <div class="wf-pcard-stars">${starsHTML(p.stars)}</div>
+      <div class="wf-pcard-stars">${starsHTML(p.stars, p._real ? p.numResenas : undefined)}</div>
       <div class="wf-pcard-price">$${p.price}/hr</div>
       ${isOnyx ? `<div class='wf-onyx-note'>💎 Con Onyx: $${Math.round(p.price*0.8)}/hr (-20%)</div>` : ''}
     </a>`;
@@ -1040,7 +1054,11 @@ renderAllGrid();
 
 // Cargar profesionales reales desde Firestore (se fusionan con los demo)
 cargarProfesionalesReales();
-cargarFavoritos();
+
+// Los favoritos requieren sesión resuelta: se cargan cuando WeFix avisa
+WeFix.ready(function(user){
+  if (user) cargarFavoritos();
+});
 </script>
 </body>
 </html>
