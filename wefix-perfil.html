@@ -635,10 +635,18 @@ const portfolio = [
 ];
 
 // ── Helpers ──
-function starsHTML(n, size=14) {
-  return [1,2,3,4,5].map(i=>
-    `<span style="font-size:${size}px" class="${i<=n?'wf-star-filled':'wf-star-empty'}">★</span>`
-  ).join('');
+function starsHTML(n, size=14, numResenas) {
+  if (numResenas === 0 || (numResenas === undefined && !n)) {
+    return `<span style="font-size:${Math.max(11,size-4)}px;color:#8a97a5;font-family:Poppins,sans-serif;font-style:italic;">Sin reseñas todavía</span>`;
+  }
+  var prom = Number(n) || 0;
+  var html = [1,2,3,4,5].map(function(i){
+    if (prom >= i)       return `<span style="font-size:${size}px" class="wf-star-filled">★</span>`;
+    if (prom >= i - 0.5) return `<span style="font-size:${size}px;opacity:.55" class="wf-star-filled">★</span>`;
+    return `<span style="font-size:${size}px" class="wf-star-empty">★</span>`;
+  }).join('');
+  var etiqueta = prom.toFixed(1) + (numResenas ? ' · ' + numResenas + (numResenas===1?' reseña':' reseñas') : '');
+  return html + `<span style="font-size:${Math.max(11,size-5)}px;color:#6b7280;font-family:Poppins,sans-serif;margin-left:6px;">${etiqueta}</span>`;
 }
 function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
 
@@ -713,7 +721,7 @@ document.getElementById('profileContent').innerHTML = `
     </div>
     <div class="wf-profile-name">${pro.name}</div>
     <div class="wf-profile-prof">${pro.label}</div>
-    <div class="wf-profile-stars">${starsHTML(pro.stars,18)}</div>
+    <div class="wf-profile-stars">${starsHTML(pro.stars,18,pro.numResenas)}</div>
     <div class="wf-profile-rating-text">${pro.stars}.0 / 5 — ${revs.length} reseñas</div>
     <div class="wf-profile-tags">
       <span class="wf-tag">${pro.label}</span>
@@ -761,7 +769,7 @@ if (REAL_UID) {
       var d = snap.data();
       if (d.rol !== 'profesional') return;
       pro = { id:REAL_UID, uid:REAL_UID, name:d.nombre||'Profesional', prof:(d.especialidad||'servicio'),
-              label:d.especialidad||'Servicio', stars:Math.round(d.calificacion||0), price:d.precio||0,
+              label:d.especialidad||'Servicio', stars:((d.numResenas>0 && d.ratingPromedio) ? d.ratingPromedio : 0), numResenas:(d.numResenas||0), price:d.precio||0,
               verified:!!d.verificado, desc:d.bio||'Profesional verificado de WeFix.', trabajos:(d.trabajos||[]),
               fotoPerfil:d.fotoPerfil||'' };
       revs = reviews.default;
@@ -1107,7 +1115,5 @@ setTimeout(initPortfolioCarousel, 100);
   }, {passive: true});
 })();
 </script>
-</body>
-</html>
 </body>
 </html>
